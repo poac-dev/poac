@@ -22,8 +22,8 @@ Revwalk::reset() {
 }
 
 Revwalk&
-Revwalk::setSorting(unsigned int sort_mode) {
-  git_revwalk_sorting(this->raw, sort_mode);
+Revwalk::setSorting(unsigned int sortMode) {
+  git_revwalk_sorting(this->raw, sortMode);
   return *this;
 }
 

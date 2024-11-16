@@ -110,11 +110,8 @@ testMain(const std::span<const std::string_view> args) {
       // This test target is not up-to-date.
       if (!alreadyEmitted) {
         logger::info(
-            "Compiling",
-            fmt::format(
-                "{} v{} ({})", packageName, getPackageVersion().toString(),
-                getProjectBasePath().string()
-            )
+            "Compiling", "{} v{} ({})", packageName,
+            getPackageVersion().toString(), getProjectBasePath().string()
         );
         alreadyEmitted = true;
       }
@@ -143,9 +140,7 @@ testMain(const std::span<const std::string_view> args) {
 
     const std::string testBinPath =
         fs::relative(target, getProjectBasePath()).string();
-    logger::info(
-        "Running", fmt::format("unittests {} ({})", sourcePath, testBinPath)
-    );
+    logger::info("Running", "unittests {} ({})", sourcePath, testBinPath);
 
     const int curExitCode = execCmd(Command(target));
     if (curExitCode != EXIT_SUCCESS) {
@@ -158,7 +153,7 @@ testMain(const std::span<const std::string_view> args) {
 
   if (exitCode == EXIT_SUCCESS) {
     logger::info(
-        "Finished", modeToString(isDebug), " test(s) in ", elapsed.count(), "s"
+        "Finished", "{} test(s) in {}s", modeToString(isDebug), elapsed.count()
     );
   }
   return exitCode;

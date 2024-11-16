@@ -128,7 +128,7 @@ fmtMain(const std::span<const std::string_view> args) {
     clangFormatArgs.emplace_back("--dry-run");
   } else {
     clangFormatArgs.emplace_back("-i");
-    logger::info("Formatting", packageName);
+    logger::info("Formatting", "{}", packageName);
   }
 
   const fs::path projectPath = getProjectBasePath();

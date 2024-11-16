@@ -91,13 +91,11 @@ main(int argc, char* argv[]) {
         const std::vector<std::string_view> remArgs(itr + 1, args.end());
         const int exitCode = getCli().exec(*itr, remArgs);
         if (exitCode != EXIT_SUCCESS) {
-          logger::error(
-              "'poac ", *itr, "' failed with exit code `", exitCode, '`'
-          );
+          logger::error("'poac {}' failed with exit code `{}`", *itr, exitCode);
         }
         return exitCode;
       } catch (const std::exception& e) {
-        logger::error(e.what());
+        logger::error("{}", e.what());
         return EXIT_FAILURE;
       }
     }
