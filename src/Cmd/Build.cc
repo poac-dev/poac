@@ -52,11 +52,8 @@ buildImpl(std::string& outDir, const bool isDebug) {
     if (exitCode != EXIT_SUCCESS) {
       // If packageName binary is not up-to-date, compile it.
       logger::info(
-          "Compiling",
-
-          "{} v{} ({})", packageName, getPackageVersion().toString(),
-          getProjectBasePath().string()
-
+          "Compiling", "{} v{} ({})", packageName,
+          getPackageVersion().toString(), getProjectBasePath().string()
       );
       exitCode = execCmd(makeCmd);
     }
@@ -74,11 +71,9 @@ buildImpl(std::string& outDir, const bool isDebug) {
     if (exitCode != EXIT_SUCCESS) {
       // If packageName binary is not up-to-date, compile it.
       logger::info(
-          "Compiling",
-          fmt::format(
-              "{} v{} ({})", libName, getPackageVersion().toString(),
-              getProjectBasePath().string()
-          )
+          "Compiling", "{} v{} ({})", libName, getPackageVersion().toString(),
+          getProjectBasePath().string()
+
       );
       exitCode = execCmd(makeCmd);
     }

@@ -874,13 +874,13 @@ BuildConfig::configureBuild() {
           sourceFilePath.string()
       );
     } else if (sourceFilePath != libSource && isLibSource(sourceFilePath)) {
-      logger::warn(fmt::format(
+      logger::warn(
           "source file `{}` is named `lib` but is not located directly in the "
           "`src/` directory. "
           "This file will not be treated as a library. "
           "Move it directly to 'src/' if intended as such.",
           sourceFilePath.string()
-      ));
+      );
     }
 
     srcs += ' ' + sourceFilePath.string();
