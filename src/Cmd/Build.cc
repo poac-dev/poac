@@ -54,8 +54,8 @@ buildImpl(std::string& outDir, const bool isDebug) {
       logger::info(
           "Compiling",
 
-              "{} v{} ({})", packageName, getPackageVersion().toString(),
-              getProjectBasePath().string()
+          "{} v{} ({})", packageName, getPackageVersion().toString(),
+          getProjectBasePath().string()
 
       );
       exitCode = execCmd(makeCmd);
