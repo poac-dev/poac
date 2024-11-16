@@ -8,7 +8,7 @@
 
 struct PoacError : public std::runtime_error {
   explicit PoacError(Display auto&&... args)
-      : std::runtime_error( //
+      : std::runtime_error(  //
             (std::ostringstream{} << ... << std::forward<decltype(args)>(args))
                 .str()
         ) {}

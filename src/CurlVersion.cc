@@ -18,4 +18,4 @@ operator<<(std::ostream& os, const Version& version) {
   return os;
 }
 
-}; // namespace curl
+};  // namespace curl

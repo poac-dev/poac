@@ -11,7 +11,7 @@
 
 static int cleanMain(std::span<const std::string_view> args) noexcept;
 
-const Subcmd CLEAN_CMD = //
+const Subcmd CLEAN_CMD =  //
     Subcmd{ "clean" }
         .setDesc("Remove the built directory")
         .addOpt(Opt{ "--profile" }

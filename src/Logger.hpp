@@ -17,12 +17,12 @@
 namespace logger {
 
 enum class Level : uint8_t {
-  Off = 0, // --quiet, -q
+  Off = 0,  // --quiet, -q
   Error = 1,
   Warn = 2,
-  Info = 3, // default
-  Debug = 4, // --verbose, -v
-  Trace = 5, // -vv
+  Info = 3,   // default
+  Debug = 4,  // --verbose, -v
+  Trace = 5,  // -vv
 };
 
 template <typename Fn>
@@ -181,7 +181,7 @@ info(
 }
 
 template <typename... Args>
-struct debug { // NOLINT(readability-identifier-naming)
+struct debug {  // NOLINT(readability-identifier-naming)
   explicit debug(
       fmt::format_string<Args...> fmt, Args&&... args,
       const std::source_location& loc = std::source_location::current()
@@ -193,7 +193,7 @@ template <typename... Args>
 debug(fmt::format_string<Args...>, Args&&...) -> debug<Args...>;
 
 template <typename... Args>
-struct trace { // NOLINT(readability-identifier-naming)
+struct trace {  // NOLINT(readability-identifier-naming)
   explicit trace(
       fmt::format_string<Args...> fmt, Args&&... args,
       const std::source_location& loc = std::source_location::current()
@@ -213,7 +213,7 @@ getLevel() noexcept {
   return Logger::getLevel();
 }
 
-} // namespace logger
+}  // namespace logger
 
 inline bool
 isVerbose() noexcept {

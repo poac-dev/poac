@@ -91,7 +91,7 @@ struct into<Version> {
     return ver.toString();
   }
 };
-} // namespace toml
+}  // namespace toml
 // NOLINTEND(readability-identifier-naming)
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Package, name, edition, version);
@@ -136,7 +136,7 @@ struct SystemDependency {
 void
 Profile::merge(const Profile& other) {
   cxxflags.insert(other.cxxflags.begin(), other.cxxflags.end());
-  if (!lto) { // false is the default value
+  if (!lto) {  // false is the default value
     lto = other.lto;
   }
   if (other.debug.has_value() && !debug.has_value()) {
@@ -207,7 +207,7 @@ getProjectBasePath() {
 }
 
 // Returns an error message if the package name is invalid.
-std::optional<std::string> // TODO: result-like types make more sense.
+std::optional<std::string>  // TODO: result-like types make more sense.
 validatePackageName(const std::string_view name) noexcept {
   // Empty
   if (name.empty()) {
@@ -443,7 +443,7 @@ static const fs::path GIT_DIR(CACHE_DIR / "git");
 static const fs::path GIT_SRC_DIR(GIT_DIR / "src");
 
 static const std::unordered_set<char> ALLOWED_CHARS = {
-  '-', '_', '/', '.', '+' // allowed in the dependency name
+  '-', '_', '/', '.', '+'  // allowed in the dependency name
 };
 
 static void
@@ -628,9 +628,9 @@ SystemDependency::install() const {
       Command("pkg-config").addArg("--libs").addArg(pkgConfigVer);
 
   std::string cflags = getCmdOutput(cflagsCmd);
-  cflags.pop_back(); // remove '\n'
+  cflags.pop_back();  // remove '\n'
   std::string libs = getCmdOutput(libsCmd);
-  libs.pop_back(); // remove '\n'
+  libs.pop_back();  // remove '\n'
 
   return { .includes = cflags, .libs = libs };
 }
@@ -733,7 +733,7 @@ testValidateDepName() {
   pass();
 }
 
-} // namespace tests
+}  // namespace tests
 
 int
 main() {

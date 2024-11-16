@@ -110,7 +110,7 @@ Opt::print(const size_t maxShortSize, size_t maxOffset) const noexcept {
   } else {
     // This coloring is for the alignment with std::setw later.
     option += bold(cyan(std::string(maxShortSize, ' ')));
-    option += "  "; // ", "
+    option += "  ";  // ", "
   }
   option += bold(cyan(name));
   option += ' ';
@@ -390,7 +390,7 @@ Cli::transformOptions(
                          && !args[argIdx + 1].starts_with("-")) {
                 // Handle space-separated value (like -j 1)
                 transformed.push_back(args[++argIdx]
-                ); // Consume the next argument as the option's value
+                );  // Consume the next argument as the option's value
               }
             }
             handled = true;
@@ -439,10 +439,10 @@ Cli::calcMaxOffset(const size_t maxShortSize) const noexcept {
       continue;
     }
 
-    size_t offset = name.size(); // "build"
+    size_t offset = name.size();  // "build"
     if (!cmd.shortName.empty()) {
-      offset += 2; // ", "
-      offset += cmd.shortName.size(); // "b"
+      offset += 2;                     // ", "
+      offset += cmd.shortName.size();  // "b"
     }
     maxOffset = std::max(maxOffset, offset);
   }
@@ -457,10 +457,10 @@ Cli::printAllSubcmds(const bool showHidden, size_t maxOffset) const noexcept {
       continue;
     }
 
-    size_t offset = name.size(); // "build"
+    size_t offset = name.size();  // "build"
     if (!cmd.shortName.empty()) {
-      offset += 2; // ", "
-      offset += cmd.shortName.size(); // "b"
+      offset += 2;                     // ", "
+      offset += cmd.shortName.size();  // "b"
     }
     maxOffset = std::max(maxOffset, offset);
   }
