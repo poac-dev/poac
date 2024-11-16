@@ -354,36 +354,6 @@ Despite C++ often being overlooked for product development, I believe that Poac 
 
 We use [GitHub Discussions](https://github.com/orgs/poac-dev/discussions).
 
-## Contributing
-
-### Before submitting your PR
-
-Please make sure to follow these steps:
-
-#### Run linter (`cpplint`)
-
-```bash
-poac lint --exclude srcOld --exclude testsOld
-```
-
-#### Run formatter (`clang-format`)
-
-```bash
-poac fmt
-```
-
-#### Run tests
-
-```bash
-poac test  # or make test
-```
-
-#### Run `clang-tidy`
-
-```bash
-poac tidy  # or make tidy
-```
-
 ## Acknowledgements
 
 This project exists thanks to all the people who contribute.
