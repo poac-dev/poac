@@ -18,21 +18,21 @@ constexpr std::size_t BUFFER_SIZE = 128;
 int
 Child::wait() const {
   int status{};
-  if (waitpid(pid, &status, 0) == -1) {
-    if (stdoutfd != -1) {
-      close(stdoutfd);
+  if (waitpid(mPid, &status, 0) == -1) {
+    if (mStdoutfd != -1) {
+      close(mStdoutfd);
     }
-    if (stderrfd != -1) {
-      close(stderrfd);
+    if (mStderrfd != -1) {
+      close(mStderrfd);
     }
     throw PoacError("waitpid() failed");
   }
 
-  if (stdoutfd != -1) {
-    close(stdoutfd);
+  if (mStdoutfd != -1) {
+    close(mStdoutfd);
   }
-  if (stderrfd != -1) {
-    close(stderrfd);
+  if (mStderrfd != -1) {
+    close(mStderrfd);
   }
 
   const int exitCode = WEXITSTATUS(status);
@@ -48,67 +48,67 @@ Child::waitWithOutput() const {
   fd_set readfds;
 
   // Determine the maximum file descriptor
-  maxfd = std::max(maxfd, stdoutfd);
-  maxfd = std::max(maxfd, stderrfd);
+  maxfd = std::max(maxfd, mStdoutfd);
+  maxfd = std::max(maxfd, mStderrfd);
 
-  bool stdoutEOF = (stdoutfd == -1);
-  bool stderrEOF = (stderrfd == -1);
+  bool stdoutEOF = (mStdoutfd == -1);
+  bool stderrEOF = (mStderrfd == -1);
 
   while (!stdoutEOF || !stderrEOF) {
     FD_ZERO(&readfds);
     if (!stdoutEOF) {
-      FD_SET(stdoutfd, &readfds);
+      FD_SET(mStdoutfd, &readfds);
     }
     if (!stderrEOF) {
-      FD_SET(stderrfd, &readfds);
+      FD_SET(mStderrfd, &readfds);
     }
 
     const int ret = select(maxfd + 1, &readfds, nullptr, nullptr, nullptr);
     if (ret == -1) {
-      if (stdoutfd != -1) {
-        close(stdoutfd);
+      if (mStdoutfd != -1) {
+        close(mStdoutfd);
       }
-      if (stderrfd != -1) {
-        close(stderrfd);
+      if (mStderrfd != -1) {
+        close(mStderrfd);
       }
       throw PoacError("select() failed");
     }
 
     // Read from stdout if available
-    if (!stdoutEOF && FD_ISSET(stdoutfd, &readfds)) {
+    if (!stdoutEOF && FD_ISSET(mStdoutfd, &readfds)) {
       std::array<char, BUFFER_SIZE> buffer{};
-      const ssize_t count = read(stdoutfd, buffer.data(), buffer.size());
+      const ssize_t count = read(mStdoutfd, buffer.data(), buffer.size());
       if (count == -1) {
-        if (stdoutfd != -1) {
-          close(stdoutfd);
+        if (mStdoutfd != -1) {
+          close(mStdoutfd);
         }
-        if (stderrfd != -1) {
-          close(stderrfd);
+        if (mStderrfd != -1) {
+          close(mStderrfd);
         }
         throw PoacError("read() failed on stdout");
       } else if (count == 0) {
         stdoutEOF = true;
-        close(stdoutfd);
+        close(mStdoutfd);
       } else {
         stdoutOutput.append(buffer.data(), static_cast<std::size_t>(count));
       }
     }
 
     // Read from stderr if available
-    if (!stderrEOF && FD_ISSET(stderrfd, &readfds)) {
+    if (!stderrEOF && FD_ISSET(mStderrfd, &readfds)) {
       std::array<char, BUFFER_SIZE> buffer{};
-      const ssize_t count = read(stderrfd, buffer.data(), buffer.size());
+      const ssize_t count = read(mStderrfd, buffer.data(), buffer.size());
       if (count == -1) {
-        if (stdoutfd != -1) {
-          close(stdoutfd);
+        if (mStdoutfd != -1) {
+          close(mStdoutfd);
         }
-        if (stderrfd != -1) {
-          close(stderrfd);
+        if (mStderrfd != -1) {
+          close(mStderrfd);
         }
         throw PoacError("read() failed on stderr");
       } else if (count == 0) {
         stderrEOF = true;
-        close(stderrfd);
+        close(mStderrfd);
       } else {
         stderrOutput.append(buffer.data(), static_cast<std::size_t>(count));
       }
@@ -116,14 +116,14 @@ Child::waitWithOutput() const {
   }
 
   int status{};
-  if (waitpid(pid, &status, 0) == -1) {
+  if (waitpid(mPid, &status, 0) == -1) {
     throw PoacError("waitpid() failed");
   }
 
   const int exitCode = WEXITSTATUS(status);
-  return { .exitCode = exitCode,
-           .stdout = stdoutOutput,
-           .stderr = stderrOutput };
+  return { .mExitCode = exitCode,
+           .mStdout = stdoutOutput,
+           .mStderr = stderrOutput };
 }
 
 Child
@@ -132,13 +132,13 @@ Command::spawn() const {
   std::array<int, 2> stderrPipe{};
 
   // Set up stdout pipe if needed
-  if (stdoutConfig == IOConfig::Piped) {
+  if (mStdoutConfig == IOConfig::Piped) {
     if (pipe(stdoutPipe.data()) == -1) {
       throw PoacError("pipe() failed for stdout");
     }
   }
   // Set up stderr pipe if needed
-  if (stderrConfig == IOConfig::Piped) {
+  if (mStderrConfig == IOConfig::Piped) {
     if (pipe(stderrPipe.data()) == -1) {
       throw PoacError("pipe() failed for stderr");
     }
@@ -151,11 +151,11 @@ Command::spawn() const {
     // Child process
 
     // Redirect stdout
-    if (stdoutConfig == IOConfig::Piped) {
+    if (mStdoutConfig == IOConfig::Piped) {
       close(stdoutPipe[0]); // Child doesn't read from stdout pipe
       dup2(stdoutPipe[1], STDOUT_FILENO);
       close(stdoutPipe[1]);
-    } else if (stdoutConfig == IOConfig::Null) {
+    } else if (mStdoutConfig == IOConfig::Null) {
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
       const int nullfd = open("/dev/null", O_WRONLY);
       dup2(nullfd, STDOUT_FILENO);
@@ -163,11 +163,11 @@ Command::spawn() const {
     }
 
     // Redirect stderr
-    if (stderrConfig == IOConfig::Piped) {
+    if (mStderrConfig == IOConfig::Piped) {
       close(stderrPipe[0]); // Child doesn't read from stderr pipe
       dup2(stderrPipe[1], STDERR_FILENO);
       close(stderrPipe[1]);
-    } else if (stderrConfig == IOConfig::Null) {
+    } else if (mStderrConfig == IOConfig::Null) {
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
       const int nullfd = open("/dev/null", O_WRONLY);
       dup2(nullfd, STDERR_FILENO);
@@ -179,27 +179,27 @@ Command::spawn() const {
     std::vector<char*> args;
 
     // Add command
-    argBuffers.emplace_back(command.begin(), command.end());
+    argBuffers.emplace_back(mCommand.begin(), mCommand.end());
     argBuffers.back().push_back('\0');
     args.push_back(argBuffers.back().data());
 
     // Add arguments
-    for (const std::string& arg : arguments) {
+    for (const std::string& arg : mArguments) {
       argBuffers.emplace_back(arg.begin(), arg.end());
       argBuffers.back().push_back('\0');
       args.push_back(argBuffers.back().data());
     }
     args.push_back(nullptr);
 
-    if (!workingDirectory.empty()) {
-      if (chdir(workingDirectory.c_str()) == -1) {
+    if (!mWorkingDirectory.empty()) {
+      if (chdir(mWorkingDirectory.c_str()) == -1) {
         perror("chdir() failed");
         _exit(1);
       }
     }
 
     // Execute the command
-    if (execvp(command.c_str(), args.data()) == -1) {
+    if (execvp(mCommand.c_str(), args.data()) == -1) {
       perror("execvp() failed");
       _exit(1);
     }
@@ -208,16 +208,16 @@ Command::spawn() const {
     // Parent process
 
     // Close unused pipe ends
-    if (stdoutConfig == IOConfig::Piped) {
+    if (mStdoutConfig == IOConfig::Piped) {
       close(stdoutPipe[1]); // Parent doesn't write to stdout pipe
     }
-    if (stderrConfig == IOConfig::Piped) {
+    if (mStderrConfig == IOConfig::Piped) {
       close(stderrPipe[1]); // Parent doesn't write to stderr pipe
     }
 
     // Return the Child object with appropriate file descriptors
-    return { pid, stdoutConfig == IOConfig::Piped ? stdoutPipe[0] : -1,
-             stderrConfig == IOConfig::Piped ? stderrPipe[0] : -1 };
+    return { pid, mStdoutConfig == IOConfig::Piped ? stdoutPipe[0] : -1,
+             mStderrConfig == IOConfig::Piped ? stderrPipe[0] : -1 };
   }
 }
 
@@ -231,8 +231,8 @@ Command::output() const {
 
 std::string
 Command::toString() const {
-  std::string res = command;
-  for (const std::string& arg : arguments) {
+  std::string res = mCommand;
+  for (const std::string& arg : mArguments) {
     res += ' ' + arg;
   }
   return res;

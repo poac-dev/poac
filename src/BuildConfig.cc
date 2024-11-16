@@ -63,18 +63,18 @@ operator<<(std::ostream& os, VarType type) {
 }
 
 BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
-    : packageName{ packageName }, isDebug{ isDebug } {
+    : mPackageName{ packageName }, mIsDebug{ isDebug } {
   const fs::path projectBasePath = getProjectBasePath();
   if (isDebug) {
-    outBasePath = projectBasePath / "poac-out" / "debug";
+    mOutBasePath = projectBasePath / "poac-out" / "debug";
   } else {
-    outBasePath = projectBasePath / "poac-out" / "release";
+    mOutBasePath = projectBasePath / "poac-out" / "release";
   }
-  buildOutPath = outBasePath / (packageName + ".d");
-  unittestOutPath = outBasePath / "unittests";
+  mBuildOutPath = mOutBasePath / (packageName + ".d");
+  mUnittestOutPath = mOutBasePath / "unittests";
 
   if (const char* cxx = std::getenv("CXX")) {
-    this->cxx = cxx;
+    mCxx = cxx;
   } else {
     const std::string output = Command("make")
                                    .addArg("--print-data-base")
@@ -83,13 +83,13 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
                                    .addArg("/dev/null")
                                    .setStderrConfig(Command::IOConfig::Null)
                                    .output()
-                                   .stdout;
+                                   .mStdout;
     std::istringstream iss(output);
     std::string line;
 
     while (std::getline(iss, line)) {
       if (line.starts_with("CXX = ")) {
-        this->cxx = line.substr("CXX = "sv.size());
+        mCxx = line.substr("CXX = "sv.size());
         return;
       }
     }
@@ -204,14 +204,14 @@ emitTarget(
 void
 BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
   std::ostringstream oss; // TODO: implement an elegant way to get type size.
-  oss << varName << ' ' << variables.at(varName).type;
+  oss << varName << ' ' << mVariables.at(varName).mType;
   const std::string left = oss.str();
   os << left << ' ';
 
   constexpr size_t maxLineLen = 80; // TODO: share across sources?
   size_t offset = left.size() + 1; // space
   std::string value;
-  for (const char c : variables.at(varName).value) {
+  for (const char c : mVariables.at(varName).mValue) {
     if (c == ' ') {
       // Emit value
       if (offset + value.size() + 2 > maxLineLen) { // 2 for space and '\'
@@ -291,26 +291,28 @@ topoSort(
 
 void
 BuildConfig::emitMakefile(std::ostream& os) const {
-  const std::vector<std::string> sortedVars = topoSort(variables, varDeps);
+  const std::vector<std::string> sortedVars = topoSort(mVariables, mVarDeps);
   for (const std::string& varName : sortedVars) {
     emitVariable(os, varName);
   }
-  if (!sortedVars.empty() && !targets.empty()) {
+  if (!sortedVars.empty() && !mTargets.empty()) {
     os << '\n';
   }
 
-  if (phony.has_value()) {
-    emitTarget(os, ".PHONY", phony.value());
+  if (mPhony.has_value()) {
+    emitTarget(os, ".PHONY", mPhony.value());
   }
-  if (all.has_value()) {
-    emitTarget(os, "all", all.value());
+  if (mAll.has_value()) {
+    emitTarget(os, "all", mAll.value());
   }
 
-  const std::vector<std::string> sortedTargets = topoSort(targets, targetDeps);
+  const std::vector<std::string> sortedTargets =
+      topoSort(mTargets, mTargetDeps);
   for (const auto& sortedTarget : std::ranges::reverse_view(sortedTargets)) {
     emitTarget(
-        os, sortedTarget, targets.at(sortedTarget).remDeps,
-        targets.at(sortedTarget).sourceFile, targets.at(sortedTarget).commands
+        os, sortedTarget, mTargets.at(sortedTarget).mRemDeps,
+        mTargets.at(sortedTarget).mSourceFile,
+        mTargets.at(sortedTarget).mCommands
     );
   }
 }
@@ -322,14 +324,14 @@ BuildConfig::emitCompdb(std::ostream& os) const {
   const std::string indent2(4, ' ');
 
   std::ostringstream oss;
-  for (const auto& [target, targetInfo] : targets) {
-    if (phony->contains(target)) {
+  for (const auto& [target, targetInfo] : mTargets) {
+    if (mPhony->contains(target)) {
       // Ignore phony dependencies.
       continue;
     }
 
     bool isCompileTarget = false;
-    for (const std::string_view cmd : targetInfo.commands) {
+    for (const std::string_view cmd : targetInfo.mCommands) {
       if (!cmd.starts_with("$(CXX)") && !cmd.starts_with("@$(CXX)")) {
         continue;
       }
@@ -346,14 +348,14 @@ BuildConfig::emitCompdb(std::ostream& os) const {
     // We don't check the std::optional value because we know the first
     // dependency always exists for compile targets.
     const std::string file =
-        fs::relative(targetInfo.sourceFile.value(), directory);
+        fs::relative(targetInfo.mSourceFile.value(), directory);
     // The output is the target.
     const std::string output = fs::relative(target, directory);
-    const Command cmd = Command(cxx)
-                            .addArgs(cxxflags)
-                            .addArgs(defines)
+    const Command cmd = Command(mCxx)
+                            .addArgs(mCxxflags)
+                            .addArgs(mDefines)
                             .addArg("-DPOAC_TEST")
-                            .addArgs(includes)
+                            .addArgs(mIncludes)
                             .addArg("-c")
                             .addArg(file)
                             .addArg("-o")
@@ -382,13 +384,13 @@ BuildConfig::emitCompdb(std::ostream& os) const {
 std::string
 BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
   Command command =
-      Command(cxx).addArgs(cxxflags).addArgs(defines).addArgs(includes);
+      Command(mCxx).addArgs(mCxxflags).addArgs(mDefines).addArgs(mIncludes);
   if (isTest) {
     command.addArg("-DPOAC_TEST");
   }
   command.addArg("-MM");
   command.addArg(sourceFile);
-  command.setWorkingDirectory(outBasePath);
+  command.setWorkingDirectory(mOutBasePath);
   return getCmdOutput(command);
 }
 
@@ -443,11 +445,11 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
   while (std::getline(ifs, line)) {
     if (line.find("POAC_TEST") != std::string::npos) {
       // TODO: Can't we somehow elegantly make the compiler command sharable?
-      Command command(cxx);
+      Command command(mCxx);
       command.addArg("-E");
-      command.addArgs(cxxflags);
-      command.addArgs(defines);
-      command.addArgs(includes);
+      command.addArgs(mCxxflags);
+      command.addArgs(mDefines);
+      command.addArgs(mIncludes);
       command.addArg(sourceFile);
 
       const std::string src = getCmdOutput(command);
@@ -537,7 +539,7 @@ BuildConfig::collectBinDepObjs( // NOLINT(misc-no-recursion)
       continue;
     }
 
-    const std::string objTarget = mapHeaderToObj(headerPath, buildOutPath);
+    const std::string objTarget = mapHeaderToObj(headerPath, mBuildOutPath);
     if (deps.contains(objTarget)) {
       // We already added this object file.
       continue;
@@ -552,7 +554,7 @@ BuildConfig::collectBinDepObjs( // NOLINT(misc-no-recursion)
     deps.insert(objTarget);
     collectBinDepObjs(
         deps, sourceFileName,
-        targets.at(objTarget).remDeps, // we don't need sourceFile
+        mTargets.at(objTarget).mRemDeps, // we don't need sourceFile
         buildObjTargets
     );
   }
@@ -562,58 +564,56 @@ void
 BuildConfig::installDeps(const bool includeDevDeps) {
   const std::vector<DepMetadata> deps = installDependencies(includeDevDeps);
   for (const DepMetadata& dep : deps) {
-    if (!dep.includes.empty()) {
-      includes.push_back(replaceAll(dep.includes, "-I", "-isystem"));
+    if (!dep.mIncludes.empty()) {
+      mIncludes.push_back(replaceAll(dep.mIncludes, "-I", "-isystem"));
     }
-    if (!dep.libs.empty()) {
-      libs.push_back(dep.libs);
+    if (!dep.mLibs.empty()) {
+      mLibs.push_back(dep.mLibs);
     }
   }
-  logger::debug("INCLUDES: {}", includes);
-  logger::debug("LIBS: {}", libs);
+  logger::debug("INCLUDES: {}", mIncludes);
+  logger::debug("LIBS: {}", mLibs);
 }
 
 void
 BuildConfig::addDefine(
     const std::string_view name, const std::string_view value
 ) {
-  defines.push_back(fmt::format("-D{}='\"{}\"'", name, value));
+  mDefines.push_back(fmt::format("-D{}='\"{}\"'", name, value));
 }
 
 void
 BuildConfig::setVariables() {
-  this->defineSimpleVar("CXX", cxx);
+  defineSimpleVar("CXX", mCxx);
 
-  cxxflags.push_back("-std=c++" + getPackageEdition().getString());
+  mCxxflags.push_back("-std=c++" + getPackageEdition().getString());
   if (shouldColor()) {
-    cxxflags.emplace_back("-fdiagnostics-color");
+    mCxxflags.emplace_back("-fdiagnostics-color");
   }
-  if (isDebug) {
-    cxxflags.emplace_back("-g");
-    cxxflags.emplace_back("-O0");
-    cxxflags.emplace_back("-DDEBUG");
+  if (mIsDebug) {
+    mCxxflags.emplace_back("-g");
+    mCxxflags.emplace_back("-O0");
+    mCxxflags.emplace_back("-DDEBUG");
   } else {
-    cxxflags.emplace_back("-O3");
-    cxxflags.emplace_back("-DNDEBUG");
+    mCxxflags.emplace_back("-O3");
+    mCxxflags.emplace_back("-DNDEBUG");
   }
-  const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
-  if (profile.lto) {
-    cxxflags.emplace_back("-flto");
+  const Profile& profile = mIsDebug ? getDevProfile() : getReleaseProfile();
+  if (profile.mLto) {
+    mCxxflags.emplace_back("-flto");
   }
-  for (const std::string_view flag : profile.cxxflags) {
-    cxxflags.emplace_back(flag);
+  for (const std::string_view flag : profile.mCxxflags) {
+    mCxxflags.emplace_back(flag);
   }
 
   // Environment variables takes the highest precedence and will be appended at
   // last.
   for (const std::string& flag : getEnvFlags("CXXFLAGS")) {
-    cxxflags.emplace_back(flag);
+    mCxxflags.emplace_back(flag);
   }
-  this->defineSimpleVar(
-      "CXXFLAGS", fmt::format("{:s}", fmt::join(cxxflags, " "))
-  );
+  defineSimpleVar("CXXFLAGS", fmt::format("{:s}", fmt::join(mCxxflags, " ")));
 
-  const std::string pkgName = toMacroName(this->packageName);
+  const std::string pkgName = toMacroName(mPackageName);
   const Version& pkgVersion = getPackageVersion();
   std::string commitHash;
   std::string commitShortHash;
@@ -632,39 +632,35 @@ BuildConfig::setVariables() {
 
   // Variables Poac sets for the user.
   const std::vector<std::pair<std::string, std::string>> defines{
-    { fmt::format("POAC_{}_PKG_NAME", pkgName), this->packageName },
+    { fmt::format("POAC_{}_PKG_NAME", pkgName), mPackageName },
     { fmt::format("POAC_{}_PKG_VERSION", pkgName), pkgVersion.toString() },
     { fmt::format("POAC_{}_PKG_VERSION_MAJOR", pkgName),
-      std::to_string(pkgVersion.major) },
+      std::to_string(pkgVersion.mMajor) },
     { fmt::format("POAC_{}_PKG_VERSION_MINOR", pkgName),
-      std::to_string(pkgVersion.minor) },
+      std::to_string(pkgVersion.mMinor) },
     { fmt::format("POAC_{}_PKG_VERSION_PATCH", pkgName),
-      std::to_string(pkgVersion.patch) },
+      std::to_string(pkgVersion.mPatch) },
     { fmt::format("POAC_{}_PKG_VERSION_PRE", pkgName),
-      pkgVersion.pre.toString() },
+      pkgVersion.mPre.toString() },
     { fmt::format("POAC_{}_COMMIT_HASH", pkgName), commitHash },
     { fmt::format("POAC_{}_COMMIT_SHORT_HASH", pkgName), commitShortHash },
     { fmt::format("POAC_{}_COMMIT_DATE", pkgName), commitDate },
     { fmt::format("POAC_{}_PROFILE", pkgName),
-      std::string(modeToString(isDebug)) },
+      std::string(modeToString(mIsDebug)) },
   };
   for (const auto& [key, val] : defines) {
     addDefine(key, val);
   }
 
-  this->defineSimpleVar(
-      "DEFINES", fmt::format("{:s}", fmt::join(this->defines, " "))
-  );
-  this->defineSimpleVar(
-      "INCLUDES", fmt::format("{:s}", fmt::join(includes, " "))
-  );
+  defineSimpleVar("DEFINES", fmt::format("{:s}", fmt::join(mDefines, " ")));
+  defineSimpleVar("INCLUDES", fmt::format("{:s}", fmt::join(mIncludes, " ")));
 
   // Environment variables takes the highest precedence and will be appended at
   // last.
   for (const std::string& flag : getEnvFlags("LDFLAGS")) {
-    libs.push_back(flag);
+    mLibs.push_back(flag);
   }
-  this->defineSimpleVar("LIBS", fmt::format("{:s}", fmt::join(libs, " ")));
+  defineSimpleVar("LIBS", fmt::format("{:s}", fmt::join(mLibs, " ")));
 }
 
 void
@@ -678,7 +674,7 @@ BuildConfig::processSrc(
 
   const fs::path targetBaseDir =
       fs::relative(sourceFilePath.parent_path(), getProjectBasePath() / "src");
-  fs::path buildTargetBaseDir = buildOutPath;
+  fs::path buildTargetBaseDir = mBuildOutPath;
   if (targetBaseDir != ".") {
     buildTargetBaseDir /= targetBaseDir;
   }
@@ -735,7 +731,7 @@ BuildConfig::processUnittestSrc(
   const fs::path targetBaseDir = fs::relative(
       sourceFilePath.parent_path(), getProjectBasePath() / "src"_path
   );
-  fs::path testTargetBaseDir = unittestOutPath;
+  fs::path testTargetBaseDir = mUnittestOutPath;
   if (targetBaseDir != ".") {
     testTargetBaseDir /= targetBaseDir;
   }
@@ -811,14 +807,14 @@ BuildConfig::configureBuild() {
     throw PoacError(fmt::format("src/main{} was not found", SOURCE_FILE_EXTS));
   }
 
-  if (!fs::exists(outBasePath)) {
-    fs::create_directories(outBasePath);
+  if (!fs::exists(mOutBasePath)) {
+    fs::create_directories(mOutBasePath);
   }
 
   setVariables();
 
   // Build rules
-  setAll({ packageName });
+  setAll({ mPackageName });
   addPhony("all");
 
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths(srcDir);
@@ -843,15 +839,15 @@ BuildConfig::configureBuild() {
       processSources(sourceFilePaths);
 
   // Project binary target.
-  const std::string mainObjTarget = buildOutPath / "main.o";
+  const std::string mainObjTarget = mBuildOutPath / "main.o";
   std::unordered_set<std::string> projTargetDeps = { mainObjTarget };
   collectBinDepObjs(
       projTargetDeps, "",
-      targets.at(mainObjTarget).remDeps, // we don't need sourceFile
+      mTargets.at(mainObjTarget).mRemDeps, // we don't need sourceFile
       buildObjTargets
   );
 
-  defineLinkTarget(outBasePath / packageName, projTargetDeps);
+  defineLinkTarget(mOutBasePath / mPackageName, projTargetDeps);
 
   // Test Pass
   std::unordered_set<std::string> testTargets;
@@ -895,7 +891,7 @@ emitMakefile(const bool isDebug, const bool includeDevDeps) {
   // make sure the dependencies are installed.
   config.installDeps(includeDevDeps);
 
-  const std::string makefilePath = config.outBasePath / "Makefile";
+  const std::string makefilePath = config.mOutBasePath / "Makefile";
   if (isUpToDate(makefilePath)) {
     logger::debug("Makefile is up to date");
     return config;
@@ -916,17 +912,17 @@ emitCompdb(const bool isDebug, const bool includeDevDeps) {
   // compile_commands.json also needs INCLUDES, but not LIBS.
   config.installDeps(includeDevDeps);
 
-  const std::string compdbPath = config.outBasePath / "compile_commands.json";
+  const std::string compdbPath = config.mOutBasePath / "compile_commands.json";
   if (isUpToDate(compdbPath)) {
     logger::debug("compile_commands.json is up to date");
-    return config.outBasePath;
+    return config.mOutBasePath;
   }
   logger::debug("compile_commands.json is NOT up to date");
 
   config.configureBuild();
   std::ofstream ofs(compdbPath);
   config.emitCompdb(ofs);
-  return config.outBasePath;
+  return config.mOutBasePath;
 }
 
 std::string_view

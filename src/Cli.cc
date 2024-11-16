@@ -49,9 +49,9 @@ addOptCandidates(
     std::vector<std::string_view>& candidates, const std::vector<Opt>& opts
 ) noexcept {
   for (const auto& opt : opts) {
-    candidates.push_back(opt.name);
-    if (!opt.shortName.empty()) {
-      candidates.push_back(opt.shortName);
+    candidates.push_back(opt.mName);
+    if (!opt.mShortName.empty()) {
+      candidates.push_back(opt.mShortName);
     }
   }
 }
@@ -60,11 +60,11 @@ size_t
 calcOptMaxShortSize(const std::vector<Opt>& opts) noexcept {
   size_t maxShortSize = 0;
   for (const auto& opt : opts) {
-    if (opt.isHidden) {
+    if (opt.mIsHidden) {
       // Hidden option should not affect maxShortSize.
       continue;
     }
-    maxShortSize = std::max(maxShortSize, opt.shortName.size());
+    maxShortSize = std::max(maxShortSize, opt.mShortName.size());
   }
   return maxShortSize;
 }
@@ -75,7 +75,7 @@ calcOptMaxOffset(
 ) noexcept {
   size_t maxOffset = 0;
   for (const auto& opt : opts) {
-    if (opt.isHidden) {
+    if (opt.mIsHidden) {
       // Hidden option should not affect maxOffset.
       continue;
     }
@@ -90,7 +90,7 @@ printOpts(
     const size_t maxOffset
 ) noexcept {
   for (const auto& opt : opts) {
-    if (opt.isHidden) {
+    if (opt.mIsHidden) {
       // We don't print hidden options.
       continue;
     }
@@ -101,20 +101,20 @@ printOpts(
 void
 Opt::print(const size_t maxShortSize, size_t maxOffset) const noexcept {
   std::string option;
-  if (!shortName.empty()) {
-    option += bold(cyan(shortName));
+  if (!mShortName.empty()) {
+    option += bold(cyan(mShortName));
     option += ", ";
-    if (maxShortSize > shortName.size()) {
-      option += std::string(maxShortSize - shortName.size(), ' ');
+    if (maxShortSize > mShortName.size()) {
+      option += std::string(maxShortSize - mShortName.size(), ' ');
     }
   } else {
     // This coloring is for the alignment with std::setw later.
     option += bold(cyan(std::string(maxShortSize, ' ')));
     option += "  "; // ", "
   }
-  option += bold(cyan(name));
+  option += bold(cyan(mName));
   option += ' ';
-  option += cyan(placeholder);
+  option += cyan(mPlaceholder);
 
   if (shouldColor()) {
     // Color escape sequences are not visible but affect std::setw.
@@ -122,32 +122,32 @@ Opt::print(const size_t maxShortSize, size_t maxOffset) const noexcept {
     maxOffset += colorEscapeSeqLen;
   }
   setOffset(maxOffset);
-  std::cout << option << desc;
-  if (!defaultVal.empty()) {
-    std::cout << " [default: " << defaultVal << ']';
+  std::cout << option << mDesc;
+  if (!mDefaultVal.empty()) {
+    std::cout << " [default: " << mDefaultVal << ']';
   }
   std::cout << '\n';
 }
 
 std::string
 Arg::getLeft() const noexcept {
-  if (name.empty()) {
+  if (mName.empty()) {
     return "";
   }
 
   std::string left;
-  if (required) {
+  if (mRequired) {
     left += '<';
   } else {
     left += '[';
   }
-  left += name;
-  if (required) {
+  left += mName;
+  if (mRequired) {
     left += '>';
   } else {
     left += ']';
   }
-  if (variadic) {
+  if (mVariadic) {
     left += "...";
   }
   return cyan(left);
@@ -162,39 +162,39 @@ Arg::print(size_t maxOffset) const noexcept {
   }
   setOffset(maxOffset);
   std::cout << left;
-  if (!desc.empty()) {
-    std::cout << desc;
+  if (!mDesc.empty()) {
+    std::cout << mDesc;
   }
   std::cout << '\n';
 }
 
 Subcmd&
 Subcmd::addOpt(Opt opt) noexcept {
-  localOpts.emplace_back(opt);
+  mLocalOpts.emplace_back(opt);
   return *this;
 }
 Subcmd&
 Subcmd::setMainFn(std::function<int(std::span<const std::string_view>)> mainFn
 ) noexcept {
-  this->mainFn = std::move(mainFn);
+  mMainFn = std::move(mainFn);
   return *this;
 }
 Subcmd&
 Subcmd::setGlobalOpts(const std::vector<Opt>& globalOpts) noexcept {
-  this->globalOpts = globalOpts;
+  mGlobalOpts = globalOpts;
   return *this;
 }
 std::string
 Subcmd::getUsage() const noexcept {
   std::string str = bold(green("Usage: "));
-  str += bold(cyan(cmdName));
+  str += bold(cyan(mCmdName));
   str += ' ';
-  str += bold(cyan(name));
+  str += bold(cyan(mName));
   str += ' ';
   str += cyan("[OPTIONS]");
-  if (!arg.name.empty()) {
+  if (!mArg.mName.empty()) {
     str += ' ';
-    str += cyan(arg.getLeft());
+    str += cyan(mArg.getLeft());
   }
   return str;
 }
@@ -202,10 +202,10 @@ Subcmd::getUsage() const noexcept {
 [[nodiscard]] int
 Subcmd::noSuchArg(std::string_view arg) const {
   std::vector<std::string_view> candidates;
-  if (globalOpts.has_value()) {
-    addOptCandidates(candidates, globalOpts.value());
+  if (mGlobalOpts.has_value()) {
+    addOptCandidates(candidates, mGlobalOpts.value());
   }
-  addOptCandidates(candidates, localOpts);
+  addOptCandidates(candidates, mLocalOpts);
 
   std::string suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {
@@ -229,26 +229,27 @@ Subcmd::missingArgumentForOpt(const std::string_view arg) {
 size_t
 Subcmd::calcMaxShortSize() const noexcept {
   size_t maxShortSize = 0;
-  if (globalOpts.has_value()) {
+  if (mGlobalOpts.has_value()) {
     maxShortSize =
-        std::max(maxShortSize, calcOptMaxShortSize(globalOpts.value()));
+        std::max(maxShortSize, calcOptMaxShortSize(mGlobalOpts.value()));
   }
-  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(localOpts));
+  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(mLocalOpts));
   return maxShortSize;
 }
 size_t
 Subcmd::calcMaxOffset(const size_t maxShortSize) const noexcept {
   size_t maxOffset = 0;
-  if (globalOpts.has_value()) {
-    maxOffset =
-        std::max(maxOffset, calcOptMaxOffset(globalOpts.value(), maxShortSize));
+  if (mGlobalOpts.has_value()) {
+    maxOffset = std::max(
+        maxOffset, calcOptMaxOffset(mGlobalOpts.value(), maxShortSize)
+    );
   }
-  maxOffset = std::max(maxOffset, calcOptMaxOffset(localOpts, maxShortSize));
+  maxOffset = std::max(maxOffset, calcOptMaxOffset(mLocalOpts, maxShortSize));
 
-  if (!arg.desc.empty()) {
+  if (!mArg.mDesc.empty()) {
     // If args does not have a description, it is not necessary to consider
     // its length.
-    maxOffset = std::max(maxOffset, arg.leftSize());
+    maxOffset = std::max(maxOffset, mArg.leftSize());
   }
   return maxOffset;
 }
@@ -258,29 +259,29 @@ Subcmd::printHelp() const noexcept {
   const size_t maxShortSize = calcMaxShortSize();
   const size_t maxOffset = calcMaxOffset(maxShortSize);
 
-  std::cout << desc << '\n';
+  std::cout << mDesc << '\n';
   std::cout << '\n';
   std::cout << getUsage() << "\n\n";
 
   printHeader("Options:");
-  if (globalOpts.has_value()) {
-    printOpts(globalOpts.value(), maxShortSize, maxOffset);
+  if (mGlobalOpts.has_value()) {
+    printOpts(mGlobalOpts.value(), maxShortSize, maxOffset);
   }
-  printOpts(localOpts, maxShortSize, maxOffset);
+  printOpts(mLocalOpts, maxShortSize, maxOffset);
 
-  if (!arg.name.empty()) {
+  if (!mArg.mName.empty()) {
     std::cout << '\n';
     printHeader("Arguments:");
-    arg.print(maxOffset);
+    mArg.print(maxOffset);
   }
 }
 
 void
 Subcmd::print(size_t maxOffset) const noexcept {
-  std::string cmdStr = bold(cyan(name));
+  std::string cmdStr = bold(cyan(mName));
   if (hasShort()) {
     cmdStr += ", ";
-    cmdStr += bold(cyan(shortName));
+    cmdStr += bold(cyan(mShortName));
   } else {
     // This coloring is for the alignment with std::setw later.
     cmdStr += bold(cyan("   "));
@@ -292,46 +293,46 @@ Subcmd::print(size_t maxOffset) const noexcept {
     maxOffset += colorEscapeSeqLen;
   }
   setOffset(maxOffset);
-  std::cout << cmdStr << desc << '\n';
+  std::cout << cmdStr << mDesc << '\n';
 }
 
 Cli&
 Cli::addSubcmd(const Subcmd& subcmd) noexcept {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  const_cast<Subcmd&>(subcmd).setCmdName(name).setGlobalOpts(globalOpts);
+  const_cast<Subcmd&>(subcmd).setCmdName(mName).setGlobalOpts(mGlobalOpts);
 
-  subcmds.insert_or_assign(subcmd.name, subcmd);
+  mSubcmds.insert_or_assign(subcmd.mName, subcmd);
   if (subcmd.hasShort()) {
-    subcmds.insert_or_assign(subcmd.shortName, subcmd);
+    mSubcmds.insert_or_assign(subcmd.mShortName, subcmd);
   }
   return *this;
 }
 Cli&
 Cli::addOpt(Opt opt) noexcept {
-  if (opt.isGlobal) {
-    globalOpts.emplace_back(opt);
+  if (opt.mIsGlobal) {
+    mGlobalOpts.emplace_back(opt);
   } else {
-    localOpts.emplace_back(opt);
+    mLocalOpts.emplace_back(opt);
   }
   return *this;
 }
 
 bool
 Cli::hasSubcmd(std::string_view subcmd) const noexcept {
-  return subcmds.contains(subcmd);
+  return mSubcmds.contains(subcmd);
 }
 
 [[nodiscard]] int
 Cli::noSuchArg(std::string_view arg) const {
   std::vector<std::string_view> candidates;
-  for (const auto& cmd : subcmds) {
-    candidates.push_back(cmd.second.name);
-    if (!cmd.second.shortName.empty()) {
-      candidates.push_back(cmd.second.shortName);
+  for (const auto& cmd : mSubcmds) {
+    candidates.push_back(cmd.second.mName);
+    if (!cmd.second.mShortName.empty()) {
+      candidates.push_back(cmd.second.mShortName);
     }
   }
-  addOptCandidates(candidates, globalOpts);
-  addOptCandidates(candidates, localOpts);
+  addOptCandidates(candidates, mGlobalOpts);
+  addOptCandidates(candidates, mLocalOpts);
 
   std::string suggestion;
   if (const auto similar = findSimilarStr(arg, candidates)) {
@@ -349,14 +350,14 @@ Cli::noSuchArg(std::string_view arg) const {
 Cli::exec(
     const std::string_view subcmd, const std::span<const std::string_view> args
 ) const {
-  return subcmds.at(subcmd).mainFn(transformOptions(subcmd, args));
+  return mSubcmds.at(subcmd).mMainFn(transformOptions(subcmd, args));
 }
 
 std::vector<std::string_view>
 Cli::transformOptions(
     std::string_view subcmd, std::span<const std::string_view> args
 ) const {
-  const Subcmd& cmd = subcmds.at(subcmd);
+  const Subcmd& cmd = mSubcmds.at(subcmd);
   std::vector<std::string_view> transformed;
   transformed.reserve(args.size());
   for (std::size_t argIdx = 0; argIdx < args.size(); ++argIdx) {
@@ -374,15 +375,15 @@ Cli::transformOptions(
       for (std::size_t i = 0; i < multioption.size(); ++i) {
         const auto handle = [&](const std::span<const Opt> opts) {
           for (const Opt& opt : opts) {
-            if (opt.shortName.empty()) {
+            if (opt.mShortName.empty()) {
               continue;
             }
-            if (opt.shortName.substr(1) != multioption.substr(i, 1)) {
+            if (opt.mShortName.substr(1) != multioption.substr(i, 1)) {
               continue;
             }
-            transformed.push_back(opt.shortName);
+            transformed.push_back(opt.mShortName);
             // Placeholder is not empty means that this option takes a value.
-            if (!opt.placeholder.empty()) {
+            if (!opt.mPlaceholder.empty()) {
               if (i + 1 < multioption.size()) {
                 // Handle concatenated value (like -j1)
                 transformed.push_back(multioption.substr(i + 1));
@@ -396,10 +397,10 @@ Cli::transformOptions(
             handled = true;
           }
         };
-        if (cmd.globalOpts) {
-          handle(*cmd.globalOpts);
+        if (cmd.mGlobalOpts) {
+          handle(*cmd.mGlobalOpts);
         }
-        handle(cmd.localOpts);
+        handle(cmd.mLocalOpts);
       }
       if (handled) {
         continue;
@@ -413,7 +414,7 @@ Cli::transformOptions(
 
 void
 Cli::printSubcmdHelp(const std::string_view subcmd) const noexcept {
-  subcmds.at(subcmd).printHelp();
+  mSubcmds.at(subcmd).printHelp();
 }
 
 size_t
@@ -422,27 +423,27 @@ Cli::calcMaxShortSize() const noexcept {
   // we don't need to consider the length of the subcommands' options.
 
   size_t maxShortSize = 0;
-  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(globalOpts));
-  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(localOpts));
+  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(mGlobalOpts));
+  maxShortSize = std::max(maxShortSize, calcOptMaxShortSize(mLocalOpts));
   return maxShortSize;
 }
 
 size_t
 Cli::calcMaxOffset(const size_t maxShortSize) const noexcept {
   size_t maxOffset = 0;
-  maxOffset = std::max(maxOffset, calcOptMaxOffset(globalOpts, maxShortSize));
-  maxOffset = std::max(maxOffset, calcOptMaxOffset(localOpts, maxShortSize));
+  maxOffset = std::max(maxOffset, calcOptMaxOffset(mGlobalOpts, maxShortSize));
+  maxOffset = std::max(maxOffset, calcOptMaxOffset(mLocalOpts, maxShortSize));
 
-  for (const auto& [name, cmd] : subcmds) {
-    if (cmd.isHidden) {
+  for (const auto& [name, cmd] : mSubcmds) {
+    if (cmd.mIsHidden) {
       // Hidden command should not affect maxOffset.
       continue;
     }
 
     size_t offset = name.size(); // "build"
-    if (!cmd.shortName.empty()) {
+    if (!cmd.mShortName.empty()) {
       offset += 2; // ", "
-      offset += cmd.shortName.size(); // "b"
+      offset += cmd.mShortName.size(); // "b"
     }
     maxOffset = std::max(maxOffset, offset);
   }
@@ -451,26 +452,26 @@ Cli::calcMaxOffset(const size_t maxShortSize) const noexcept {
 
 void
 Cli::printAllSubcmds(const bool showHidden, size_t maxOffset) const noexcept {
-  for (const auto& [name, cmd] : subcmds) {
-    if (!showHidden && cmd.isHidden) {
+  for (const auto& [name, cmd] : mSubcmds) {
+    if (!showHidden && cmd.mIsHidden) {
       // Hidden command should not affect maxOffset if `showHidden` is false.
       continue;
     }
 
     size_t offset = name.size(); // "build"
-    if (!cmd.shortName.empty()) {
+    if (!cmd.mShortName.empty()) {
       offset += 2; // ", "
-      offset += cmd.shortName.size(); // "b"
+      offset += cmd.mShortName.size(); // "b"
     }
     maxOffset = std::max(maxOffset, offset);
   }
 
-  for (const auto& [name, cmd] : subcmds) {
-    if (!showHidden && cmd.isHidden) {
+  for (const auto& [name, cmd] : mSubcmds) {
+    if (!showHidden && cmd.mIsHidden) {
       // We don't print hidden subcommands if `showHidden` is false.
       continue;
     }
-    if (cmd.hasShort() && name == cmd.shortName) {
+    if (cmd.hasShort() && name == cmd.mShortName) {
       // We don't print an abbreviation.
       continue;
     }
@@ -484,14 +485,14 @@ Cli::printCmdHelp() const noexcept {
   const size_t maxShortSize = calcMaxShortSize();
   const size_t maxOffset = calcMaxOffset(maxShortSize);
 
-  std::cout << desc << '\n';
+  std::cout << mDesc << '\n';
   std::cout << '\n';
-  printUsage(name, "", cyan("[COMMAND]"));
+  printUsage(mName, "", cyan("[COMMAND]"));
   std::cout << '\n';
 
   printHeader("Options:");
-  printOpts(globalOpts, maxShortSize, maxOffset);
-  printOpts(localOpts, maxShortSize, maxOffset);
+  printOpts(mGlobalOpts, maxShortSize, maxOffset);
+  printOpts(mLocalOpts, maxShortSize, maxOffset);
   std::cout << '\n';
 
   printHeader("Commands:");
@@ -504,7 +505,7 @@ Cli::printCmdHelp() const noexcept {
       << '\n'
       << fmt::format(
              "See '{} {} {}' for more information on a specific command.\n",
-             bold(cyan(name)), bold(cyan("help")), cyan("<command>")
+             bold(cyan(mName)), bold(cyan("help")), cyan("<command>")
          );
 }
 

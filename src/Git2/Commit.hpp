@@ -10,7 +10,7 @@
 namespace git2 {
 
 struct Commit : public GlobalState {
-  git_commit* raw = nullptr;
+  git_commit* mRaw = nullptr;
 
   Commit() = default;
   ~Commit();

@@ -7,25 +7,25 @@
 namespace git2 {
 
 Config::Config() {
-  git2Throw(git_config_new(&this->raw));
+  git2Throw(git_config_new(&mRaw));
 }
 
-Config::Config(git_config* raw) : raw(raw) {}
+Config::Config(git_config* raw) : mRaw(raw) {}
 
 Config::~Config() {
-  git_config_free(this->raw);
+  git_config_free(mRaw);
 }
 
 Config&
 Config::openDefault() {
-  git2Throw(git_config_open_default(&this->raw));
+  git2Throw(git_config_open_default(&mRaw));
   return *this;
 }
 
 std::string
 Config::getString(const std::string& name) {
   git_buf ret = { nullptr, 0, 0 };
-  git2Throw(git_config_get_string_buf(&ret, this->raw, name.c_str()));
+  git2Throw(git_config_get_string_buf(&ret, mRaw, name.c_str()));
   return { ret.ptr, ret.size };
 }
 

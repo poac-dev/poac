@@ -8,7 +8,7 @@
 namespace git2 {
 
 struct Time {
-  git_time_t time;
+  git_time_t mTime;
 
   std::string toString() const;
 };

@@ -14,8 +14,8 @@ inline constexpr size_t SHORT_HASH_LEN = 8;
 
 struct Oid : public GlobalState {
   // TODO: ideally, use one of the following:
-  git_oid oid{};
-  git_oid* raw = nullptr;
+  git_oid mOid{};
+  git_oid* mRaw = nullptr;
 
   explicit Oid(git_oid oid);
 

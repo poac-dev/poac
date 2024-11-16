@@ -13,15 +13,15 @@
 #include <vector>
 
 struct DepMetadata {
-  std::string includes; // -Isomething
-  std::string libs; // -Lsomething -lsomething
+  std::string mIncludes; // -Isomething
+  std::string mLibs; // -Lsomething -lsomething
 };
 
 struct Profile {
-  std::unordered_set<std::string> cxxflags;
-  bool lto = false;
-  std::optional<bool> debug = std::nullopt;
-  std::optional<size_t> optLevel = std::nullopt;
+  std::unordered_set<std::string> mCxxflags;
+  bool mLto = false;
+  std::optional<bool> mDebug = std::nullopt;
+  std::optional<size_t> mOptLevel = std::nullopt;
 
   // Merges this profile with another profile. If a field in this profile is
   // set, it will not be overwritten by the other profile. Only default values
@@ -43,8 +43,8 @@ struct Edition {
   using enum Year;
 
 private:
-  Year edition = Year::Cpp20;
-  std::string str = "20";
+  Year mEdition = Year::Cpp20;
+  std::string mStr = "20";
 
 public:
   Edition() = default;
@@ -53,10 +53,10 @@ public:
   std::string getString() const noexcept;
 
   auto operator<=>(const Edition& otherEdition) const {
-    return edition <=> otherEdition.edition;
+    return mEdition <=> otherEdition.mEdition;
   }
   auto operator<=>(const Year& otherYear) const {
-    return edition <=> otherYear;
+    return mEdition <=> otherYear;
   }
 };
 

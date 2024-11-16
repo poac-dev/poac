@@ -12,12 +12,12 @@
 
 std::ostream&
 operator<<(std::ostream& os, const VersionToken& tok) noexcept {
-  switch (tok.kind) {
+  switch (tok.mKind) {
     case VersionToken::Num:
-      os << std::get<uint64_t>(tok.value);
+      os << std::get<uint64_t>(tok.mValue);
       break;
     case VersionToken::Ident:
-      os << std::get<std::string_view>(tok.value);
+      os << std::get<std::string_view>(tok.mValue);
       break;
     case VersionToken::Dot:
       os << '.';
@@ -49,15 +49,15 @@ VersionToken::size() const noexcept {
 
 bool
 operator==(const VersionToken& lhs, const VersionToken& rhs) noexcept {
-  if (lhs.kind != rhs.kind) {
+  if (lhs.mKind != rhs.mKind) {
     return false;
   }
-  switch (lhs.kind) {
+  switch (lhs.mKind) {
     case VersionToken::Num:
-      return std::get<uint64_t>(lhs.value) == std::get<uint64_t>(rhs.value);
+      return std::get<uint64_t>(lhs.mValue) == std::get<uint64_t>(rhs.mValue);
     case VersionToken::Ident:
-      return std::get<std::string_view>(lhs.value)
-             == std::get<std::string_view>(rhs.value);
+      return std::get<std::string_view>(lhs.mValue)
+             == std::get<std::string_view>(rhs.mValue);
     case VersionToken::Dot:
     case VersionToken::Hyphen:
     case VersionToken::Plus:
@@ -70,8 +70,8 @@ operator==(const VersionToken& lhs, const VersionToken& rhs) noexcept {
 
 bool
 operator<(const VersionToken& lhs, const VersionToken& rhs) noexcept {
-  if (lhs.kind == VersionToken::Num && rhs.kind == VersionToken::Num) {
-    return std::get<uint64_t>(lhs.value) < std::get<uint64_t>(rhs.value);
+  if (lhs.mKind == VersionToken::Num && rhs.mKind == VersionToken::Num) {
+    return std::get<uint64_t>(lhs.mValue) < std::get<uint64_t>(rhs.mValue);
   }
   return lhs.toString() < rhs.toString();
 }
@@ -82,7 +82,7 @@ operator>(const VersionToken& lhs, const VersionToken& rhs) {
 
 static std::string
 carets(const VersionToken& tok) noexcept {
-  switch (tok.kind) {
+  switch (tok.mKind) {
     case VersionToken::Eof:
     case VersionToken::Unknown:
       return "^";
@@ -94,24 +94,24 @@ carets(const VersionToken& tok) noexcept {
 
 bool
 Prerelease::empty() const noexcept {
-  return ident.empty();
+  return mIdent.empty();
 }
 
 std::string
 Prerelease::toString() const noexcept {
   std::string str;
-  for (size_t i = 0; i < ident.size(); ++i) {
+  for (size_t i = 0; i < mIdent.size(); ++i) {
     if (i > 0) {
       str += '.';
     }
-    str += ident[i].toString();
+    str += mIdent[i].toString();
   }
   return str;
 }
 
 bool
 operator==(const Prerelease& lhs, const Prerelease& rhs) noexcept {
-  return lhs.ident == rhs.ident;
+  return lhs.mIdent == rhs.mIdent;
 }
 bool
 operator!=(const Prerelease& lhs, const Prerelease& rhs) noexcept {
@@ -119,20 +119,20 @@ operator!=(const Prerelease& lhs, const Prerelease& rhs) noexcept {
 }
 bool
 operator<(const Prerelease& lhs, const Prerelease& rhs) noexcept {
-  if (lhs.ident.empty()) {
+  if (lhs.mIdent.empty()) {
     return false; // lhs is a normal version and is greater
   }
-  if (rhs.ident.empty()) {
+  if (rhs.mIdent.empty()) {
     return true; // rhs is a normal version and is greater
   }
-  for (size_t i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
-    if (lhs.ident[i] < rhs.ident[i]) {
+  for (size_t i = 0; i < lhs.mIdent.size() && i < rhs.mIdent.size(); ++i) {
+    if (lhs.mIdent[i] < rhs.mIdent[i]) {
       return true;
-    } else if (lhs.ident[i] > rhs.ident[i]) {
+    } else if (lhs.mIdent[i] > rhs.mIdent[i]) {
       return false;
     }
   }
-  return lhs.ident.size() < rhs.ident.size();
+  return lhs.mIdent.size() < rhs.mIdent.size();
 }
 bool
 operator>(const Prerelease& lhs, const Prerelease& rhs) noexcept {
@@ -149,35 +149,35 @@ operator>=(const Prerelease& lhs, const Prerelease& rhs) noexcept {
 
 bool
 BuildMetadata::empty() const noexcept {
-  return ident.empty();
+  return mIdent.empty();
 }
 
 std::string
 BuildMetadata::toString() const noexcept {
   std::string str;
-  for (size_t i = 0; i < ident.size(); ++i) {
+  for (size_t i = 0; i < mIdent.size(); ++i) {
     if (i > 0) {
       str += '.';
     }
-    str += ident[i].toString();
+    str += mIdent[i].toString();
   }
   return str;
 }
 
 bool
 operator==(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
-  return lhs.ident == rhs.ident;
+  return lhs.mIdent == rhs.mIdent;
 }
 bool
 operator<(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
-  for (size_t i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
-    if (lhs.ident[i] < rhs.ident[i]) {
+  for (size_t i = 0; i < lhs.mIdent.size() && i < rhs.mIdent.size(); ++i) {
+    if (lhs.mIdent[i] < rhs.mIdent[i]) {
       return true;
-    } else if (lhs.ident[i] > rhs.ident[i]) {
+    } else if (lhs.mIdent[i] > rhs.mIdent[i]) {
       return false;
     }
   }
-  return lhs.ident.size() < rhs.ident.size();
+  return lhs.mIdent.size() < rhs.mIdent.size();
 }
 bool
 operator>(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
@@ -186,16 +186,16 @@ operator>(const BuildMetadata& lhs, const BuildMetadata& rhs) noexcept {
 
 std::string
 Version::toString() const noexcept {
-  std::string str = std::to_string(major);
-  str += '.' + std::to_string(minor);
-  str += '.' + std::to_string(patch);
-  if (!pre.empty()) {
+  std::string str = std::to_string(mMajor);
+  str += '.' + std::to_string(mMinor);
+  str += '.' + std::to_string(mPatch);
+  if (!mPre.empty()) {
     str += '-';
-    str += pre.toString();
+    str += mPre.toString();
   }
-  if (!build.empty()) {
+  if (!mBuild.empty()) {
     str += '+';
-    str += build.toString();
+    str += mBuild.toString();
   }
   return str;
 }
@@ -208,9 +208,9 @@ operator<<(std::ostream& os, const Version& ver) noexcept {
 
 bool
 operator==(const Version& lhs, const Version& rhs) noexcept {
-  return lhs.major == rhs.major && lhs.minor == rhs.minor
-         && lhs.patch == rhs.patch && lhs.pre == rhs.pre
-         && lhs.build == rhs.build;
+  return lhs.mMajor == rhs.mMajor && lhs.mMinor == rhs.mMinor
+         && lhs.mPatch == rhs.mPatch && lhs.mPre == rhs.mPre
+         && lhs.mBuild == rhs.mBuild;
 }
 bool
 operator!=(const Version& lhs, const Version& rhs) noexcept {
@@ -219,32 +219,32 @@ operator!=(const Version& lhs, const Version& rhs) noexcept {
 
 bool
 operator<(const Version& lhs, const Version& rhs) noexcept {
-  if (lhs.major < rhs.major) {
+  if (lhs.mMajor < rhs.mMajor) {
     return true;
-  } else if (lhs.major > rhs.major) {
+  } else if (lhs.mMajor > rhs.mMajor) {
     return false;
-  } else if (lhs.minor < rhs.minor) {
+  } else if (lhs.mMinor < rhs.mMinor) {
     return true;
-  } else if (lhs.minor > rhs.minor) {
+  } else if (lhs.mMinor > rhs.mMinor) {
     return false;
-  } else if (lhs.patch < rhs.patch) {
+  } else if (lhs.mPatch < rhs.mPatch) {
     return true;
-  } else if (lhs.patch > rhs.patch) {
+  } else if (lhs.mPatch > rhs.mPatch) {
     return false;
-  } else if (!lhs.pre.empty() && rhs.pre.empty()) {
+  } else if (!lhs.mPre.empty() && rhs.mPre.empty()) {
     // lhs has a pre-release tag and rhs doesn't, so lhs < rhs
     return true;
-  } else if (lhs.pre.empty() && !rhs.pre.empty()) {
+  } else if (lhs.mPre.empty() && !rhs.mPre.empty()) {
     // lhs doesn't have a pre-release tag and rhs does, so lhs > rhs
     return false;
-  } else if (lhs.pre < rhs.pre) {
+  } else if (lhs.mPre < rhs.mPre) {
     // Both lhs and rhs have pre-release tags, so compare them
     return true;
-  } else if (lhs.pre > rhs.pre) {
+  } else if (lhs.mPre > rhs.mPre) {
     return false;
-  } else if (lhs.build < rhs.build) {
+  } else if (lhs.mBuild < rhs.mBuild) {
     return true;
-  } else if (lhs.build > rhs.build) {
+  } else if (lhs.mBuild > rhs.mBuild) {
     return false;
   } else {
     return false;
@@ -266,30 +266,30 @@ operator>=(const Version& lhs, const Version& rhs) noexcept {
 VersionToken
 VersionLexer::consumeIdent() noexcept {
   size_t len = 0;
-  while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
+  while (mPos < mS.size() && (std::isalnum(mS[mPos]) || mS[mPos] == '-')) {
     step();
     ++len;
   }
-  return { VersionToken::Ident, std::string_view(s.data() + pos - len, len) };
+  return { VersionToken::Ident, std::string_view(mS.data() + mPos - len, len) };
 }
 
 VersionToken
 VersionLexer::consumeNum() {
   size_t len = 0;
   uint64_t value = 0;
-  while (pos < s.size() && std::isdigit(s[pos])) {
+  while (mPos < mS.size() && std::isdigit(mS[mPos])) {
     if (len > 0 && value == 0) {
       throw SemverError(
-          s, '\n', std::string(pos - len, ' '), "^ invalid leading zero"
+          mS, '\n', std::string(mPos - len, ' '), "^ invalid leading zero"
       );
     }
 
-    const uint64_t digit = s[pos] - '0';
+    const uint64_t digit = mS[mPos] - '0';
     constexpr uint64_t base = 10;
     // Check for overflow
     if (value > (std::numeric_limits<uint64_t>::max() - digit) / base) {
       throw SemverError(
-          s, '\n', std::string(pos - len, ' '), std::string(len, '^'),
+          mS, '\n', std::string(mPos - len, ' '), std::string(len, '^'),
           " number exceeds UINT64_MAX"
       );
     }
@@ -304,16 +304,16 @@ VersionLexer::consumeNum() {
 // Note that 012 is an invalid number but 012d is a valid identifier.
 VersionToken
 VersionLexer::consumeNumOrIdent() {
-  const size_t oldPos = pos; // we need two passes
+  const size_t oldPos = mPos; // we need two passes
   bool isIdent = false;
-  while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
-    if (!std::isdigit(s[pos])) {
+  while (mPos < mS.size() && (std::isalnum(mS[mPos]) || mS[mPos] == '-')) {
+    if (!std::isdigit(mS[mPos])) {
       isIdent = true;
     }
     step();
   }
 
-  pos = oldPos;
+  mPos = oldPos;
   if (isIdent) {
     return consumeIdent();
   } else {
@@ -327,7 +327,7 @@ VersionLexer::next() {
     return VersionToken{ VersionToken::Eof };
   }
 
-  const char c = s[pos];
+  const char c = mS[mPos];
   if (std::isalpha(c)) {
     return consumeIdent();
   } else if (std::isdigit(c)) {
@@ -349,9 +349,9 @@ VersionLexer::next() {
 
 VersionToken
 VersionLexer::peek() {
-  const size_t oldPos = pos;
+  const size_t oldPos = mPos;
   const VersionToken tok = next();
-  pos = oldPos;
+  mPos = oldPos;
   return tok;
 }
 
@@ -361,41 +361,42 @@ struct SemverParseError : public SemverError {
       const std::string_view msg
   )
       : SemverError(
-            lexer.s, '\n', std::string(lexer.pos, ' '), carets(tok), msg
+            lexer.mS, '\n', std::string(lexer.mPos, ' '), carets(tok), msg
         ) {}
 };
 
 Version
 VersionParser::parse() {
-  if (lexer.peek().kind == VersionToken::Eof) {
+  if (mLexer.peek().mKind == VersionToken::Eof) {
     throw SemverError("empty string is not a valid semver");
   }
 
   Version ver;
-  ver.major = parseNum();
+  ver.mMajor = parseNum();
   parseDot();
-  ver.minor = parseNum();
+  ver.mMinor = parseNum();
   parseDot();
-  ver.patch = parseNum();
+  ver.mPatch = parseNum();
 
-  if (lexer.peek().kind == VersionToken::Hyphen) {
-    lexer.step();
-    ver.pre = parsePre();
+  if (mLexer.peek().mKind == VersionToken::Hyphen) {
+    mLexer.step();
+    ver.mPre = parsePre();
   } else {
-    ver.pre = Prerelease();
+    ver.mPre = Prerelease();
   }
 
-  if (lexer.peek().kind == VersionToken::Plus) {
-    lexer.step();
-    ver.build = parseBuild();
+  if (mLexer.peek().mKind == VersionToken::Plus) {
+    mLexer.step();
+    ver.mBuild = parseBuild();
   } else {
-    ver.build = BuildMetadata();
+    ver.mBuild = BuildMetadata();
   }
 
-  if (!lexer.isEof()) {
+  if (!mLexer.isEof()) {
     throw SemverParseError(
-        lexer, lexer.peek(),
-        " unexpected character: `" + std::string(1, lexer.s[lexer.pos]) + '`'
+        mLexer, mLexer.peek(),
+        " unexpected character: `" + std::string(1, mLexer.mS[mLexer.mPos])
+            + '`'
     );
   }
 
@@ -406,17 +407,17 @@ VersionParser::parse() {
 // number.
 uint64_t
 VersionParser::parseNum() {
-  if (!std::isdigit(lexer.s[lexer.pos])) {
-    throw SemverParseError(lexer, lexer.peek(), " expected number");
+  if (!std::isdigit(mLexer.mS[mLexer.mPos])) {
+    throw SemverParseError(mLexer, mLexer.peek(), " expected number");
   }
-  return std::get<uint64_t>(lexer.consumeNum().value);
+  return std::get<uint64_t>(mLexer.consumeNum().mValue);
 }
 
 void
 VersionParser::parseDot() {
-  const VersionToken tok = lexer.next();
-  if (tok.kind != VersionToken::Dot) {
-    throw SemverParseError(lexer, tok, " expected `.`");
+  const VersionToken tok = mLexer.next();
+  if (tok.mKind != VersionToken::Dot) {
+    throw SemverParseError(mLexer, tok, " expected `.`");
   }
 }
 
@@ -425,8 +426,8 @@ Prerelease
 VersionParser::parsePre() {
   std::vector<VersionToken> pre;
   pre.emplace_back(parseNumOrIdent());
-  while (lexer.peek().kind == VersionToken::Dot) {
-    lexer.step();
+  while (mLexer.peek().mKind == VersionToken::Dot) {
+    mLexer.step();
     pre.emplace_back(parseNumOrIdent());
   }
   return Prerelease{ pre };
@@ -435,9 +436,9 @@ VersionParser::parsePre() {
 // numOrIdent ::= num | ident
 VersionToken
 VersionParser::parseNumOrIdent() {
-  const VersionToken tok = lexer.next();
-  if (tok.kind != VersionToken::Num && tok.kind != VersionToken::Ident) {
-    throw SemverParseError(lexer, tok, " expected number or identifier");
+  const VersionToken tok = mLexer.next();
+  if (tok.mKind != VersionToken::Num && tok.mKind != VersionToken::Ident) {
+    throw SemverParseError(mLexer, tok, " expected number or identifier");
   }
   return tok;
 }
@@ -447,8 +448,8 @@ BuildMetadata
 VersionParser::parseBuild() {
   std::vector<VersionToken> build;
   build.emplace_back(parseIdent());
-  while (lexer.peek().kind == VersionToken::Dot) {
-    lexer.step();
+  while (mLexer.peek().mKind == VersionToken::Dot) {
+    mLexer.step();
     build.emplace_back(parseIdent());
   }
   return BuildMetadata{ build };
@@ -458,10 +459,10 @@ VersionParser::parseBuild() {
 // identifier.
 VersionToken
 VersionParser::parseIdent() {
-  if (!std::isalnum(lexer.s[lexer.pos])) {
-    throw SemverParseError(lexer, lexer.peek(), " expected identifier");
+  if (!std::isalnum(mLexer.mS[mLexer.mPos])) {
+    throw SemverParseError(mLexer, mLexer.peek(), " expected identifier");
   }
-  return lexer.consumeIdent();
+  return mLexer.consumeIdent();
 }
 
 Prerelease
@@ -590,75 +591,75 @@ testParse() {
   );
 
   assertEq(
-      Version::parse("1.2.3"), (Version{ .major = 1,
-                                         .minor = 2,
-                                         .patch = 3,
-                                         .pre = Prerelease(),
-                                         .build = BuildMetadata() })
+      Version::parse("1.2.3"), (Version{ .mMajor = 1,
+                                         .mMinor = 2,
+                                         .mPatch = 3,
+                                         .mPre = Prerelease(),
+                                         .mBuild = BuildMetadata() })
   );
   assertEq(
       Version::parse("1.2.3-alpha1"),
-      (Version{ .major = 1,
-                .minor = 2,
-                .patch = 3,
-                .pre = Prerelease::parse("alpha1"),
-                .build = BuildMetadata() })
+      (Version{ .mMajor = 1,
+                .mMinor = 2,
+                .mPatch = 3,
+                .mPre = Prerelease::parse("alpha1"),
+                .mBuild = BuildMetadata() })
   );
   assertEq(
       Version::parse("1.2.3+build5"),
-      (Version{ .major = 1,
-                .minor = 2,
-                .patch = 3,
-                .pre = Prerelease(),
-                .build = BuildMetadata::parse("build5") })
+      (Version{ .mMajor = 1,
+                .mMinor = 2,
+                .mPatch = 3,
+                .mPre = Prerelease(),
+                .mBuild = BuildMetadata::parse("build5") })
   );
   assertEq(
       Version::parse("1.2.3+5build"),
-      (Version{ .major = 1,
-                .minor = 2,
-                .patch = 3,
-                .pre = Prerelease(),
-                .build = BuildMetadata::parse("5build") })
+      (Version{ .mMajor = 1,
+                .mMinor = 2,
+                .mPatch = 3,
+                .mPre = Prerelease(),
+                .mBuild = BuildMetadata::parse("5build") })
   );
   assertEq(
       Version::parse("1.2.3-alpha1+build5"),
-      (Version{ .major = 1,
-                .minor = 2,
-                .patch = 3,
-                .pre = Prerelease::parse("alpha1"),
-                .build = BuildMetadata::parse("build5") })
+      (Version{ .mMajor = 1,
+                .mMinor = 2,
+                .mPatch = 3,
+                .mPre = Prerelease::parse("alpha1"),
+                .mBuild = BuildMetadata::parse("build5") })
   );
   assertEq(
       Version::parse("1.2.3-1.alpha1.9+build5.7.3aedf"),
-      (Version{ .major = 1,
-                .minor = 2,
-                .patch = 3,
-                .pre = Prerelease::parse("1.alpha1.9"),
-                .build = BuildMetadata::parse("build5.7.3aedf") })
+      (Version{ .mMajor = 1,
+                .mMinor = 2,
+                .mPatch = 3,
+                .mPre = Prerelease::parse("1.alpha1.9"),
+                .mBuild = BuildMetadata::parse("build5.7.3aedf") })
   );
   assertEq(
       Version::parse("1.2.3-0a.alpha1.9+05build.7.3aedf"),
-      (Version{ .major = 1,
-                .minor = 2,
-                .patch = 3,
-                .pre = Prerelease::parse("0a.alpha1.9"),
-                .build = BuildMetadata::parse("05build.7.3aedf") })
+      (Version{ .mMajor = 1,
+                .mMinor = 2,
+                .mPatch = 3,
+                .mPre = Prerelease::parse("0a.alpha1.9"),
+                .mBuild = BuildMetadata::parse("05build.7.3aedf") })
   );
   assertEq(
       Version::parse("0.4.0-beta.1+0851523"),
-      (Version{ .major = 0,
-                .minor = 4,
-                .patch = 0,
-                .pre = Prerelease::parse("beta.1"),
-                .build = BuildMetadata::parse("0851523") })
+      (Version{ .mMajor = 0,
+                .mMinor = 4,
+                .mPatch = 0,
+                .mPre = Prerelease::parse("beta.1"),
+                .mBuild = BuildMetadata::parse("0851523") })
   );
   assertEq(
       Version::parse("1.1.0-beta-10"),
-      (Version{ .major = 1,
-                .minor = 1,
-                .patch = 0,
-                .pre = Prerelease::parse("beta-10"),
-                .build = BuildMetadata() })
+      (Version{ .mMajor = 1,
+                .mMinor = 1,
+                .mPatch = 0,
+                .mPre = Prerelease::parse("beta-10"),
+                .mBuild = BuildMetadata() })
   );
 
   pass();

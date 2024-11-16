@@ -30,7 +30,7 @@ concept HeadProcessor = std::is_nothrow_invocable_v<Fn, std::string_view>
                         && Display<std::invoke_result_t<Fn, std::string_view>>;
 
 class Logger {
-  Level level = Level::Info;
+  Level mLevel = Level::Info;
 
   constexpr Logger() noexcept = default;
 
@@ -47,10 +47,10 @@ public:
     return instance;
   }
   static void setLevel(Level level) noexcept {
-    instance().level = level;
+    instance().mLevel = level;
   }
   static Level getLevel() noexcept {
-    return instance().level;
+    return instance().mLevel;
   }
 
   template <typename... Args>
@@ -151,7 +151,7 @@ private:
   void
   log(std::ostream& os, Level level, HeadProcessor auto&& processHead,
       auto&& head, fmt::format_string<Args...> fmt, Args&&... args) noexcept {
-    if (level <= this->level) {
+    if (level <= mLevel) {
       os << std::invoke(
           std::forward<decltype(processHead)>(processHead),
           std::forward<decltype(head)>(head)

@@ -10,7 +10,7 @@
 namespace git2 {
 
 struct Revwalk : public GlobalState {
-  git_revwalk* raw = nullptr;
+  git_revwalk* mRaw = nullptr;
 
   Revwalk() = delete;
   explicit Revwalk(const Repository& repo);

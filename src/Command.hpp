@@ -10,19 +10,19 @@
 #include <vector>
 
 struct CommandOutput {
-  int exitCode;
-  std::string stdout;
-  std::string stderr;
+  int mExitCode;
+  std::string mStdout;
+  std::string mStderr;
 };
 
 class Child {
 private:
-  pid_t pid;
-  int stdoutfd;
-  int stderrfd;
+  pid_t mPid;
+  int mStdoutfd;
+  int mStderrfd;
 
   Child(pid_t pid, int stdoutfd, int stderrfd) noexcept
-      : pid(pid), stdoutfd(stdoutfd), stderrfd(stderrfd) {}
+      : mPid(pid), mStdoutfd(stdoutfd), mStderrfd(stderrfd) {}
 
   friend struct Command;
 
@@ -38,35 +38,35 @@ struct Command {
     Piped,
   };
 
-  std::string command;
-  std::vector<std::string> arguments;
-  std::filesystem::path workingDirectory;
-  IOConfig stdoutConfig = IOConfig::Inherit;
-  IOConfig stderrConfig = IOConfig::Inherit;
+  std::string mCommand;
+  std::vector<std::string> mArguments;
+  std::filesystem::path mWorkingDirectory;
+  IOConfig mStdoutConfig = IOConfig::Inherit;
+  IOConfig mStderrConfig = IOConfig::Inherit;
 
-  explicit Command(std::string_view cmd) : command(cmd) {}
+  explicit Command(std::string_view cmd) : mCommand(cmd) {}
   Command(std::string_view cmd, std::vector<std::string> args)
-      : command(cmd), arguments(std::move(args)) {}
+      : mCommand(cmd), mArguments(std::move(args)) {}
 
   Command& addArg(const std::string_view arg) {
-    arguments.emplace_back(arg);
+    mArguments.emplace_back(arg);
     return *this;
   }
   Command& addArgs(const std::vector<std::string>& args) {
-    arguments.insert(arguments.end(), args.begin(), args.end());
+    mArguments.insert(mArguments.end(), args.begin(), args.end());
     return *this;
   }
 
   Command& setStdoutConfig(IOConfig config) noexcept {
-    stdoutConfig = config;
+    mStdoutConfig = config;
     return *this;
   }
   Command& setStderrConfig(IOConfig config) noexcept {
-    stderrConfig = config;
+    mStderrConfig = config;
     return *this;
   }
   Command& setWorkingDirectory(const std::filesystem::path& dir) {
-    workingDirectory = dir;
+    mWorkingDirectory = dir;
     return *this;
   }
 

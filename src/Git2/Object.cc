@@ -7,14 +7,14 @@
 namespace git2 {
 
 Object::~Object() {
-  git_object_free(this->raw);
+  git_object_free(mRaw);
 }
 
-Object::Object(git_object* obj) : raw(obj) {}
+Object::Object(git_object* obj) : mRaw(obj) {}
 
 Oid
 Object::id() const {
-  return Oid(git_object_id(this->raw));
+  return Oid(git_object_id(mRaw));
 }
 
 } // namespace git2

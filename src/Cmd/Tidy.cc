@@ -87,19 +87,19 @@ tidyMain(const std::span<const std::string_view> args) {
 
   std::string tidyFlags = "POAC_TIDY_FLAGS=";
   if (!isVerbose()) {
-    tidyFlags += "-quiet";
+    tidyFlags += "--quiet";
   }
   if (fs::exists(".clang-tidy")) {
     // clang-tidy will run within the poac-out/debug directory.
     tidyFlags += " --config-file=../../.clang-tidy";
   }
   if (fix) {
-    tidyFlags += " -fix";
+    tidyFlags += " --fix";
   }
 
   Command makeCmd(getMakeCommand());
   makeCmd.addArg("-C");
-  makeCmd.addArg(config.outBasePath.string());
+  makeCmd.addArg(config.mOutBasePath.string());
   makeCmd.addArg(tidyFlags);
   makeCmd.addArg("tidy");
   if (fix) {

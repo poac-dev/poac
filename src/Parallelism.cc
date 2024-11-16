@@ -30,13 +30,13 @@ struct ParallelismState {
       numThreads = 1;
     }
 
-    status = std::make_unique<tbb::global_control>(
+    mStatus = std::make_unique<tbb::global_control>(
         tbb::global_control::max_allowed_parallelism, numThreads
     );
   }
   size_t get() const noexcept {
     // NOLINTNEXTLINE(readability-static-accessed-through-instance)
-    return status->active_value(tbb::global_control::max_allowed_parallelism);
+    return mStatus->active_value(tbb::global_control::max_allowed_parallelism);
   }
 
   static ParallelismState& instance() noexcept {
@@ -45,10 +45,10 @@ struct ParallelismState {
   }
 
 private:
-  std::unique_ptr<tbb::global_control> status;
+  std::unique_ptr<tbb::global_control> mStatus;
 
   ParallelismState() noexcept
-      : status(std::make_unique<tbb::global_control>(
+      : mStatus(std::make_unique<tbb::global_control>(
             tbb::global_control::max_allowed_parallelism, numThreads()
         )) {}
 };

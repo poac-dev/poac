@@ -8,7 +8,7 @@
 namespace git2 {
 
 struct Object : public GlobalState {
-  git_object* raw = nullptr;
+  git_object* mRaw = nullptr;
 
   Object() = default;
   ~Object();

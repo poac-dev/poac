@@ -31,14 +31,17 @@ CheckOptions:
     value: camelBack
   - key: readability-identifier-naming.NamespaceCase
     value: camelBack
-  - key: readability-identifier-naming.MemberCase
-    value: camelBack
   - key: readability-identifier-naming.MethodCase
     value: camelBack
   - key: readability-identifier-naming.ParameterCase
     value: camelBack
   - key: readability-identifier-naming.VariableCase
     value: camelBack
+  # mCamelCase is essentially camelBack but clang-tidy doesn't understand it
+  - key: readability-identifier-naming.MemberPrefix
+    value: m
+  - key: readability-identifier-naming.MemberCase
+    value: CamelCase
 
   - key: readability-identifier-naming.GlobalConstantCase
     value: UPPER_CASE

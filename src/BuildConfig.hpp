@@ -31,38 +31,38 @@ enum class VarType : uint8_t {
 };
 
 struct Variable {
-  std::string value;
-  VarType type = VarType::Simple;
+  std::string mValue;
+  VarType mType = VarType::Simple;
 };
 
 struct Target {
-  std::vector<std::string> commands;
-  std::optional<std::string> sourceFile;
-  std::unordered_set<std::string> remDeps;
+  std::vector<std::string> mCommands;
+  std::optional<std::string> mSourceFile;
+  std::unordered_set<std::string> mRemDeps;
 };
 
 struct BuildConfig {
   // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  fs::path outBasePath;
+  fs::path mOutBasePath;
 
 private:
-  std::string packageName;
-  fs::path buildOutPath;
-  fs::path unittestOutPath;
-  bool isDebug;
+  std::string mPackageName;
+  fs::path mBuildOutPath;
+  fs::path mUnittestOutPath;
+  bool mIsDebug{};
 
-  std::unordered_map<std::string, Variable> variables;
-  std::unordered_map<std::string, std::vector<std::string>> varDeps;
-  std::unordered_map<std::string, Target> targets;
-  std::unordered_map<std::string, std::vector<std::string>> targetDeps;
-  std::optional<std::unordered_set<std::string>> phony;
-  std::optional<std::unordered_set<std::string>> all;
+  std::unordered_map<std::string, Variable> mVariables;
+  std::unordered_map<std::string, std::vector<std::string>> mVarDeps;
+  std::unordered_map<std::string, Target> mTargets;
+  std::unordered_map<std::string, std::vector<std::string>> mTargetDeps;
+  std::optional<std::unordered_set<std::string>> mPhony;
+  std::optional<std::unordered_set<std::string>> mAll;
 
-  std::string cxx;
-  std::vector<std::string> cxxflags;
-  std::vector<std::string> defines;
-  std::vector<std::string> includes = { "-I../../include" };
-  std::vector<std::string> libs;
+  std::string mCxx;
+  std::vector<std::string> mCxxflags;
+  std::vector<std::string> mDefines;
+  std::vector<std::string> mIncludes = { "-I../../include" };
+  std::vector<std::string> mLibs;
 
 public:
   explicit BuildConfig(const std::string& packageName, bool isDebug = true);
@@ -71,23 +71,23 @@ public:
       const std::string& name, const Variable& value,
       const std::unordered_set<std::string>& dependsOn = {}
   ) {
-    variables[name] = value;
+    mVariables[name] = value;
     for (const std::string& dep : dependsOn) {
       // reverse dependency
-      varDeps[dep].push_back(name);
+      mVarDeps[dep].push_back(name);
     }
   }
   void defineSimpleVar(
       const std::string& name, const std::string& value,
       const std::unordered_set<std::string>& dependsOn = {}
   ) {
-    defineVar(name, { .value = value, .type = VarType::Simple }, dependsOn);
+    defineVar(name, { .mValue = value, .mType = VarType::Simple }, dependsOn);
   }
   void defineCondVar(
       const std::string& name, const std::string& value,
       const std::unordered_set<std::string>& dependsOn = {}
   ) {
-    defineVar(name, { .value = value, .type = VarType::Cond }, dependsOn);
+    defineVar(name, { .mValue = value, .mType = VarType::Cond }, dependsOn);
   }
 
   void defineTarget(
@@ -95,29 +95,29 @@ public:
       const std::unordered_set<std::string>& remDeps = {},
       const std::optional<std::string>& sourceFile = std::nullopt
   ) {
-    targets[name] = { .commands = commands,
-                      .sourceFile = sourceFile,
-                      .remDeps = remDeps };
+    mTargets[name] = { .mCommands = commands,
+                       .mSourceFile = sourceFile,
+                       .mRemDeps = remDeps };
 
     if (sourceFile.has_value()) {
-      targetDeps[sourceFile.value()].push_back(name);
+      mTargetDeps[sourceFile.value()].push_back(name);
     }
     for (const std::string& dep : remDeps) {
       // reverse dependency
-      targetDeps[dep].push_back(name);
+      mTargetDeps[dep].push_back(name);
     }
   }
 
   void addPhony(const std::string& target) {
-    if (!phony.has_value()) {
-      phony = { target };
+    if (!mPhony.has_value()) {
+      mPhony = { target };
     } else {
-      phony->insert(target);
+      mPhony->insert(target);
     }
   }
 
   void setAll(const std::unordered_set<std::string>& dependsOn) {
-    all = dependsOn;
+    mAll = dependsOn;
   }
 
   void emitVariable(std::ostream& os, const std::string& varName) const;

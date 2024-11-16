@@ -22,30 +22,30 @@
 #include <variant>
 #include <vector>
 
-Edition::Edition(const std::string& str) : str(str) {
+Edition::Edition(const std::string& str) : mStr(str) {
   if (str == "98") {
-    edition = Cpp98;
+    mEdition = Cpp98;
     return;
   } else if (str == "03") {
-    edition = Cpp03;
+    mEdition = Cpp03;
     return;
   } else if (str == "0x" || str == "11") {
-    edition = Cpp11;
+    mEdition = Cpp11;
     return;
   } else if (str == "1y" || str == "14") {
-    edition = Cpp14;
+    mEdition = Cpp14;
     return;
   } else if (str == "1z" || str == "17") {
-    edition = Cpp17;
+    mEdition = Cpp17;
     return;
   } else if (str == "2a" || str == "20") {
-    edition = Cpp20;
+    mEdition = Cpp20;
     return;
   } else if (str == "2b" || str == "23") {
-    edition = Cpp23;
+    mEdition = Cpp23;
     return;
   } else if (str == "2c") {
-    edition = Cpp26;
+    mEdition = Cpp26;
     return;
   }
   throw PoacError("invalid edition: ", str);
@@ -53,16 +53,18 @@ Edition::Edition(const std::string& str) : str(str) {
 
 std::string
 Edition::getString() const noexcept {
-  return str;
+  return mStr;
 }
 
+// NOLINTBEGIN(readability-identifier-naming)
+// TODO: use `m` prefix for member variables?  If we do so, we will need to
+// manually define TOML conversions.
 struct Package {
   std::string name;
   Edition edition;
   Version version;
 };
 
-// NOLINTBEGIN(readability-identifier-naming)
 namespace toml {
 template <>
 struct from<Edition> {
@@ -119,31 +121,31 @@ findManifest() {
 }
 
 struct GitDependency {
-  std::string name;
-  std::string url;
-  std::optional<std::string> target;
+  std::string mName;
+  std::string mUrl;
+  std::optional<std::string> mTarget;
 
   DepMetadata install() const;
 };
 
 struct SystemDependency {
-  std::string name;
-  VersionReq versionReq;
+  std::string mName;
+  VersionReq mVersionReq;
 
   DepMetadata install() const;
 };
 
 void
 Profile::merge(const Profile& other) {
-  cxxflags.insert(other.cxxflags.begin(), other.cxxflags.end());
-  if (!lto) { // false is the default value
-    lto = other.lto;
+  mCxxflags.insert(other.mCxxflags.begin(), other.mCxxflags.end());
+  if (!mLto) { // false is the default value
+    mLto = other.mLto;
   }
-  if (other.debug.has_value() && !debug.has_value()) {
-    debug = other.debug;
+  if (other.mDebug.has_value() && !mDebug.has_value()) {
+    mDebug = other.mDebug;
   }
-  if (other.optLevel.has_value() && !optLevel.has_value()) {
-    optLevel = other.optLevel;
+  if (other.mOptLevel.has_value() && !mOptLevel.has_value()) {
+    mOptLevel = other.mOptLevel;
   }
 }
 
@@ -161,27 +163,27 @@ struct Manifest {
     return instance;
   }
 
-  std::optional<fs::path> manifestPath = std::nullopt;
+  std::optional<fs::path> mManifestPath = std::nullopt;
 
-  std::optional<toml::value> data = std::nullopt;
+  std::optional<toml::value> mData = std::nullopt;
 
-  std::optional<Package> package = std::nullopt;
+  std::optional<Package> mPackage = std::nullopt;
   std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
-      dependencies = std::nullopt;
+      mDependencies = std::nullopt;
   std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
-      devDependencies = std::nullopt;
+      mDevDependencies = std::nullopt;
 
-  std::optional<Profile> profile = std::nullopt;
-  std::optional<Profile> devProfile = std::nullopt;
-  std::optional<Profile> releaseProfile = std::nullopt;
+  std::optional<Profile> mProfile = std::nullopt;
+  std::optional<Profile> mDevProfile = std::nullopt;
+  std::optional<Profile> mReleaseProfile = std::nullopt;
 
-  std::optional<std::vector<std::string>> cpplintFilters = std::nullopt;
+  std::optional<std::vector<std::string>> mCpplintFilters = std::nullopt;
 
 private:
   Manifest() noexcept = default;
 
   void load() {
-    if (data.has_value()) {
+    if (mData.has_value()) {
       return;
     }
 
@@ -191,14 +193,14 @@ private:
       toml::color::disable();
     }
 
-    manifestPath = findManifest();
-    data = toml::parse(manifestPath.value());
+    mManifestPath = findManifest();
+    mData = toml::parse(mManifestPath.value());
   }
 };
 
 const fs::path&
 getManifestPath() {
-  return Manifest::instance().manifestPath.value();
+  return Manifest::instance().mManifestPath.value();
 }
 
 fs::path
@@ -251,11 +253,11 @@ validatePackageName(const std::string_view name) noexcept {
 static Package&
 parsePackage() {
   Manifest& manifest = Manifest::instance();
-  if (manifest.package.has_value()) {
-    return manifest.package.value();
+  if (manifest.mPackage.has_value()) {
+    return manifest.mPackage.value();
   }
 
-  const toml::value& data = manifest.data.value();
+  const toml::value& data = manifest.mData.value();
   const auto package = toml::find<Package>(data, "package");
 
   if (const auto err = validatePackageName(package.name)) {
@@ -264,8 +266,8 @@ parsePackage() {
     );
   }
 
-  manifest.package = package;
-  return manifest.package.value();
+  manifest.mPackage = package;
+  return manifest.mPackage.value();
 }
 
 const std::string&
@@ -312,36 +314,37 @@ parseProfile(const toml::table& table) {
       }
       const std::string& flagStr = flag.as_string();
       validateCxxflag(flagStr);
-      profile.cxxflags.insert(flagStr);
+      profile.mCxxflags.insert(flagStr);
     }
   }
   if (table.contains("lto") && table.at("lto").is_boolean()) {
-    profile.lto = table.at("lto").as_boolean();
+    profile.mLto = table.at("lto").as_boolean();
   }
   if (table.contains("debug") && table.at("debug").is_boolean()) {
-    profile.debug = table.at("debug").as_boolean();
+    profile.mDebug = table.at("debug").as_boolean();
   }
   if (table.contains("opt_level") && table.at("opt_level").is_integer()) {
-    const int32_t optLevel =
+    const auto optLevel =
         static_cast<int32_t>(table.at("opt_level").as_integer());
     if (optLevel < 0 || optLevel > 3) {
       throw PoacError("opt_level must be between 0 and 3");
     }
-    profile.optLevel = optLevel;
+    profile.mOptLevel = optLevel;
   }
   return profile;
 }
 
 static Profile
 getProfile(std::optional<std::string> profileName) {
-  Manifest& manifest = Manifest::instance();
-  if (!manifest.data.value().contains("profile")) {
+  const Manifest& manifest = Manifest::instance();
+  if (!manifest.mData.value().contains("profile")) {
     return {};
   }
-  if (!manifest.data.value().at("profile").is_table()) {
+  if (!manifest.mData.value().at("profile").is_table()) {
     throw PoacError("[profile] must be a table");
   }
-  const auto& table = toml::find<toml::table>(manifest.data.value(), "profile");
+  const auto& table =
+      toml::find<toml::table>(manifest.mData.value(), "profile");
 
   if (profileName.has_value()) {
     if (!table.contains(profileName.value())) {
@@ -351,7 +354,7 @@ getProfile(std::optional<std::string> profileName) {
       throw PoacError("[profile.", profileName.value(), "] must be a table");
     }
     const auto& profileTable = toml::find<toml::table>(
-        manifest.data.value(), "profile", profileName.value()
+        manifest.mData.value(), "profile", profileName.value()
     );
     return parseProfile(profileTable);
   } else {
@@ -362,71 +365,72 @@ getProfile(std::optional<std::string> profileName) {
 static const Profile&
 getBaseProfile() {
   Manifest& manifest = Manifest::instance();
-  if (manifest.profile.has_value()) {
-    return manifest.profile.value();
+  if (manifest.mProfile.has_value()) {
+    return manifest.mProfile.value();
   }
 
   const Profile baseProfile = getProfile(std::nullopt);
-  manifest.profile = baseProfile;
-  return manifest.profile.value();
+  manifest.mProfile = baseProfile;
+  return manifest.mProfile.value();
 }
 
 const Profile&
 getDevProfile() {
   Manifest& manifest = Manifest::instance();
-  if (manifest.devProfile.has_value()) {
-    return manifest.devProfile.value();
+  if (manifest.mDevProfile.has_value()) {
+    return manifest.mDevProfile.value();
   }
 
   Profile devProfile = getProfile("dev");
   devProfile.merge(getBaseProfile());
-  if (!devProfile.debug.has_value()) {
-    devProfile.debug = true;
+  if (!devProfile.mDebug.has_value()) {
+    devProfile.mDebug = true;
   }
-  if (!devProfile.optLevel.has_value()) {
-    devProfile.optLevel = 0;
+  if (!devProfile.mOptLevel.has_value()) {
+    devProfile.mOptLevel = 0;
   }
-  manifest.devProfile = devProfile;
-  return manifest.devProfile.value();
+  manifest.mDevProfile = devProfile;
+  return manifest.mDevProfile.value();
 }
 
 const Profile&
 getReleaseProfile() {
   Manifest& manifest = Manifest::instance();
-  if (manifest.releaseProfile.has_value()) {
-    return manifest.releaseProfile.value();
+  if (manifest.mReleaseProfile.has_value()) {
+    return manifest.mReleaseProfile.value();
   }
 
   Profile releaseProfile = getProfile("release");
   releaseProfile.merge(getBaseProfile());
-  if (!releaseProfile.debug.has_value()) {
-    releaseProfile.debug = false;
+  if (!releaseProfile.mDebug.has_value()) {
+    releaseProfile.mDebug = false;
   }
-  if (!releaseProfile.optLevel.has_value()) {
-    releaseProfile.optLevel = 3;
+  if (!releaseProfile.mOptLevel.has_value()) {
+    releaseProfile.mOptLevel = 3;
   }
-  manifest.releaseProfile = releaseProfile;
-  return manifest.releaseProfile.value();
+  manifest.mReleaseProfile = releaseProfile;
+  return manifest.mReleaseProfile.value();
 }
 
 const std::vector<std::string>&
 getLintCpplintFilters() {
   Manifest& manifest = Manifest::instance();
-  if (manifest.cpplintFilters.has_value()) {
-    return manifest.cpplintFilters.value();
+  if (manifest.mCpplintFilters.has_value()) {
+    return manifest.mCpplintFilters.value();
   }
 
-  const auto& table = toml::get<toml::table>(*manifest.data);
+  const auto& table = toml::get<toml::table>(*manifest.mData);
   std::vector<std::string> filters;
   if (!table.contains("lint")) {
     filters = {};
   } else {
     filters = toml::find_or<std::vector<std::string>>(
-        *manifest.data, "lint", "cpplint", "filters", std::vector<std::string>{}
+        *manifest.mData, "lint", "cpplint", "filters",
+        std::vector<std::string>{}
     );
   }
-  manifest.cpplintFilters = filters;
-  return manifest.cpplintFilters.value();
+  manifest.mCpplintFilters = filters;
+  return manifest.mCpplintFilters.value();
 }
 
 static fs::path
@@ -533,7 +537,7 @@ parseGitDep(const std::string& name, const toml::table& info) {
       }
     }
   }
-  return { .name = name, .url = gitUrlStr, .target = target };
+  return { .mName = name, .mUrl = gitUrlStr, .mTarget = target };
 }
 
 static SystemDependency
@@ -545,18 +549,18 @@ parseSystemDep(const std::string& name, const toml::table& info) {
   }
 
   const std::string versionReq = version.as_string();
-  return { .name = name, .versionReq = VersionReq::parse(versionReq) };
+  return { .mName = name, .mVersionReq = VersionReq::parse(versionReq) };
 }
 
 static std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
 parseDependencies(const char* key) {
-  Manifest& manifest = Manifest::instance();
-  const auto& table = toml::get<toml::table>(manifest.data.value());
+  const Manifest& manifest = Manifest::instance();
+  const auto& table = toml::get<toml::table>(manifest.mData.value());
   if (!table.contains(key)) {
     logger::debug("[dependencies] not found");
     return std::nullopt;
   }
-  const auto tomlDeps = toml::find<toml::table>(manifest.data.value(), key);
+  const auto tomlDeps = toml::find<toml::table>(manifest.mData.value(), key);
 
   std::vector<std::variant<GitDependency, SystemDependency>> deps;
   for (const auto& dep : tomlDeps) {
@@ -581,27 +585,28 @@ parseDependencies(const char* key) {
 
 DepMetadata
 GitDependency::install() const {
-  fs::path installDir = GIT_SRC_DIR / name;
-  if (target.has_value()) {
-    installDir += '-' + target.value();
+  fs::path installDir = GIT_SRC_DIR / mName;
+  if (mTarget.has_value()) {
+    installDir += '-' + mTarget.value();
   }
 
   if (fs::exists(installDir) && !fs::is_empty(installDir)) {
-    logger::debug("{} is already installed", name);
+    logger::debug("{} is already installed", mName);
   } else {
     git2::Repository repo;
-    repo.clone(url, installDir.string());
+    repo.clone(mUrl, installDir.string());
 
-    if (target.has_value()) {
+    if (mTarget.has_value()) {
       // Checkout to target.
-      const std::string target = this->target.value();
+      const std::string target = mTarget.value();
       const git2::Object obj = repo.revparseSingle(target);
       repo.setHeadDetached(obj.id());
       repo.checkoutHead(true);
     }
 
     logger::info(
-        "Downloaded", "{} {}", name, target.has_value() ? target.value() : url
+        "Downloaded", "{} {}", mName,
+        mTarget.has_value() ? mTarget.value() : mUrl
     );
   }
 
@@ -616,12 +621,12 @@ GitDependency::install() const {
   }
 
   // Currently, no libs are supported.
-  return { .includes = includes, .libs = "" };
+  return { .mIncludes = includes, .mLibs = "" };
 }
 
 DepMetadata
 SystemDependency::install() const {
-  const std::string pkgConfigVer = versionReq.toPkgConfigString(name);
+  const std::string pkgConfigVer = mVersionReq.toPkgConfigString(mName);
   const Command cflagsCmd =
       Command("pkg-config").addArg("--cflags").addArg(pkgConfigVer);
   const Command libsCmd =
@@ -632,30 +637,30 @@ SystemDependency::install() const {
   std::string libs = getCmdOutput(libsCmd);
   libs.pop_back(); // remove '\n'
 
-  return { .includes = cflags, .libs = libs };
+  return { .mIncludes = cflags, .mLibs = libs };
 }
 
 std::vector<DepMetadata>
 installDependencies(const bool includeDevDeps) {
   Manifest& manifest = Manifest::instance();
-  if (!manifest.dependencies.has_value()) {
-    manifest.dependencies = parseDependencies("dependencies");
+  if (!manifest.mDependencies.has_value()) {
+    manifest.mDependencies = parseDependencies("dependencies");
   }
-  if (includeDevDeps && !manifest.devDependencies.has_value()) {
-    manifest.devDependencies = parseDependencies("dev-dependencies");
+  if (includeDevDeps && !manifest.mDevDependencies.has_value()) {
+    manifest.mDevDependencies = parseDependencies("dev-dependencies");
   }
 
   std::vector<DepMetadata> installed;
-  if (manifest.dependencies.has_value()) {
-    for (const auto& dep : manifest.dependencies.value()) {
+  if (manifest.mDependencies.has_value()) {
+    for (const auto& dep : manifest.mDependencies.value()) {
       std::visit(
           [&installed](auto&& arg) { installed.emplace_back(arg.install()); },
           dep
       );
     }
   }
-  if (includeDevDeps && manifest.devDependencies.has_value()) {
-    for (const auto& dep : manifest.devDependencies.value()) {
+  if (includeDevDeps && manifest.mDevDependencies.has_value()) {
+    for (const auto& dep : manifest.mDevDependencies.value()) {
       std::visit(
           [&installed](auto&& arg) { installed.emplace_back(arg.install()); },
           dep

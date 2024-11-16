@@ -75,9 +75,9 @@ testMain(const std::span<const std::string_view> args) {
 
   // Collect test targets from the generated Makefile.
   const std::string unittestTargetPrefix =
-      (config.outBasePath / "unittests").string() + '/';
+      (config.mOutBasePath / "unittests").string() + '/';
   std::vector<std::string> unittestTargets;
-  std::ifstream infile(config.outBasePath / "Makefile");
+  std::ifstream infile(config.mOutBasePath / "Makefile");
   std::string line;
   while (std::getline(infile, line)) {
     if (!line.starts_with(unittestTargetPrefix)) {
@@ -97,7 +97,7 @@ testMain(const std::span<const std::string_view> args) {
 
   const std::string& packageName = getPackageName();
   const Command baseMakeCmd =
-      getMakeCommand().addArg("-C").addArg(config.outBasePath.string());
+      getMakeCommand().addArg("-C").addArg(config.mOutBasePath.string());
 
   // Find not up-to-date test targets, emit compilation status once, and
   // compile them.

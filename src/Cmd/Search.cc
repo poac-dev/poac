@@ -30,9 +30,9 @@ const Subcmd SEARCH_CMD =
         .setMainFn(searchMain);
 
 struct SearchArgs {
-  std::string name;
-  size_t perPage = 10;
-  size_t page = 1;
+  std::string mName;
+  size_t mPerPage = 10;
+  size_t mPage = 1;
 };
 
 static size_t
@@ -47,9 +47,9 @@ searchPackages(const SearchArgs& args) {
   req["query"] =
 #include "../GraphQL/SearchPackages.gql"
       ;
-  req["variables"]["name"] = "%" + args.name + "%";
-  req["variables"]["limit"] = args.perPage;
-  req["variables"]["offset"] = (args.page - 1) * args.perPage;
+  req["variables"]["name"] = "%" + args.mName + "%";
+  req["variables"]["limit"] = args.mPerPage;
+  req["variables"]["offset"] = (args.mPage - 1) * args.mPerPage;
 
   const std::string reqStr = req.dump();
   std::string resStr;
@@ -105,26 +105,26 @@ searchMain(const std::span<const std::string_view> args) {
       }
     } else if (*itr == "--per-page") {
       if (itr + 1 < args.end()) {
-        searchArgs.perPage = std::stoul(std::string(*++itr));
+        searchArgs.mPerPage = std::stoul(std::string(*++itr));
       } else {
         logger::error("missing argument for `--per-page`");
         return EXIT_FAILURE;
       }
     } else if (*itr == "--page") {
       if (itr + 1 < args.end()) {
-        searchArgs.page = std::stoul(std::string(*++itr));
+        searchArgs.mPage = std::stoul(std::string(*++itr));
       } else {
         logger::error("missing argument for `--page`");
         return EXIT_FAILURE;
       }
-    } else if (searchArgs.name.empty()) {
-      searchArgs.name = *itr;
+    } else if (searchArgs.mName.empty()) {
+      searchArgs.mName = *itr;
     } else {
       return SEARCH_CMD.noSuchArg(*itr);
     }
   }
 
-  if (searchArgs.name.empty()) {
+  if (searchArgs.mName.empty()) {
     logger::error("missing package name");
     return EXIT_FAILURE;
   }

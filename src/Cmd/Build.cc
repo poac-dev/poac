@@ -37,11 +37,11 @@ buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
   const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/false);
-  outDir = config.outBasePath;
+  outDir = config.mOutBasePath;
 
   const std::string& packageName = getPackageName();
   const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
-      (config.outBasePath / packageName).string()
+      (config.mOutBasePath / packageName).string()
   );
   Command checkUpToDateCmd = makeCmd;
   checkUpToDateCmd.addArg("--question");
@@ -64,12 +64,12 @@ buildImpl(std::string& outDir, const bool isDebug) {
     const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
 
     std::vector<std::string_view> profiles;
-    if (profile.optLevel.value() == 0) {
+    if (profile.mOptLevel.value() == 0) {
       profiles.emplace_back("unoptimized");
     } else {
       profiles.emplace_back("optimized");
     }
-    if (profile.debug.value()) {
+    if (profile.mDebug.value()) {
       profiles.emplace_back("debuginfo");
     }
 

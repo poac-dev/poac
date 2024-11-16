@@ -12,7 +12,7 @@
 namespace git2 {
 
 struct Repository : public GlobalState {
-  git_repository* raw = nullptr;
+  git_repository* mRaw = nullptr;
 
   Repository() = default;
   ~Repository();

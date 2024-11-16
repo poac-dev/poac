@@ -37,23 +37,23 @@ struct VersionToken {
   };
   using enum Kind;
 
-  Kind kind;
-  std::variant<std::monostate, uint64_t, std::string_view> value;
+  Kind mKind;
+  std::variant<std::monostate, uint64_t, std::string_view> mValue;
 
   constexpr VersionToken(
       Kind kind,
       const std::variant<std::monostate, uint64_t, std::string_view>& value
   ) noexcept
-      : kind(kind), value(value) {}
+      : mKind(kind), mValue(value) {}
   constexpr explicit VersionToken(Kind kind) noexcept
-      : kind(kind), value(std::monostate{}) {}
+      : mKind(kind), mValue(std::monostate{}) {}
 
   std::string toString() const noexcept;
   size_t size() const noexcept;
 };
 
 struct Prerelease {
-  std::vector<VersionToken> ident;
+  std::vector<VersionToken> mIdent;
 
   static Prerelease parse(std::string_view str);
   bool empty() const noexcept;
@@ -67,7 +67,7 @@ bool operator<=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 bool operator>=(const Prerelease& lhs, const Prerelease& rhs) noexcept;
 
 struct BuildMetadata {
-  std::vector<VersionToken> ident;
+  std::vector<VersionToken> mIdent;
 
   static BuildMetadata parse(std::string_view str);
   bool empty() const noexcept;
@@ -75,11 +75,11 @@ struct BuildMetadata {
 };
 
 struct Version {
-  uint64_t major{};
-  uint64_t minor{};
-  uint64_t patch{};
-  Prerelease pre;
-  BuildMetadata build;
+  uint64_t mMajor{};
+  uint64_t mMinor{};
+  uint64_t mPatch{};
+  Prerelease mPre;
+  BuildMetadata mBuild;
 
   static Version parse(std::string_view str);
   std::string toString() const noexcept;
@@ -93,17 +93,17 @@ bool operator<=(const Version& lhs, const Version& rhs) noexcept;
 bool operator>=(const Version& lhs, const Version& rhs) noexcept;
 
 struct VersionLexer {
-  std::string_view s;
-  size_t pos{ 0 };
+  std::string_view mS;
+  size_t mPos{ 0 };
 
   constexpr explicit VersionLexer(const std::string_view str) noexcept
-      : s(str) {}
+      : mS(str) {}
 
   constexpr bool isEof() const noexcept {
-    return pos >= s.size();
+    return mPos >= mS.size();
   }
   constexpr void step() noexcept {
-    ++pos;
+    ++mPos;
   }
   VersionToken consumeIdent() noexcept;
   VersionToken consumeNum();
@@ -113,10 +113,10 @@ struct VersionLexer {
 };
 
 struct VersionParser {
-  VersionLexer lexer;
+  VersionLexer mLexer;
 
   constexpr explicit VersionParser(const std::string_view str) noexcept
-      : lexer(str) {}
+      : mLexer(str) {}
 
   Version parse();
   uint64_t parseNum();

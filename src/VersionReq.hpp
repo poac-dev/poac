@@ -23,10 +23,10 @@
 #include <string_view>
 
 struct OptVersion {
-  uint64_t major{};
-  std::optional<uint64_t> minor;
-  std::optional<uint64_t> patch;
-  Prerelease pre;
+  uint64_t mMajor{};
+  std::optional<uint64_t> mMinor;
+  std::optional<uint64_t> mPatch;
+  Prerelease mPre;
 };
 
 // 1. NoOp: (Caret (^), "compatible" updates)
@@ -71,11 +71,11 @@ struct Comparator {
   };
   using enum Op;
 
-  std::optional<Op> op;
-  uint64_t major{};
-  std::optional<uint64_t> minor;
-  std::optional<uint64_t> patch;
-  Prerelease pre;
+  std::optional<Op> mOp;
+  uint64_t mMajor{};
+  std::optional<uint64_t> mMinor;
+  std::optional<uint64_t> mPatch;
+  Prerelease mPre;
 
   static Comparator parse(std::string_view str);
   void from(const OptVersion& ver) noexcept;
@@ -86,8 +86,8 @@ struct Comparator {
 };
 
 struct VersionReq {
-  Comparator left;
-  std::optional<Comparator> right;
+  Comparator mLeft;
+  std::optional<Comparator> mRight;
 
   static VersionReq parse(std::string_view str);
   bool satisfiedBy(const Version& ver) const noexcept;

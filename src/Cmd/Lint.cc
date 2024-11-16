@@ -23,7 +23,7 @@ const Subcmd LINT_CMD = Subcmd{ "lint" }
                             .setMainFn(lintMain);
 
 struct LintArgs {
-  std::vector<std::string> excludes;
+  std::vector<std::string> mExcludes;
 };
 
 static int
@@ -68,7 +68,7 @@ lintMain(const std::span<const std::string_view> args) {
         return Subcmd::missingArgumentForOpt(*itr);
       }
 
-      lintArgs.excludes.push_back("--exclude=" + std::string(*++itr));
+      lintArgs.mExcludes.push_back("--exclude=" + std::string(*++itr));
     } else {
       return LINT_CMD.noSuchArg(*itr);
     }
@@ -82,7 +82,7 @@ lintMain(const std::span<const std::string_view> args) {
     return EXIT_FAILURE;
   }
 
-  std::vector<std::string> cpplintArgs = lintArgs.excludes;
+  std::vector<std::string> cpplintArgs = lintArgs.mExcludes;
   const std::string_view packageName = getPackageName();
   if (fs::exists("CPPLINT.cfg")) {
     logger::debug("Using CPPLINT.cfg for lint ...");

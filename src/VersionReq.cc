@@ -57,34 +57,34 @@ struct ComparatorToken {
   };
   using enum Kind;
 
-  Kind kind;
-  std::variant<std::monostate, OptVersion> value;
+  Kind mKind;
+  std::variant<std::monostate, OptVersion> mValue;
 
   ComparatorToken(
       Kind kind, std::variant<std::monostate, OptVersion> value
   ) noexcept
-      : kind(kind), value(std::move(value)) {}
+      : mKind(kind), mValue(std::move(value)) {}
 
   explicit ComparatorToken(Kind kind) noexcept
-      : kind(kind), value(std::monostate{}) {}
+      : mKind(kind), mValue(std::monostate{}) {}
 };
 
 struct ComparatorLexer {
-  std::string_view s;
-  size_t pos{ 0 };
+  std::string_view mS;
+  size_t mPos{ 0 };
 
-  explicit ComparatorLexer(const std::string_view str) noexcept : s(str) {}
+  explicit ComparatorLexer(const std::string_view str) noexcept : mS(str) {}
 
   bool isEof() const noexcept {
-    return pos >= s.size();
+    return mPos >= mS.size();
   }
 
   void step() noexcept {
-    ++pos;
+    ++mPos;
   }
 
   void skipWs() noexcept {
-    while (!isEof() && std::isspace(s[pos])) {
+    while (!isEof() && std::isspace(mS[mPos])) {
       step();
     }
   }
@@ -94,7 +94,7 @@ struct ComparatorLexer {
       return ComparatorToken{ ComparatorToken::Eof };
     }
 
-    const char c = s[pos];
+    const char c = mS[mPos];
     if (c == '=') {
       step();
       return ComparatorToken{ ComparatorToken::Eq };
@@ -102,7 +102,7 @@ struct ComparatorLexer {
       step();
       if (isEof()) {
         return ComparatorToken{ ComparatorToken::Gt };
-      } else if (s[pos] == '=') {
+      } else if (mS[mPos] == '=') {
         step();
         return ComparatorToken{ ComparatorToken::Gte };
       } else {
@@ -112,44 +112,44 @@ struct ComparatorLexer {
       step();
       if (isEof()) {
         return ComparatorToken{ ComparatorToken::Lt };
-      } else if (s[pos] == '=') {
+      } else if (mS[mPos] == '=') {
         step();
         return ComparatorToken{ ComparatorToken::Lte };
       } else {
         return ComparatorToken{ ComparatorToken::Lt };
       }
     } else if (std::isdigit(c)) {
-      VersionParser parser(s);
-      parser.lexer.pos = pos;
+      VersionParser parser(mS);
+      parser.mLexer.mPos = mPos;
 
       OptVersion ver;
-      ver.major = parser.parseNum();
-      if (parser.lexer.s[parser.lexer.pos] != '.') {
-        pos = parser.lexer.pos;
+      ver.mMajor = parser.parseNum();
+      if (parser.mLexer.mS[parser.mLexer.mPos] != '.') {
+        mPos = parser.mLexer.mPos;
         return ComparatorToken{ ComparatorToken::Ver, std::move(ver) };
       }
 
       parser.parseDot();
-      ver.minor = parser.parseNum();
-      if (parser.lexer.s[parser.lexer.pos] != '.') {
-        pos = parser.lexer.pos;
+      ver.mMinor = parser.parseNum();
+      if (parser.mLexer.mS[parser.mLexer.mPos] != '.') {
+        mPos = parser.mLexer.mPos;
         return ComparatorToken{ ComparatorToken::Ver, std::move(ver) };
       }
 
       parser.parseDot();
-      ver.patch = parser.parseNum();
+      ver.mPatch = parser.parseNum();
 
-      if (parser.lexer.s[parser.lexer.pos] == '-') {
-        parser.lexer.step();
-        ver.pre = parser.parsePre();
+      if (parser.mLexer.mS[parser.mLexer.mPos] == '-') {
+        parser.mLexer.step();
+        ver.mPre = parser.parsePre();
       }
 
-      if (parser.lexer.s[parser.lexer.pos] == '+') {
-        parser.lexer.step();
+      if (parser.mLexer.mS[parser.mLexer.mPos] == '+') {
+        parser.mLexer.step();
         parser.parseBuild(); // discard build metadata
       }
 
-      pos = parser.lexer.pos;
+      mPos = parser.mLexer.mPos;
       return ComparatorToken{ ComparatorToken::Ver, std::move(ver) };
     } else {
       return ComparatorToken{ ComparatorToken::Unknown };
@@ -158,51 +158,52 @@ struct ComparatorLexer {
 };
 
 struct ComparatorParser {
-  ComparatorLexer lexer;
+  ComparatorLexer mLexer;
 
-  explicit ComparatorParser(const std::string_view str) noexcept : lexer(str) {}
+  explicit ComparatorParser(const std::string_view str) noexcept
+      : mLexer(str) {}
 
   Comparator parse() {
     Comparator result;
 
-    const auto token = lexer.next();
-    switch (token.kind) {
+    const auto token = mLexer.next();
+    switch (token.mKind) {
       case ComparatorToken::Eq:
-        result.op = Comparator::Exact;
+        result.mOp = Comparator::Exact;
         break;
       case ComparatorToken::Gt:
-        result.op = Comparator::Gt;
+        result.mOp = Comparator::Gt;
         break;
       case ComparatorToken::Gte:
-        result.op = Comparator::Gte;
+        result.mOp = Comparator::Gte;
         break;
       case ComparatorToken::Lt:
-        result.op = Comparator::Lt;
+        result.mOp = Comparator::Lt;
         break;
       case ComparatorToken::Lte:
-        result.op = Comparator::Lte;
+        result.mOp = Comparator::Lte;
         break;
       case ComparatorToken::Ver:
-        result.from(std::get<OptVersion>(token.value));
+        result.from(std::get<OptVersion>(token.mValue));
         break;
       default:
         throw ComparatorError(
-            lexer.s, '\n', std::string(lexer.pos, ' '),
+            mLexer.mS, '\n', std::string(mLexer.mPos, ' '),
             "^ expected =, >=, <=, >, <, or version"
         );
     }
 
     // If the first token was comparison operator, the next token must be
     // version.
-    if (token.kind != ComparatorToken::Ver) {
-      lexer.skipWs();
-      const auto token2 = lexer.next();
-      if (token2.kind != ComparatorToken::Ver) {
+    if (token.mKind != ComparatorToken::Ver) {
+      mLexer.skipWs();
+      const auto token2 = mLexer.next();
+      if (token2.mKind != ComparatorToken::Ver) {
         throw ComparatorError(
-            lexer.s, '\n', std::string(lexer.pos, ' '), "^ expected version"
+            mLexer.mS, '\n', std::string(mLexer.mPos, ' '), "^ expected version"
         );
       }
-      result.from(std::get<OptVersion>(token2.value));
+      result.from(std::get<OptVersion>(token2.mValue));
     }
 
     return result;
@@ -217,26 +218,26 @@ Comparator::parse(const std::string_view str) {
 
 void
 Comparator::from(const OptVersion& ver) noexcept {
-  major = ver.major;
-  minor = ver.minor;
-  patch = ver.patch;
-  pre = ver.pre;
+  mMajor = ver.mMajor;
+  mMinor = ver.mMinor;
+  mPatch = ver.mPatch;
+  mPre = ver.mPre;
 }
 
 static void
 optVersionString(const Comparator& cmp, std::string& result) noexcept {
-  result += std::to_string(cmp.major);
-  if (cmp.minor.has_value()) {
+  result += std::to_string(cmp.mMajor);
+  if (cmp.mMinor.has_value()) {
     result += ".";
-    result += std::to_string(cmp.minor.value());
+    result += std::to_string(cmp.mMinor.value());
 
-    if (cmp.patch.has_value()) {
+    if (cmp.mPatch.has_value()) {
       result += ".";
-      result += std::to_string(cmp.patch.value());
+      result += std::to_string(cmp.mPatch.value());
 
-      if (!cmp.pre.empty()) {
+      if (!cmp.mPre.empty()) {
         result += "-";
-        result += cmp.pre.toString();
+        result += cmp.mPre.toString();
       }
     }
   }
@@ -245,8 +246,8 @@ optVersionString(const Comparator& cmp, std::string& result) noexcept {
 std::string
 Comparator::toString() const noexcept {
   std::string result;
-  if (op.has_value()) {
-    result += ::toString(op.value());
+  if (mOp.has_value()) {
+    result += ::toString(mOp.value());
   }
   optVersionString(*this, result);
   return result;
@@ -255,8 +256,8 @@ Comparator::toString() const noexcept {
 std::string
 Comparator::toPkgConfigString() const noexcept {
   std::string result;
-  if (op.has_value()) {
-    result += ::toString(op.value());
+  if (mOp.has_value()) {
+    result += ::toString(mOp.value());
     result += ' '; // we just need this space for pkg-config
   }
   optVersionString(*this, result);
@@ -265,125 +266,125 @@ Comparator::toPkgConfigString() const noexcept {
 
 static bool
 matchesExact(const Comparator& cmp, const Version& ver) noexcept {
-  if (ver.major != cmp.major) {
+  if (ver.mMajor != cmp.mMajor) {
     return false;
   }
 
-  if (const auto minor = cmp.minor) {
-    if (ver.minor != minor.value()) {
+  if (const auto minor = cmp.mMinor) {
+    if (ver.mMinor != minor.value()) {
       return false;
     }
   }
 
-  if (const auto patch = cmp.patch) {
-    if (ver.patch != patch.value()) {
+  if (const auto patch = cmp.mPatch) {
+    if (ver.mPatch != patch.value()) {
       return false;
     }
   }
 
-  return ver.pre == cmp.pre;
+  return ver.mPre == cmp.mPre;
 }
 
 static bool
 matchesGreater(const Comparator& cmp, const Version& ver) noexcept {
-  if (ver.major != cmp.major) {
-    return ver.major > cmp.major;
+  if (ver.mMajor != cmp.mMajor) {
+    return ver.mMajor > cmp.mMajor;
   }
 
-  if (!cmp.minor.has_value()) {
+  if (!cmp.mMinor.has_value()) {
     return false;
   } else {
-    const uint64_t minor = cmp.minor.value();
-    if (ver.minor != minor) {
-      return ver.minor > minor;
+    const uint64_t minor = cmp.mMinor.value();
+    if (ver.mMinor != minor) {
+      return ver.mMinor > minor;
     }
   }
 
-  if (!cmp.patch.has_value()) {
+  if (!cmp.mPatch.has_value()) {
     return false;
   } else {
-    const uint64_t patch = cmp.patch.value();
-    if (ver.patch != patch) {
-      return ver.patch > patch;
+    const uint64_t patch = cmp.mPatch.value();
+    if (ver.mPatch != patch) {
+      return ver.mPatch > patch;
     }
   }
 
-  return ver.pre > cmp.pre;
+  return ver.mPre > cmp.mPre;
 }
 
 static bool
 matchesLess(const Comparator& cmp, const Version& ver) noexcept {
-  if (ver.major != cmp.major) {
-    return ver.major < cmp.major;
+  if (ver.mMajor != cmp.mMajor) {
+    return ver.mMajor < cmp.mMajor;
   }
 
-  if (!cmp.minor.has_value()) {
+  if (!cmp.mMinor.has_value()) {
     return false;
   } else {
-    const uint64_t minor = cmp.minor.value();
-    if (ver.minor != minor) {
-      return ver.minor < minor;
+    const uint64_t minor = cmp.mMinor.value();
+    if (ver.mMinor != minor) {
+      return ver.mMinor < minor;
     }
   }
 
-  if (!cmp.patch.has_value()) {
+  if (!cmp.mPatch.has_value()) {
     return false;
   } else {
-    const uint64_t patch = cmp.patch.value();
-    if (ver.patch != patch) {
-      return ver.patch < patch;
+    const uint64_t patch = cmp.mPatch.value();
+    if (ver.mPatch != patch) {
+      return ver.mPatch < patch;
     }
   }
 
-  return ver.pre < cmp.pre;
+  return ver.mPre < cmp.mPre;
 }
 
 static bool
 matchesNoOp(const Comparator& cmp, const Version& ver) noexcept {
-  if (ver.major != cmp.major) {
+  if (ver.mMajor != cmp.mMajor) {
     return false;
   }
 
-  if (!cmp.minor.has_value()) {
+  if (!cmp.mMinor.has_value()) {
     return true;
   }
-  const uint64_t minor = cmp.minor.value();
+  const uint64_t minor = cmp.mMinor.value();
 
-  if (!cmp.patch.has_value()) {
-    if (cmp.major > 0) {
-      return ver.minor >= minor;
+  if (!cmp.mPatch.has_value()) {
+    if (cmp.mMajor > 0) {
+      return ver.mMinor >= minor;
     } else {
-      return ver.minor == minor;
+      return ver.mMinor == minor;
     }
   }
-  const uint64_t patch = cmp.patch.value();
+  const uint64_t patch = cmp.mPatch.value();
 
-  if (cmp.major > 0) {
-    if (ver.minor != minor) {
-      return ver.minor > minor;
-    } else if (ver.patch != patch) {
-      return ver.patch > patch;
+  if (cmp.mMajor > 0) {
+    if (ver.mMinor != minor) {
+      return ver.mMinor > minor;
+    } else if (ver.mPatch != patch) {
+      return ver.mPatch > patch;
     }
   } else if (minor > 0) {
-    if (ver.minor != minor) {
+    if (ver.mMinor != minor) {
       return false;
-    } else if (ver.patch != patch) {
-      return ver.patch > patch;
+    } else if (ver.mPatch != patch) {
+      return ver.mPatch > patch;
     }
-  } else if (ver.minor != minor || ver.patch != patch) {
+  } else if (ver.mMinor != minor || ver.mPatch != patch) {
     return false;
   }
 
-  return ver.pre >= cmp.pre;
+  return ver.mPre >= cmp.mPre;
 }
 
 bool
 Comparator::satisfiedBy(const Version& ver) const noexcept {
-  if (!op.has_value()) { // NoOp
+  if (!mOp.has_value()) { // NoOp
     return matchesNoOp(*this, ver);
   }
 
-  switch (op.value()) {
+  switch (mOp.value()) {
     case Op::Exact:
       return matchesExact(*this, ver);
     case Op::Gt:
@@ -400,41 +401,41 @@ Comparator::satisfiedBy(const Version& ver) const noexcept {
 
 Comparator
 Comparator::canonicalize() const noexcept {
-  if (!op.has_value() || op.value() == Op::Exact) {
+  if (!mOp.has_value() || mOp.value() == Op::Exact) {
     // For NoOp or Exact, canonicalization can be done over VersionReq.
     return *this;
   }
 
   Comparator cmp = *this;
-  const Op op = this->op.value();
+  const Op op = mOp.value();
   switch (op) {
     case Op::Gt:
-      cmp.op = Op::Gte;
+      cmp.mOp = Op::Gte;
       break;
     case Op::Lte:
-      cmp.op = Op::Lt;
+      cmp.mOp = Op::Lt;
       break;
     default:
-      cmp.minor = cmp.minor.value_or(0);
-      cmp.patch = cmp.patch.value_or(0);
+      cmp.mMinor = cmp.mMinor.value_or(0);
+      cmp.mPatch = cmp.mPatch.value_or(0);
       return cmp;
   }
 
-  if (patch.has_value()) {
-    cmp.patch = patch.value() + 1;
+  if (mPatch.has_value()) {
+    cmp.mPatch = mPatch.value() + 1;
     return cmp;
   } else {
-    cmp.patch = 0;
+    cmp.mPatch = 0;
   }
 
-  if (minor.has_value()) {
-    cmp.minor = minor.value() + 1;
+  if (mMinor.has_value()) {
+    cmp.mMinor = mMinor.value() + 1;
     return cmp;
   } else {
-    cmp.minor = 0;
+    cmp.mMinor = 0;
   }
 
-  cmp.major += 1;
+  cmp.mMajor += 1;
   return cmp;
 }
 
@@ -447,16 +448,16 @@ struct VersionReqToken {
   };
   using enum Kind;
 
-  Kind kind;
-  std::variant<std::monostate, Comparator> value;
+  Kind mKind;
+  std::variant<std::monostate, Comparator> mValue;
 
   VersionReqToken(
       Kind kind, std::variant<std::monostate, Comparator> value
   ) noexcept
-      : kind(kind), value(std::move(value)) {}
+      : mKind(kind), mValue(std::move(value)) {}
 
   explicit VersionReqToken(Kind kind) noexcept
-      : kind(kind), value(std::monostate{}) {}
+      : mKind(kind), mValue(std::monostate{}) {}
 };
 
 static constexpr bool
@@ -465,18 +466,18 @@ isCompStart(const char c) noexcept {
 }
 
 struct VersionReqLexer {
-  std::string_view s;
-  size_t pos{ 0 };
+  std::string_view mS;
+  size_t mPos{ 0 };
 
-  explicit VersionReqLexer(const std::string_view str) noexcept : s(str) {}
+  explicit VersionReqLexer(const std::string_view str) noexcept : mS(str) {}
 
   bool isEof() const noexcept {
-    return pos >= s.size();
+    return mPos >= mS.size();
   }
 
   void skipWs() noexcept {
-    while (!isEof() && std::isspace(s[pos])) {
-      ++pos;
+    while (!isEof() && std::isspace(mS[mPos])) {
+      ++mPos;
     }
   }
 
@@ -486,17 +487,17 @@ struct VersionReqLexer {
       return VersionReqToken{ VersionReqToken::Eof };
     }
 
-    const char c = s[pos];
+    const char c = mS[mPos];
     if (isCompStart(c) || std::isdigit(c)) {
-      ComparatorParser parser(s);
-      parser.lexer.pos = pos;
+      ComparatorParser parser(mS);
+      parser.mLexer.mPos = mPos;
 
       const Comparator comp = parser.parse();
-      pos = parser.lexer.pos;
+      mPos = parser.mLexer.mPos;
 
       return VersionReqToken{ VersionReqToken::Comp, comp };
-    } else if (c == '&' && pos + 1 < s.size() && s[pos + 1] == '&') {
-      pos += 2;
+    } else if (c == '&' && mPos + 1 < mS.size() && mS[mPos + 1] == '&') {
+      mPos += 2;
       return VersionReqToken{ VersionReqToken::And };
     }
 
@@ -505,40 +506,42 @@ struct VersionReqLexer {
 };
 
 struct VersionReqParser {
-  VersionReqLexer lexer;
+  VersionReqLexer mLexer;
 
-  explicit VersionReqParser(const std::string_view str) noexcept : lexer(str) {}
+  explicit VersionReqParser(const std::string_view str) noexcept
+      : mLexer(str) {}
 
   VersionReq parse() {
     VersionReq result;
 
-    result.left = parseComparatorOrOptVer();
-    if (!result.left.op.has_value()
-        || result.left.op.value() == Comparator::Exact) { // NoOp or Exact
-      lexer.skipWs();
-      if (!lexer.isEof()) {
+    result.mLeft = parseComparatorOrOptVer();
+    if (!result.mLeft.mOp.has_value()
+        || result.mLeft.mOp.value() == Comparator::Exact) { // NoOp or Exact
+      mLexer.skipWs();
+      if (!mLexer.isEof()) {
         throw VersionReqError(
-            lexer.s, '\n', std::string(lexer.pos, ' '),
+            mLexer.mS, '\n', std::string(mLexer.mPos, ' '),
             "^ NoOp and Exact cannot chain"
         );
       }
       return result;
     }
 
-    const VersionReqToken token = lexer.next();
-    if (token.kind == VersionReqToken::Eof) {
+    const VersionReqToken token = mLexer.next();
+    if (token.mKind == VersionReqToken::Eof) {
       return result;
-    } else if (token.kind != VersionReqToken::And) {
+    } else if (token.mKind != VersionReqToken::And) {
       throw VersionReqError(
-          lexer.s, '\n', std::string(lexer.pos, ' '), "^ expected `&&`"
+          mLexer.mS, '\n', std::string(mLexer.mPos, ' '), "^ expected `&&`"
       );
     }
 
-    result.right = parseComparator();
-    lexer.skipWs();
-    if (!lexer.isEof()) {
+    result.mRight = parseComparator();
+    mLexer.skipWs();
+    if (!mLexer.isEof()) {
       throw VersionReqError(
-          lexer.s, '\n', std::string(lexer.pos, ' '), "^ expected end of string"
+          mLexer.mS, '\n', std::string(mLexer.mPos, ' '),
+          "^ expected end of string"
       );
     }
 
@@ -547,14 +550,14 @@ struct VersionReqParser {
 
   // Parse `("=" | CompOp)? OptVersion` or `Comparator`.
   Comparator parseComparatorOrOptVer() {
-    const VersionReqToken token = lexer.next();
-    if (token.kind != VersionReqToken::Comp) {
+    const VersionReqToken token = mLexer.next();
+    if (token.mKind != VersionReqToken::Comp) {
       throw VersionReqError(
-          lexer.s, '\n', std::string(lexer.pos, ' '),
+          mLexer.mS, '\n', std::string(mLexer.mPos, ' '),
           "^ expected =, >=, <=, >, <, or version"
       );
     }
-    return std::get<Comparator>(token.value);
+    return std::get<Comparator>(token.mValue);
   }
 
   // If the token is a NoOp or Exact comparator, throw an exception.  This
@@ -564,29 +567,30 @@ struct VersionReqParser {
   // in the grammar.  Otherwise, return the comparator if the token is a
   // comparator.
   Comparator parseComparator() {
-    lexer.skipWs();
-    if (lexer.isEof()) {
+    mLexer.skipWs();
+    if (mLexer.isEof()) {
       compExpected();
     }
-    if (!isCompStart(lexer.s[lexer.pos])) {
+    if (!isCompStart(mLexer.mS[mLexer.mPos])) {
       // NoOp cannot chain.
       compExpected();
     }
-    if (lexer.s[lexer.pos] == '=') {
+    if (mLexer.mS[mLexer.mPos] == '=') {
       // Exact cannot chain.
       compExpected();
     }
 
-    const VersionReqToken token = lexer.next();
-    if (token.kind != VersionReqToken::Comp) {
+    const VersionReqToken token = mLexer.next();
+    if (token.mKind != VersionReqToken::Comp) {
       compExpected();
     }
-    return std::get<Comparator>(token.value);
+    return std::get<Comparator>(token.mValue);
   }
 
   [[noreturn]] void compExpected() {
     throw VersionReqError(
-        lexer.s, '\n', std::string(lexer.pos, ' '), "^ expected >=, <=, >, or <"
+        mLexer.mS, '\n', std::string(mLexer.mPos, ' '),
+        "^ expected >=, <=, >, or <"
     );
   }
 };
@@ -599,28 +603,28 @@ VersionReq::parse(const std::string_view str) {
 
 static bool
 preIsCompatible(const Comparator& cmp, const Version& ver) noexcept {
-  return cmp.major == ver.major && cmp.minor.has_value()
-         && cmp.minor.value() == ver.minor && cmp.patch.has_value()
-         && cmp.patch.value() == ver.patch && !cmp.pre.empty();
+  return cmp.mMajor == ver.mMajor && cmp.mMinor.has_value()
+         && cmp.mMinor.value() == ver.mMinor && cmp.mPatch.has_value()
+         && cmp.mPatch.value() == ver.mPatch && !cmp.mPre.empty();
 }
 
 bool
 VersionReq::satisfiedBy(const Version& ver) const noexcept {
-  if (!left.satisfiedBy(ver)) {
+  if (!mLeft.satisfiedBy(ver)) {
     return false;
   }
-  if (right.has_value() && !right->satisfiedBy(ver)) {
+  if (mRight.has_value() && !mRight->satisfiedBy(ver)) {
     return false;
   }
 
-  if (ver.pre.empty()) {
+  if (ver.mPre.empty()) {
     return true;
   }
 
-  if (preIsCompatible(left, ver)) {
+  if (preIsCompatible(mLeft, ver)) {
     return true;
   }
-  if (right.has_value() && preIsCompatible(right.value(), ver)) {
+  if (mRight.has_value() && preIsCompatible(mRight.value(), ver)) {
     return true;
   }
 
@@ -636,24 +640,24 @@ VersionReq::satisfiedBy(const Version& ver) const noexcept {
 //   1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
 static VersionReq
 canonicalizeNoOp(const VersionReq& target) noexcept {
-  const Comparator& left = target.left;
+  const Comparator& left = target.mLeft;
 
-  if (!left.minor.has_value() && !left.patch.has_value()) {
+  if (!left.mMinor.has_value() && !left.mPatch.has_value()) {
     // {{ !B.has_value() && !C.has_value() }}
     // 1.3. `A` is equivalent to `=A` (i.e., 2.3)
     VersionReq req;
-    req.left.op = Comparator::Gte;
-    req.left.major = left.major;
-    req.left.minor = 0;
-    req.left.patch = 0;
-    req.left.pre = left.pre;
+    req.mLeft.mOp = Comparator::Gte;
+    req.mLeft.mMajor = left.mMajor;
+    req.mLeft.mMinor = 0;
+    req.mLeft.mPatch = 0;
+    req.mLeft.mPre = left.mPre;
 
-    req.right = Comparator();
-    req.right->op = Comparator::Lt;
-    req.right->major = left.major + 1;
-    req.right->minor = 0;
-    req.right->patch = 0;
-    req.right->pre = left.pre;
+    req.mRight = Comparator();
+    req.mRight->mOp = Comparator::Lt;
+    req.mRight->mMajor = left.mMajor + 1;
+    req.mRight->mMinor = 0;
+    req.mRight->mPatch = 0;
+    req.mRight->mPre = left.mPre;
 
     return req;
   }
@@ -661,92 +665,92 @@ canonicalizeNoOp(const VersionReq& target) noexcept {
   // => {{ B.has_value() }} since {{ !B.has_value() && C.has_value() }} is
   //    impossible as the semver parser rejects it.
 
-  if (left.major > 0) { // => {{ A > 0 && B.has_value() }}
-    if (left.patch.has_value()) {
+  if (left.mMajor > 0) { // => {{ A > 0 && B.has_value() }}
+    if (left.mPatch.has_value()) {
       // => {{ A > 0 && B.has_value() && C.has_value() }}
       // 1.1. `A.B.C` (where A > 0) is equivalent to `>=A.B.C && <(A+1).0.0`
       VersionReq req;
-      req.left.op = Comparator::Gte;
-      req.left.major = left.major;
-      req.left.minor = left.minor;
-      req.left.patch = left.patch;
-      req.left.pre = left.pre;
+      req.mLeft.mOp = Comparator::Gte;
+      req.mLeft.mMajor = left.mMajor;
+      req.mLeft.mMinor = left.mMinor;
+      req.mLeft.mPatch = left.mPatch;
+      req.mLeft.mPre = left.mPre;
 
-      req.right = Comparator();
-      req.right->op = Comparator::Lt;
-      req.right->major = left.major + 1;
-      req.right->minor = 0;
-      req.right->patch = 0;
-      req.right->pre = left.pre;
+      req.mRight = Comparator();
+      req.mRight->mOp = Comparator::Lt;
+      req.mRight->mMajor = left.mMajor + 1;
+      req.mRight->mMinor = 0;
+      req.mRight->mPatch = 0;
+      req.mRight->mPre = left.mPre;
 
       return req;
     } else { // => {{ A > 0 && B.has_value() && !C.has_value() }}
       // 1.2. `A.B` (where A > 0 & B > 0) is equivalent to `^A.B.0` (i.e., 1.1)
       VersionReq req;
-      req.left.op = Comparator::Gte;
-      req.left.major = left.major;
-      req.left.minor = left.minor;
-      req.left.patch = 0;
-      req.left.pre = left.pre;
+      req.mLeft.mOp = Comparator::Gte;
+      req.mLeft.mMajor = left.mMajor;
+      req.mLeft.mMinor = left.mMinor;
+      req.mLeft.mPatch = 0;
+      req.mLeft.mPre = left.mPre;
 
-      req.right = Comparator();
-      req.right->op = Comparator::Lt;
-      req.right->major = left.major + 1;
-      req.right->minor = 0;
-      req.right->patch = 0;
-      req.right->pre = left.pre;
+      req.mRight = Comparator();
+      req.mRight->mOp = Comparator::Lt;
+      req.mRight->mMajor = left.mMajor + 1;
+      req.mRight->mMinor = 0;
+      req.mRight->mPatch = 0;
+      req.mRight->mPre = left.mPre;
 
       return req;
     }
   }
   // => {{ A == 0 && B.has_value() }}
 
-  if (left.minor.value() > 0) { // => {{ A == 0 && B > 0 }}
+  if (left.mMinor.value() > 0) { // => {{ A == 0 && B > 0 }}
     // 1.4. `0.B.C` (where B > 0) is equivalent to `>=0.B.C && <0.(B+1).0`
     VersionReq req;
-    req.left.op = Comparator::Gte;
-    req.left.major = 0;
-    req.left.minor = left.minor;
-    req.left.patch = left.patch.value_or(0);
-    req.left.pre = left.pre;
+    req.mLeft.mOp = Comparator::Gte;
+    req.mLeft.mMajor = 0;
+    req.mLeft.mMinor = left.mMinor;
+    req.mLeft.mPatch = left.mPatch.value_or(0);
+    req.mLeft.mPre = left.mPre;
 
-    req.right = Comparator();
-    req.right->op = Comparator::Lt;
-    req.right->major = 0;
-    req.right->minor = left.minor.value() + 1;
-    req.right->patch = 0;
-    req.right->pre = left.pre;
+    req.mRight = Comparator();
+    req.mRight->mOp = Comparator::Lt;
+    req.mRight->mMajor = 0;
+    req.mRight->mMinor = left.mMinor.value() + 1;
+    req.mRight->mPatch = 0;
+    req.mRight->mPre = left.mPre;
 
     return req;
   }
   // => {{ A == 0 && B == 0 }}
 
-  if (left.patch.has_value()) { // => {{ A == 0 && B == 0 && C.has_value() }}
+  if (left.mPatch.has_value()) { // => {{ A == 0 && B == 0 && C.has_value() }}
     // 1.5. `0.0.C` is equivalent to `=0.0.C` (i.e., 2.1)
     VersionReq req;
-    req.left.op = Comparator::Exact;
-    req.left.major = 0;
-    req.left.minor = 0;
-    req.left.patch = left.patch;
-    req.left.pre = left.pre;
+    req.mLeft.mOp = Comparator::Exact;
+    req.mLeft.mMajor = 0;
+    req.mLeft.mMinor = 0;
+    req.mLeft.mPatch = left.mPatch;
+    req.mLeft.mPre = left.mPre;
     return req;
   }
   // => {{ A == 0 && B == 0 && !C.has_value() }}
 
   // 1.6. `0.0` is equivalent to `=0.0` (i.e., 2.2)
   VersionReq req;
-  req.left.op = Comparator::Gte;
-  req.left.major = 0;
-  req.left.minor = 0;
-  req.left.patch = 0;
-  req.left.pre = left.pre;
+  req.mLeft.mOp = Comparator::Gte;
+  req.mLeft.mMajor = 0;
+  req.mLeft.mMinor = 0;
+  req.mLeft.mPatch = 0;
+  req.mLeft.mPre = left.mPre;
 
-  req.right = Comparator();
-  req.right->op = Comparator::Lt;
-  req.right->major = 0;
-  req.right->minor = 1;
-  req.right->patch = 0;
-  req.right->pre = left.pre;
+  req.mRight = Comparator();
+  req.mRight->mOp = Comparator::Lt;
+  req.mRight->mMajor = 0;
+  req.mRight->mMinor = 1;
+  req.mRight->mPatch = 0;
+  req.mRight->mPre = left.mPre;
 
   return req;
 }
@@ -757,43 +761,43 @@ canonicalizeNoOp(const VersionReq& target) noexcept {
 //   2.3. `=A` is equivalent to `>=A.0.0 && <(A+1).0.0`
 static VersionReq
 canonicalizeExact(const VersionReq& req) noexcept {
-  const Comparator& left = req.left;
+  const Comparator& left = req.mLeft;
 
-  if (left.minor.has_value() && left.patch.has_value()) {
+  if (left.mMinor.has_value() && left.mPatch.has_value()) {
     // 2.1. `=A.B.C` is exactly the version A.B.C
     return req;
-  } else if (left.minor.has_value()) {
+  } else if (left.mMinor.has_value()) {
     // 2.2. `=A.B` is equivalent to `>=A.B.0 && <A.(B+1).0`
     VersionReq req;
-    req.left.op = Comparator::Gte;
-    req.left.major = left.major;
-    req.left.minor = left.minor;
-    req.left.patch = 0;
-    req.left.pre = left.pre;
+    req.mLeft.mOp = Comparator::Gte;
+    req.mLeft.mMajor = left.mMajor;
+    req.mLeft.mMinor = left.mMinor;
+    req.mLeft.mPatch = 0;
+    req.mLeft.mPre = left.mPre;
 
-    req.right = Comparator();
-    req.right->op = Comparator::Lt;
-    req.right->major = left.major;
-    req.right->minor = left.minor.value() + 1;
-    req.right->patch = 0;
-    req.right->pre = left.pre;
+    req.mRight = Comparator();
+    req.mRight->mOp = Comparator::Lt;
+    req.mRight->mMajor = left.mMajor;
+    req.mRight->mMinor = left.mMinor.value() + 1;
+    req.mRight->mPatch = 0;
+    req.mRight->mPre = left.mPre;
 
     return req;
   } else {
     // 2.3. `=A` is equivalent to `>=A.0.0 && <(A+1).0.0`
     VersionReq req;
-    req.left.op = Comparator::Gte;
-    req.left.major = left.major;
-    req.left.minor = 0;
-    req.left.patch = 0;
-    req.left.pre = left.pre;
+    req.mLeft.mOp = Comparator::Gte;
+    req.mLeft.mMajor = left.mMajor;
+    req.mLeft.mMinor = 0;
+    req.mLeft.mPatch = 0;
+    req.mLeft.mPre = left.mPre;
 
-    req.right = Comparator();
-    req.right->op = Comparator::Lt;
-    req.right->major = left.major + 1;
-    req.right->minor = 0;
-    req.right->patch = 0;
-    req.right->pre = left.pre;
+    req.mRight = Comparator();
+    req.mRight->mOp = Comparator::Lt;
+    req.mRight->mMajor = left.mMajor + 1;
+    req.mRight->mMinor = 0;
+    req.mRight->mPatch = 0;
+    req.mRight->mPre = left.mPre;
 
     return req;
   }
@@ -801,26 +805,26 @@ canonicalizeExact(const VersionReq& req) noexcept {
 
 VersionReq
 VersionReq::canonicalize() const noexcept {
-  if (!left.op.has_value()) { // NoOp
+  if (!mLeft.mOp.has_value()) { // NoOp
     return canonicalizeNoOp(*this);
-  } else if (left.op.value() == Comparator::Exact) {
+  } else if (mLeft.mOp.value() == Comparator::Exact) {
     return canonicalizeExact(*this);
   }
 
   VersionReq req = *this;
-  req.left = left.canonicalize();
-  if (right.has_value()) {
-    req.right = right->canonicalize();
+  req.mLeft = mLeft.canonicalize();
+  if (mRight.has_value()) {
+    req.mRight = mRight->canonicalize();
   }
   return req;
 }
 
 std::string
 VersionReq::toString() const noexcept {
-  std::string result = left.toString();
-  if (right.has_value()) {
+  std::string result = mLeft.toString();
+  if (mRight.has_value()) {
     result += " && ";
-    result += right->toString();
+    result += mRight->toString();
   }
   return result;
 }
@@ -832,12 +836,12 @@ VersionReq::toPkgConfigString(const std::string_view name) const noexcept {
 
   std::string result(name);
   result += ' ';
-  result += req.left.toPkgConfigString();
-  if (req.right.has_value()) {
+  result += req.mLeft.toPkgConfigString();
+  if (req.mRight.has_value()) {
     result += ", ";
     result += name;
     result += ' ';
-    result += req.right->toPkgConfigString();
+    result += req.mRight->toPkgConfigString();
   }
   return result;
 }
@@ -846,44 +850,44 @@ bool
 VersionReq::canSimplify() const noexcept {
   // NoOp and Exact will not have two comparators, so they cannot be
   // simplified.
-  if (!left.op.has_value()) { // NoOp
+  if (!mLeft.mOp.has_value()) { // NoOp
     return false;
-  } else if (left.op.value() == Comparator::Exact) {
+  } else if (mLeft.mOp.value() == Comparator::Exact) {
     return false;
   }
 
-  if (!right.has_value()) {
+  if (!mRight.has_value()) {
     // If we have only one comparator, it cannot be simplified.
     return false;
   }
 
   // When we have two comparators, the right operator must not be NoOp or
   // Exact.
-  if (left.op.value() == right->op.value()) {
+  if (mLeft.mOp.value() == mRight->mOp.value()) {
     // If the left and right comparators have the same operator, they can
     // be merged into one comparator.
     return true;
   }
 
   // < and <= can be merged into one comparator.
-  if (left.op.value() == Comparator::Lt
-      && right->op.value() == Comparator::Lte) {
+  if (mLeft.mOp.value() == Comparator::Lt
+      && mRight->mOp.value() == Comparator::Lte) {
     return true;
   }
   // <= and < can be merged into one comparator.
-  if (left.op.value() == Comparator::Lte
-      && right->op.value() == Comparator::Lt) {
+  if (mLeft.mOp.value() == Comparator::Lte
+      && mRight->mOp.value() == Comparator::Lt) {
     return true;
   }
 
   // > and >= can be merged into one comparator.
-  if (left.op.value() == Comparator::Gt
-      && right->op.value() == Comparator::Gte) {
+  if (mLeft.mOp.value() == Comparator::Gt
+      && mRight->mOp.value() == Comparator::Gte) {
     return true;
   }
   // >= and > can be merged into one comparator.
-  if (left.op.value() == Comparator::Gte
-      && right->op.value() == Comparator::Gt) {
+  if (mLeft.mOp.value() == Comparator::Gte
+      && mRight->mOp.value() == Comparator::Gt) {
     return true;
   }
 
