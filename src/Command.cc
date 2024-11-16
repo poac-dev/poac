@@ -152,7 +152,7 @@ Command::spawn() const {
 
     // Redirect stdout
     if (stdoutConfig == IOConfig::Piped) {
-      close(stdoutPipe[0]); // Child doesn't read from stdout pipe
+      close(stdoutPipe[0]);  // Child doesn't read from stdout pipe
       dup2(stdoutPipe[1], STDOUT_FILENO);
       close(stdoutPipe[1]);
     } else if (stdoutConfig == IOConfig::Null) {
@@ -164,7 +164,7 @@ Command::spawn() const {
 
     // Redirect stderr
     if (stderrConfig == IOConfig::Piped) {
-      close(stderrPipe[0]); // Child doesn't read from stderr pipe
+      close(stderrPipe[0]);  // Child doesn't read from stderr pipe
       dup2(stderrPipe[1], STDERR_FILENO);
       close(stderrPipe[1]);
     } else if (stderrConfig == IOConfig::Null) {
@@ -209,10 +209,10 @@ Command::spawn() const {
 
     // Close unused pipe ends
     if (stdoutConfig == IOConfig::Piped) {
-      close(stdoutPipe[1]); // Parent doesn't write to stdout pipe
+      close(stdoutPipe[1]);  // Parent doesn't write to stdout pipe
     }
     if (stderrConfig == IOConfig::Piped) {
-      close(stderrPipe[1]); // Parent doesn't write to stderr pipe
+      close(stderrPipe[1]);  // Parent doesn't write to stderr pipe
     }
 
     // Return the Child object with appropriate file descriptors

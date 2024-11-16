@@ -12,7 +12,7 @@
 
 const Cli&
 getCli() noexcept {
-  static const Cli cli = //
+  static const Cli cli =  //
       Cli{ "poac" }
           .setDesc("A package manager and build system for C++")
           .addOpt(Opt{ "--verbose" }
@@ -31,7 +31,7 @@ getCli() noexcept {
                       .setDesc("Coloring: auto, always, never")
                       .setPlaceholder("<WHEN>")
                       .setGlobal(true))
-          .addOpt(Opt{ "--help" } //
+          .addOpt(Opt{ "--help" }  //
                       .setShort("-h")
                       .setDesc("Print help")
                       .setGlobal(true))
@@ -39,7 +39,7 @@ getCli() noexcept {
                       .setShort("-V")
                       .setDesc("Print version info and exit")
                       .setGlobal(false))
-          .addOpt(Opt{ "--list" } //
+          .addOpt(Opt{ "--list" }  //
                       .setDesc("List all subcommands")
                       .setGlobal(false)
                       .setHidden(true))

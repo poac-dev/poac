@@ -24,4 +24,4 @@ Commit::time() const {
   return { git_commit_time(this->raw) };
 }
 
-} // namespace git2
+}  // namespace git2

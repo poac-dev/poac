@@ -20,7 +20,7 @@
 
 static int newMain(std::span<const std::string_view> args);
 
-const Subcmd NEW_CMD = //
+const Subcmd NEW_CMD =  //
     Subcmd{ "new" }
         .setDesc("Create a new poac project")
         .addOpt(OPT_BIN)

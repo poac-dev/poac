@@ -29,4 +29,4 @@ Config::getString(const std::string& name) {
   return { ret.ptr, ret.size };
 }
 
-} // end namespace git2
+}  // end namespace git2

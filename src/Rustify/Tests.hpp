@@ -98,7 +98,7 @@ assertTrue(
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
   if (cond) {
-    return; // OK
+    return;  // OK
   }
 
   if (msg.empty()) {
@@ -114,7 +114,7 @@ assertFalse(
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
   if (!cond) {
-    return; // OK
+    return;  // OK
   }
 
   if (msg.empty()) {
@@ -132,7 +132,7 @@ assertEq(
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
   if (lhs == rhs) {
-    return; // OK
+    return;  // OK
   }
 
   if (msg.empty()) {
@@ -154,7 +154,7 @@ assertNe(
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
   if (lhs != rhs) {
-    return; // OK
+    return;  // OK
   }
 
   if (msg.empty()) {
@@ -176,7 +176,7 @@ assertLt(
     const std::source_location& loc = std::source_location::current()
 ) noexcept {
   if (lhs < rhs) {
-    return; // OK
+    return;  // OK
   }
 
   if (msg.empty()) {
@@ -202,7 +202,7 @@ assertException(
     error(loc, "expected exception `", typeid(E).name(), "` not thrown");
   } catch (const E& e) {
     if (e.what() == std::string(msg)) {
-      return; // OK
+      return;  // OK
     }
 
     error(
@@ -233,4 +233,4 @@ assertNoException(
   }
 }
 
-} // namespace tests
+}  // namespace tests

@@ -13,8 +13,8 @@
 #include <vector>
 
 struct DepMetadata {
-  std::string includes; // -Isomething
-  std::string libs; // -Lsomething -lsomething
+  std::string includes;  // -Isomething
+  std::string libs;      // -Lsomething -lsomething
 };
 
 struct Profile {
