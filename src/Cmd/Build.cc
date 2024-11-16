@@ -33,6 +33,29 @@ const Subcmd BUILD_CMD =
         .setMainFn(buildMain);
 
 int
+runBuildCommand(
+    const std::string& outDir, const BuildConfig& config,
+    const std::string& objectName
+) {
+  const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
+      (config.outBasePath / objectName).string()
+  );
+  Command checkUpToDateCmd = makeCmd;
+  checkUpToDateCmd.addArg("--question");
+
+  int exitCode = execCmd(checkUpToDateCmd);
+  if (exitCode != EXIT_SUCCESS) {
+    // If objectName binary is not up-to-date, compile it.
+    logger::info(
+        "Compiling", "{} v{} ({})", objectName, getPackageVersion().toString(),
+        getProjectBasePath().string()
+    );
+    exitCode = execCmd(makeCmd);
+  }
+  return exitCode;
+}
+
+int
 buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
@@ -42,41 +65,12 @@ buildImpl(std::string& outDir, const bool isDebug) {
   const std::string& packageName = getPackageName();
   int exitCode = 0;
   if (config.isExecutable()) {
-    const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
-        (config.outBasePath / packageName).string()
-    );
-    Command checkUpToDateCmd = makeCmd;
-    checkUpToDateCmd.addArg("--question");
-
-    exitCode = execCmd(checkUpToDateCmd);
-    if (exitCode != EXIT_SUCCESS) {
-      // If packageName binary is not up-to-date, compile it.
-      logger::info(
-          "Compiling", "{} v{} ({})", packageName,
-          getPackageVersion().toString(), getProjectBasePath().string()
-      );
-      exitCode = execCmd(makeCmd);
-    }
+    exitCode = runBuildCommand(outDir, config, packageName);
   }
 
-  if (config.isLibrary()) {
-    std::string libName = fmt::format("lib{}.a", packageName);
-    const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
-        (config.outBasePath / libName).string()
-    );
-    Command checkUpToDateCmd = makeCmd;
-    checkUpToDateCmd.addArg("--question");
-
-    exitCode = execCmd(checkUpToDateCmd);
-    if (exitCode != EXIT_SUCCESS) {
-      // If packageName binary is not up-to-date, compile it.
-      logger::info(
-          "Compiling", "{} v{} ({})", libName, getPackageVersion().toString(),
-          getProjectBasePath().string()
-
-      );
-      exitCode = execCmd(makeCmd);
-    }
+  if (config.isLibrary() && exitCode == 0) {
+    std::string const libName = fmt::format("lib{}.a", packageName);
+    exitCode = runBuildCommand(outDir, config, libName);
   }
 
   const auto end = std::chrono::steady_clock::now();
