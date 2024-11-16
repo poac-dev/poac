@@ -489,8 +489,9 @@ void
 BuildConfig::defineLinkTarget(
     const std::string& binTarget, const std::unordered_set<std::string>& deps
 ) {
-  std::vector<std::string> commands;
-  commands.emplace_back("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
+  const std::vector<std::string> commands = {
+    "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@"
+  };
   defineTarget(binTarget, commands, deps);
 }
 
@@ -498,8 +499,9 @@ void
 BuildConfig::defineLibTarget(
     const std::string& libTarget, const std::unordered_set<std::string>& deps
 ) {
-  std::vector<std::string> commands;
-  commands.emplace_back(fmt::format("ar rcs lib{}.a $^", getPackageName()));
+  const std::vector<std::string> commands = {
+    fmt::format("ar rcs lib{}.a $^", getPackageName())
+  };
   defineTarget(libTarget, commands, deps);
 }
 
