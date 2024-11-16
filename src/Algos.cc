@@ -58,13 +58,13 @@ replaceAll(
 
 int
 execCmd(const Command& cmd) noexcept {
-  logger::debug("Running `", cmd, '`');
+  logger::debug("Running `{}`", cmd.toString());
   return cmd.spawn().wait();
 }
 
 std::string
 getCmdOutput(const Command& cmd, const size_t retry) {
-  logger::debug("Running `", cmd, '`');
+  logger::debug("Running `{}`", cmd.toString());
 
   int exitCode = EXIT_SUCCESS;
   int waitTime = 1;

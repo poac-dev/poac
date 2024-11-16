@@ -68,7 +68,7 @@ getDependencyGitUrl(const std::string_view dep) {
   if (dep.find("://") == std::string_view::npos) {
     // Check if at least in "user/repo" format.
     if (dep.find('/') == std::string_view::npos) {
-      logger::error("Invalid dependency: " + std::string(dep));
+      logger::error("Invalid dependency: {}", dep);
       return "";
     }
 

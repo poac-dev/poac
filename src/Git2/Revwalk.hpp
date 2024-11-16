@@ -28,7 +28,7 @@ struct Revwalk : public GlobalState {
   Revwalk& reset();
 
   /// Set the order in which commits are visited.
-  Revwalk& setSorting(unsigned int sort_mode);
+  Revwalk& setSorting(unsigned int sortMode);
 
   /// Simplify the history by first-parent
   ///

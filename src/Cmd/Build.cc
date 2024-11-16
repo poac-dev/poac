@@ -53,10 +53,10 @@ buildImpl(std::string& outDir, const bool isDebug) {
       // If packageName binary is not up-to-date, compile it.
       logger::info(
           "Compiling",
-          fmt::format(
+
               "{} v{} ({})", packageName, getPackageVersion().toString(),
               getProjectBasePath().string()
-          )
+
       );
       exitCode = execCmd(makeCmd);
     }
@@ -101,11 +101,8 @@ buildImpl(std::string& outDir, const bool isDebug) {
     }
 
     logger::info(
-        "Finished",
-        fmt::format(
-            "`{}` profile [{}] target(s) in {:.2f}s", modeToProfile(isDebug),
-            fmt::join(profiles, " + "), elapsed.count()
-        )
+        "Finished", "`{}` profile [{}] target(s) in {:.2f}s",
+        modeToProfile(isDebug), fmt::join(profiles, " + "), elapsed.count()
     );
   }
   return exitCode;
@@ -156,6 +153,6 @@ buildMain(const std::span<const std::string_view> args) {
 
   // Build compilation database
   const std::string outDir = emitCompdb(isDebug, /*includeDevDeps=*/false);
-  logger::info("Generated", outDir, "/compile_commands.json");
+  logger::info("Generated", "{}/compile_commands.json", outDir);
   return EXIT_SUCCESS;
 }

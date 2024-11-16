@@ -63,7 +63,7 @@ struct DescribeFormatOptions : public GlobalState {
 
   /// Sets whether or not the long format is used even when a shorter name
   /// could be used.
-  DescribeFormatOptions& alwaysUseLongFormat(bool long_f);
+  DescribeFormatOptions& alwaysUseLongFormat(bool longF);
 
   /// If the workdir is dirty and this is set, this string will be appended to
   /// the description string.
