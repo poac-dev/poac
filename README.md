@@ -122,7 +122,7 @@ Installation scripts for libraries:
 * APT (Debian/Ubuntu):
   ```sh
   sudo apt-get update
-  sudo apt-get install -y libfmt-dev libgit2-dev libcurl4-openssl-devnlohmann-json3-dev libtbb-dev
+  sudo apt-get install -y libfmt-dev libgit2-dev libcurl4-openssl-dev nlohmann-json3-dev libtbb-dev
   ```
 * DNF (Fedora):
   ```sh
