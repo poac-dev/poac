@@ -11,6 +11,7 @@ WORKDIR /app
 
 COPY .clang-format .
 COPY .clang-tidy .
+COPY poac.toml .
 COPY Makefile .
 COPY src ./src/
 
