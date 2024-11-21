@@ -35,19 +35,19 @@ const Subcmd BUILD_CMD =
 int
 runBuildCommand(
     const std::string& outDir, const BuildConfig& config,
-    const std::string& objectName
+    const std::string& targetName
 ) {
   const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
-      (config.outBasePath / objectName).string()
+      (config.outBasePath / targetName).string()
   );
   Command checkUpToDateCmd = makeCmd;
   checkUpToDateCmd.addArg("--question");
 
   int exitCode = execCmd(checkUpToDateCmd);
   if (exitCode != EXIT_SUCCESS) {
-    // If objectName binary is not up-to-date, compile it.
+    // If targetName binary is not up-to-date, compile it.
     logger::info(
-        "Compiling", "{} v{} ({})", objectName, getPackageVersion().toString(),
+        "Compiling", "{} v{} ({})", targetName, getPackageVersion().toString(),
         getProjectBasePath().string()
     );
     exitCode = execCmd(makeCmd);
@@ -69,7 +69,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
   }
 
   if (config.isLibrary() && exitCode == 0) {
-    std::string const libName = fmt::format("lib{}.a", packageName);
+    const std::string libName = getLibraryName();
     exitCode = runBuildCommand(outDir, config, libName);
   }
 

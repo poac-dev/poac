@@ -64,6 +64,7 @@ operator<<(std::ostream& os, VarType type) {
 
 BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
     : packageName{ packageName }, isDebug{ isDebug } {
+  libName = fmt::format("lib{}.a", packageName);
   const fs::path projectBasePath = getProjectBasePath();
   if (isDebug) {
     outBasePath = projectBasePath / "poac-out" / "debug";
@@ -500,7 +501,7 @@ BuildConfig::defineLibTarget(
     const std::string& libTarget, const std::unordered_set<std::string>& deps
 ) {
   const std::vector<std::string> commands = {
-    fmt::format("ar rcs lib{}.a $^", getPackageName())
+    fmt::format("ar rcs {} $^", libName)
   };
   defineTarget(libTarget, commands, deps);
 }
@@ -852,16 +853,16 @@ BuildConfig::configureBuild() {
 
   setVariables();
 
-  std::unordered_set<std::string> buildAll = {};
+  std::unordered_set<std::string> allTargets = {};
   if (executable) {
-    buildAll.insert(packageName);
+    allTargets.insert(packageName);
   }
   if (library) {
-    buildAll.insert(fmt::format("lib{}.a", packageName));
+    allTargets.insert(libName);
   }
 
   // Build rules
-  setAll(buildAll);
+  setAll(allTargets);
   addPhony("all");
 
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths(srcDir);
@@ -917,9 +918,7 @@ BuildConfig::configureBuild() {
         targets.at(libTarget).remDeps, // we don't need sourceFile
         buildObjTargets
     );
-    defineLibTarget(
-        outBasePath / fmt::format("lib{}.a", packageName), libTargetDeps
-    );
+    defineLibTarget(outBasePath / libName, libTargetDeps);
   }
 
   // Test Pass

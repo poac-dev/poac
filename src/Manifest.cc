@@ -272,6 +272,10 @@ const std::string&
 getPackageName() {
   return parsePackage().name;
 }
+std::string
+getLibraryName() {
+  return fmt::format("lib{}.a", getPackageName());
+}
 const Edition&
 getPackageEdition() {
   return parsePackage().edition;

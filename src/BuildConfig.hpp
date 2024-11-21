@@ -47,6 +47,7 @@ struct BuildConfig {
 
 private:
   std::string packageName;
+  std::string libName;
   fs::path buildOutPath;
   fs::path unittestOutPath;
   bool isDebug;
