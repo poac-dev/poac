@@ -79,6 +79,9 @@ public:
   bool isLibrary() const {
     return library;
   }
+  std::string getLibName() const {
+    return this->libName;
+  }
 
   void defineVar(
       const std::string& name, const Variable& value,

@@ -64,7 +64,6 @@ const fs::path& getManifestPath();
 fs::path getProjectBasePath();
 std::optional<std::string> validatePackageName(std::string_view name) noexcept;
 const std::string& getPackageName();
-std::string getLibraryName();
 const Edition& getPackageEdition();
 const Version& getPackageVersion();
 const Profile& getDevProfile();
