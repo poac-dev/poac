@@ -17,13 +17,34 @@
 namespace logger {
 
 enum class Level : uint8_t {
-  Off = 0, // --quiet, -q
+  Off = 0,  // --quiet, -q
   Error = 1,
   Warn = 2,
-  Info = 3, // default
-  Debug = 4, // --verbose, -v
-  Trace = 5, // -vv
+  Info = 3,   // default
+  Debug = 4,  // --verbose, -v
+  Trace = 5,  // -vv
 };
+
+// FIXME: duplicate code in Rustify/Tests.hpp but don't want to include it here.
+// Maybe wait for modules to be stable?
+constexpr std::string_view
+prettifyFuncName(std::string_view func) noexcept {
+  if (func.empty()) {
+    return func;
+  }
+
+  const size_t end = func.find_last_of('(');
+  if (end == std::string_view::npos) {
+    return func;
+  }
+  func = func.substr(0, end);
+
+  const size_t start = func.find_last_of(' ');
+  if (start == std::string_view::npos) {
+    return func;
+  }
+  return func.substr(start + 1);
+}
 
 template <typename Fn>
 concept HeadProcessor = std::is_nothrow_invocable_v<Fn, std::string_view>
@@ -118,7 +139,8 @@ private:
         level,
         [lvlStr](const std::string_view func) noexcept {
           return fmt::format(
-              "{}Poac {} {}{} ", gray("["), lvlStr, func, gray("]")
+              "{}Poac {} {}{} ", gray("["), lvlStr, prettifyFuncName(func),
+              gray("]")
           );
         },
         func, fmt, std::forward<Args>(args)...
@@ -181,7 +203,7 @@ info(
 }
 
 template <typename... Args>
-struct debug { // NOLINT(readability-identifier-naming)
+struct debug {  // NOLINT(readability-identifier-naming)
   explicit debug(
       fmt::format_string<Args...> fmt, Args&&... args,
       const std::source_location& loc = std::source_location::current()
@@ -193,7 +215,7 @@ template <typename... Args>
 debug(fmt::format_string<Args...>, Args&&...) -> debug<Args...>;
 
 template <typename... Args>
-struct trace { // NOLINT(readability-identifier-naming)
+struct trace {  // NOLINT(readability-identifier-naming)
   explicit trace(
       fmt::format_string<Args...> fmt, Args&&... args,
       const std::source_location& loc = std::source_location::current()
@@ -213,7 +235,7 @@ getLevel() noexcept {
   return Logger::getLevel();
 }
 
-} // namespace logger
+}  // namespace logger
 
 inline bool
 isVerbose() noexcept {

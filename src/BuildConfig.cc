@@ -163,13 +163,13 @@ getEnvFlags(const char* name) {
 static void
 emitDep(std::ostream& os, size_t& offset, const std::string_view dep) {
   constexpr size_t maxLineLen = 80;
-  if (offset + dep.size() + 2 > maxLineLen) { // 2 for space and \.
+  if (offset + dep.size() + 2 > maxLineLen) {  // 2 for space and \.
     // \ for line continuation. \ is the 80th character.
     os << std::setw(static_cast<int>(maxLineLen + 3 - offset)) << " \\\n ";
     offset = 2;
   }
   os << ' ' << dep;
-  offset += dep.size() + 1; // space
+  offset += dep.size() + 1;  // space
 }
 
 static void
@@ -182,7 +182,7 @@ emitTarget(
   size_t offset = 0;
 
   os << target << ':';
-  offset += target.size() + 2; // : and space
+  offset += target.size() + 2;  // : and space
 
   if (sourceFile.has_value()) {
     emitDep(os, offset, sourceFile.value());
@@ -204,18 +204,18 @@ emitTarget(
 
 void
 BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
-  std::ostringstream oss; // TODO: implement an elegant way to get type size.
+  std::ostringstream oss;  // TODO: implement an elegant way to get type size.
   oss << varName << ' ' << variables.at(varName).type;
   const std::string left = oss.str();
   os << left << ' ';
 
-  constexpr size_t maxLineLen = 80; // TODO: share across sources?
-  size_t offset = left.size() + 1; // space
+  constexpr size_t maxLineLen = 80;  // TODO: share across sources?
+  size_t offset = left.size() + 1;   // space
   std::string value;
   for (const char c : variables.at(varName).value) {
     if (c == ' ') {
       // Emit value
-      if (offset + value.size() + 2 > maxLineLen) { // 2 for space and '\'
+      if (offset + value.size() + 2 > maxLineLen) {  // 2 for space and '\'
         os << std::setw(static_cast<int>(maxLineLen + 3 - offset)) << "\\\n  ";
         offset = 2;
       }
@@ -228,7 +228,7 @@ BuildConfig::emitVariable(std::ostream& os, const std::string& varName) const {
   }
 
   if (!value.empty()) {
-    if (offset + value.size() + 2 > maxLineLen) { // 2 for space and '\'
+    if (offset + value.size() + 2 > maxLineLen) {  // 2 for space and '\'
       os << std::setw(static_cast<int>(maxLineLen + 3 - offset)) << "\\\n  ";
     }
     os << value;
@@ -248,7 +248,7 @@ topoSort(
   }
   for (const auto& edge : adjList) {
     if (!list.contains(edge.first)) {
-      continue; // Ignore nodes not in list
+      continue;  // Ignore nodes not in list
     }
     if (!inDegree.contains(edge.first)) {
       inDegree[edge.first] = 0;
@@ -371,8 +371,8 @@ BuildConfig::emitCompdb(std::ostream& os) const {
   std::string output = oss.str();
   if (!output.empty()) {
     // Remove the last comma.
-    output.pop_back(); // \n
-    output.pop_back(); // ,
+    output.pop_back();  // \n
+    output.pop_back();  // ,
   }
 
   os << "[\n";
@@ -531,7 +531,7 @@ mapHeaderToObj(const fs::path& headerPath, const fs::path& buildOutPath) {
 // for each source file.  So, we need objTargetDeps, which is the
 // depending header files for the source file.
 void
-BuildConfig::collectBinDepObjs( // NOLINT(misc-no-recursion)
+BuildConfig::collectBinDepObjs(  // NOLINT(misc-no-recursion)
     std::unordered_set<std::string>& deps,
     const std::string_view sourceFileName,
     const std::unordered_set<std::string>& objTargetDeps,
@@ -564,7 +564,7 @@ BuildConfig::collectBinDepObjs( // NOLINT(misc-no-recursion)
     deps.insert(objTarget);
     collectBinDepObjs(
         deps, sourceFileName,
-        targets.at(objTarget).remDeps, // we don't need sourceFile
+        targets.at(objTarget).remDeps,  // we don't need sourceFile
         buildObjTargets
     );
   }
@@ -684,7 +684,7 @@ BuildConfig::processSrc(
     const fs::path& sourceFilePath,
     std::unordered_set<std::string>& buildObjTargets, tbb::spin_mutex* mtx
 ) {
-  std::string objTarget; // source.o
+  std::string objTarget;  // source.o
   const std::unordered_set<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath), objTarget);
 
@@ -740,7 +740,7 @@ BuildConfig::processUnittestSrc(
     return;
   }
 
-  std::string objTarget; // source.o
+  std::string objTarget;  // source.o
   const std::unordered_set<std::string> objTargetDeps =
       parseMMOutput(runMM(sourceFilePath, /*isTest=*/true), objTarget);
 
@@ -899,10 +899,9 @@ BuildConfig::configureBuild() {
     // Project binary target.
     const std::string mainObjTarget = buildOutPath / "main.o";
     std::unordered_set<std::string> projTargetDeps = { mainObjTarget };
-
     collectBinDepObjs(
         projTargetDeps, "",
-        targets.at(mainObjTarget).remDeps, // we don't need sourceFile
+        targets.at(mainObjTarget).remDeps,  // we don't need sourceFile
         buildObjTargets
     );
 
@@ -918,6 +917,7 @@ BuildConfig::configureBuild() {
         targets.at(libTarget).remDeps, // we don't need sourceFile
         buildObjTargets
     );
+
     defineLibTarget(outBasePath / libName, libTargetDeps);
   }
 
@@ -1180,7 +1180,7 @@ testParseEnvFlags() {
   pass();
 }
 
-} // namespace tests
+}  // namespace tests
 
 int
 main() {

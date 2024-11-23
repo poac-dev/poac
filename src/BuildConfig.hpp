@@ -23,11 +23,11 @@ inline const std::unordered_set<std::string> HEADER_FILE_EXTS{
 // clang-format on
 
 enum class VarType : uint8_t {
-  Recursive, // =
-  Simple, // :=
-  Cond, // ?=
-  Append, // +=
-  Shell, // !=
+  Recursive,  // =
+  Simple,     // :=
+  Cond,       // ?=
+  Append,     // +=
+  Shell,      // !=
 };
 
 struct Variable {
@@ -164,7 +164,7 @@ public:
       const std::string& libTarget, const std::unordered_set<std::string>& deps
   );
 
-  void collectBinDepObjs( // NOLINT(misc-no-recursion)
+  void collectBinDepObjs(  // NOLINT(misc-no-recursion)
       std::unordered_set<std::string>& deps, std::string_view sourceFileName,
       const std::unordered_set<std::string>& objTargetDeps,
       const std::unordered_set<std::string>& buildObjTargets

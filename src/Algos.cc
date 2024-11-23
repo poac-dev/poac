@@ -44,14 +44,14 @@ replaceAll(
     std::string str, const std::string_view from, const std::string_view to
 ) {
   if (from.empty()) {
-    return str; // If the substring to replace is empty, return the original
-                // string
+    return str;  // If the substring to replace is empty, return the original
+                 // string
   }
 
   std::size_t startPos = 0;
   while ((startPos = str.find(from, startPos)) != std::string::npos) {
     str.replace(startPos, from.length(), to);
-    startPos += to.length(); // Move past the last replaced substring
+    startPos += to.length();  // Move past the last replaced substring
   }
   return str;
 }
@@ -122,9 +122,9 @@ levDistance(const std::string_view lhs, const std::string_view rhs) {
     for (size_t j = 1; j <= rhsSize; ++j) {
       const size_t substCost = lhs[i - 1] == rhs[j - 1] ? 0 : 1;
       dist[i][j] = std::min({
-          dist[i - 1][j] + 1, // deletion
-          dist[i][j - 1] + 1, // insertion
-          dist[i - 1][j - 1] + substCost // substitution
+          dist[i - 1][j] + 1,             // deletion
+          dist[i][j - 1] + 1,             // insertion
+          dist[i - 1][j - 1] + substCost  // substitution
       });
     }
   }
@@ -265,7 +265,7 @@ testFindSimilarStr2() {
   pass();
 }
 
-} // namespace tests
+}  // namespace tests
 
 int
 main() {

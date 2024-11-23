@@ -21,7 +21,7 @@
 
 static int testMain(std::span<const std::string_view> args);
 
-const Subcmd TEST_CMD = //
+const Subcmd TEST_CMD =  //
     Subcmd{ "test" }
         .setShort("t")
         .setDesc("Run the tests of a local package")

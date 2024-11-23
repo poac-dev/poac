@@ -120,10 +120,10 @@ operator!=(const Prerelease& lhs, const Prerelease& rhs) noexcept {
 bool
 operator<(const Prerelease& lhs, const Prerelease& rhs) noexcept {
   if (lhs.ident.empty()) {
-    return false; // lhs is a normal version and is greater
+    return false;  // lhs is a normal version and is greater
   }
   if (rhs.ident.empty()) {
-    return true; // rhs is a normal version and is greater
+    return true;  // rhs is a normal version and is greater
   }
   for (size_t i = 0; i < lhs.ident.size() && i < rhs.ident.size(); ++i) {
     if (lhs.ident[i] < rhs.ident[i]) {
@@ -304,7 +304,7 @@ VersionLexer::consumeNum() {
 // Note that 012 is an invalid number but 012d is a valid identifier.
 VersionToken
 VersionLexer::consumeNumOrIdent() {
-  const size_t oldPos = pos; // we need two passes
+  const size_t oldPos = pos;  // we need two passes
   bool isIdent = false;
   while (pos < s.size() && (std::isalnum(s[pos]) || s[pos] == '-')) {
     if (!std::isdigit(s[pos])) {
@@ -776,7 +776,7 @@ testSpecOrder() {
   pass();
 }
 
-} // namespace tests
+}  // namespace tests
 
 int
 main() {
