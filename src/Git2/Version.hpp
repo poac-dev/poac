@@ -37,4 +37,4 @@ struct Version {
 
 std::ostream& operator<<(std::ostream& os, const Version& version);
 
-} // namespace git2
+}  // namespace git2

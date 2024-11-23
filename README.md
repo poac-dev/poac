@@ -122,7 +122,7 @@ Installation scripts for libraries:
 * APT (Debian/Ubuntu):
   ```sh
   sudo apt-get update
-  sudo apt-get install -y libfmt-dev libgit2-dev libcurl4-openssl-devnlohmann-json3-dev libtbb-dev
+  sudo apt-get install -y libfmt-dev libgit2-dev libcurl4-openssl-dev nlohmann-json3-dev libtbb-dev
   ```
 * DNF (Fedora):
   ```sh
@@ -353,36 +353,6 @@ Despite C++ often being overlooked for product development, I believe that Poac 
 ## Community
 
 We use [GitHub Discussions](https://github.com/orgs/poac-dev/discussions).
-
-## Contributing
-
-### Before submitting your PR
-
-Please make sure to follow these steps:
-
-#### Run linter (`cpplint`)
-
-```bash
-poac lint --exclude srcOld --exclude testsOld
-```
-
-#### Run formatter (`clang-format`)
-
-```bash
-poac fmt
-```
-
-#### Run tests
-
-```bash
-poac test  # or make test
-```
-
-#### Run `clang-tidy`
-
-```bash
-poac tidy  # or make tidy
-```
 
 ## Acknowledgements
 

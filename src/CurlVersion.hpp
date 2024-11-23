@@ -13,4 +13,4 @@ struct Version {
 
 std::ostream& operator<<(std::ostream& os, const Version& version);
 
-}; // namespace curl
+};  // namespace curl

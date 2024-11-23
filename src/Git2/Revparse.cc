@@ -19,4 +19,4 @@ Revspec::mode() const noexcept {
   return this->modeVal;
 }
 
-} // end namespace git2
+}  // end namespace git2

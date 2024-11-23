@@ -38,4 +38,4 @@ operator<<(std::ostream& os, const Version& version) {
             << "nsec: " << flagStr(version.hasNsec()) << ')';
 }
 
-} // namespace git2
+}  // namespace git2
