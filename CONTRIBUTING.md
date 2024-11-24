@@ -76,6 +76,8 @@ The project's naming conventions are specified in the
 - **Functions**: `camelCase`
 - **Methods**: `camelCase_`
 
+(Note: Variables use `snake_case` since they tend to be shorter than functions.)
+
 ## Commit Message
 
 We generally follow the
