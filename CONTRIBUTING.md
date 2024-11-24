@@ -42,9 +42,9 @@ The project's naming conventions are specified in the
 - **Files/Directories**: `PascalCase`
 - **Types/Classes**: `PascalCase`
 - **Variables**: `snake_case`
-- **Class (not-struct) Member Variables**: `snake_case_`
+- **Class (non-struct) Member Variables**: `snake_case_`
 - **Functions**: `camelCase`
-- **Class (not-struct) Methods**: `camelCase_`
+- **Class (non-struct) Methods**: `camelCase_`
 
 (Note: Variables use `snake_case` since they tend to be shorter than functions.)
 
