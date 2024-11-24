@@ -34,8 +34,22 @@ Consistency is key to maintaining a clean and readable codebase. As stated in th
 Please follow this principle to ensure the code remains cohesive and easy to
 navigate.
 
-(*Under Construction) Additionally, be mindful of when to use structs vs. classes.  For guidance,
-refer to the [Google C++ Style Guide: Structs vs. Classes](https://google.github.io/styleguide/cppguide.html#Structs_vs._Classes).
+### Naming Conventions (*Under Construction)
+
+The project's naming conventions are specified in the
+[.clang-tidy](.clang-tidy) file.  Here's a brief summary:
+
+- **Files/Directories**: `PascalCase`
+- **Types/Classes**: `PascalCase`
+- **Variables**: `snake_case`
+- **Member Variables**: `snake_case_`
+- **Functions**: `camelCase`
+- **Methods**: `camelCase_`
+
+(Note: Variables use `snake_case` since they tend to be shorter than functions.)
+
+Be mindful of when to use structs vs. classes.  For guidance, refer to the
+[Google C++ Style Guide: Structs vs. Classes](https://google.github.io/styleguide/cppguide.html#Structs_vs._Classes).
 
 ### Formatting and Linting
 
@@ -63,20 +77,6 @@ break existing functionality:
 ```bash
 poac test  # or make test
 ```
-
-### Naming Conventions (*Under Construction)
-
-The project's naming conventions are specified in the
-[.clang-tidy](.clang-tidy) file.  Here's a brief summary:
-
-- **Files/Directories**: `PascalCase`
-- **Types/Classes**: `PascalCase`
-- **Variables**: `snake_case`
-- **Member Variables**: `snake_case_`
-- **Functions**: `camelCase`
-- **Methods**: `camelCase_`
-
-(Note: Variables use `snake_case` since they tend to be shorter than functions.)
 
 ## Commit Message
 
