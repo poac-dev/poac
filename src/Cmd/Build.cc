@@ -30,54 +30,85 @@ const Subcmd BUILD_CMD =
             "Generate compilation database instead of building"
         ))
         .addOpt(OPT_JOBS)
+        .addOpt(Opt{ "--build-system" }
+                    .setDesc("Specify build system (makefile/xmake)")
+                    .setPlaceholder("SYSTEM"))
         .setMainFn(buildMain);
 
 int
-buildImpl(std::string& outDir, const bool isDebug) {
+buildImpl(std::string& outDir, const bool isDebug, BuildSystem buildSystem) {
   const auto start = std::chrono::steady_clock::now();
 
-  const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/false);
+  const BuildConfig config = emitBuildFiles(buildSystem, isDebug, false);
   outDir = config.outBasePath.string();
 
   const std::string& packageName = getPackageName();
-  const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
-      (config.outBasePath / packageName).string()
-  );
-  Command checkUpToDateCmd = makeCmd;
-  checkUpToDateCmd.addArg("--question");
+  Command buildCmd = getBuildCommand(buildSystem);
 
-  int exitCode = execCmd(checkUpToDateCmd);
-  if (exitCode != EXIT_SUCCESS) {
-    // If packageName binary is not up-to-date, compile it.
-    logger::info(
-        "Compiling", "{} v{} ({})", packageName, getPackageVersion().toString(),
-        getProjectBasePath().string()
+  auto logBuildCompletion = [&](int exitCode,
+                                const std::chrono::duration<double>& elapsed) {
+    if (exitCode == EXIT_SUCCESS) {
+      const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
+      std::vector<std::string_view> profiles;
+      if (profile.optLevel.value() == 0) {
+        profiles.emplace_back("unoptimized");
+      } else {
+        profiles.emplace_back("optimized");
+      }
+      if (profile.debug.value()) {
+        profiles.emplace_back("debuginfo");
+      }
+      logger::info(
+          "Finished", "`{}` profile [{}] target(s) in {:.2f}s",
+          modeToProfile(isDebug), fmt::join(profiles, " + "), elapsed.count()
+      );
+    }
+  };
 
-    );
-    exitCode = execCmd(makeCmd);
+  int exitCode = EXIT_FAILURE;
+  switch (buildSystem) {
+    case BuildSystem::Makefile: {
+      buildCmd.addArg("-C").addArg(outDir).addArg(
+          (config.outBasePath / packageName).string()
+      );
+      Command checkUpToDateCmd = buildCmd;
+      checkUpToDateCmd.addArg("--question");
+
+      exitCode = execCmd(checkUpToDateCmd);
+      if (exitCode != EXIT_SUCCESS) {
+        logger::info(
+            "Compiling", "{} v{} ({})", packageName,
+            getPackageVersion().toString(), getProjectBasePath().string()
+        );
+        exitCode = execCmd(buildCmd);
+      }
+      break;
+    }
+    case BuildSystem::Xmake: {
+      Command configCmd = buildCmd;
+      auto xmakePath = (config.outBasePath / "xmake.lua").string();
+      configCmd.addArg("f")
+          .addArg("-m")
+          .addArg(isDebug ? "debug" : "release")
+          .addArg("-F")
+          .addArg(xmakePath);
+      exitCode = execCmd(configCmd);
+      if (exitCode == EXIT_SUCCESS) {
+        buildCmd.addArg("-F").addArg(xmakePath);
+        logger::info(
+            "Compiling", "{} v{} ({})", packageName,
+            getPackageVersion().toString(), getProjectBasePath().string()
+        );
+        exitCode = execCmd(buildCmd);
+      }
+      break;
+    }
   }
 
   const auto end = std::chrono::steady_clock::now();
   const std::chrono::duration<double> elapsed = end - start;
+  logBuildCompletion(exitCode, elapsed);
 
-  if (exitCode == EXIT_SUCCESS) {
-    const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
-
-    std::vector<std::string_view> profiles;
-    if (profile.optLevel.value() == 0) {
-      profiles.emplace_back("unoptimized");
-    } else {
-      profiles.emplace_back("optimized");
-    }
-    if (profile.debug.value()) {
-      profiles.emplace_back("debuginfo");
-    }
-
-    logger::info(
-        "Finished", "`{}` profile [{}] target(s) in {:.2f}s",
-        modeToProfile(isDebug), fmt::join(profiles, " + "), elapsed.count()
-    );
-  }
   return exitCode;
 }
 
@@ -86,6 +117,8 @@ buildMain(const std::span<const std::string_view> args) {
   // Parse args
   bool isDebug = true;
   bool buildCompdb = false;
+  BuildSystem buildSystem = getDefaultBuildSystem();
+
   for (auto itr = args.begin(); itr != args.end(); ++itr) {
     if (const auto res = Cli::handleGlobalOpts(itr, args.end(), "build")) {
       if (res.value() == Cli::CONTINUE) {
@@ -99,6 +132,19 @@ buildMain(const std::span<const std::string_view> args) {
       isDebug = false;
     } else if (*itr == "--compdb") {
       buildCompdb = true;
+    } else if (*itr == "--build-system") {
+      if (itr + 1 == args.end()) {
+        return Subcmd::missingArgumentForOpt(*itr);
+      }
+      ++itr;
+      if (*itr == "makefile") {
+        buildSystem = BuildSystem::Makefile;
+      } else if (*itr == "xmake") {
+        buildSystem = BuildSystem::Xmake;
+      } else {
+        logger::error("unsupported build system: ", *itr);
+        return EXIT_FAILURE;
+      }
     } else if (*itr == "-j" || *itr == "--jobs") {
       if (itr + 1 == args.end()) {
         return Subcmd::missingArgumentForOpt(*itr);
@@ -121,7 +167,7 @@ buildMain(const std::span<const std::string_view> args) {
 
   if (!buildCompdb) {
     std::string outDir;
-    return buildImpl(outDir, isDebug);
+    return buildImpl(outDir, isDebug, buildSystem);
   }
 
   // Build compilation database

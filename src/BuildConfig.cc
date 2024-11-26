@@ -316,6 +316,22 @@ BuildConfig::emitMakefile(std::ostream& os) const {
 }
 
 void
+BuildConfig::emitXmakeLua(std::ostream& os) const {
+  os << R"(add_rules("mode.debug", "mode.release"))" << '\n';
+  os << R"(set_config("buildir", ")" << buildOutPath.generic_string() << R"("))"
+     << '\n';
+  os << R"(set_languages("c++20"))" << '\n';
+  os << R"(target(")" << packageName << R"("))" << '\n';
+  os << R"(    set_kind("binary"))" << '\n';
+  os << R"(    set_targetdir(")" << outBasePath.generic_string() << R"("))"
+     << '\n';
+  os << R"(    set_objectdir(")" << buildOutPath.generic_string() << R"("))"
+     << '\n';
+  os << R"(    add_files("../../src/*.cc"))" << '\n';
+  os << R"(    add_includedirs("../../include"))" << '\n';
+}
+
+void
 BuildConfig::emitCompdb(std::ostream& os) const {
   const fs::path directory = getProjectBasePath();
   const std::string indent1(2, ' ');
@@ -908,6 +924,20 @@ emitMakefile(const bool isDebug, const bool includeDevDeps) {
   return config;
 }
 
+BuildConfig
+emitXmakeLua(bool isDebug, bool includeDevDeps) {
+  BuildConfig config(getPackageName(), isDebug);
+
+  if (!fs::exists(config.outBasePath)) {
+    fs::create_directories(config.outBasePath);
+  }
+  const std::string xmakefilePath = (config.outBasePath / "xmake.lua").string();
+
+  std::ofstream ofs(xmakefilePath);
+  config.emitXmakeLua(ofs);
+  return config;
+}
+
 /// @returns the directory where the compilation database is generated.
 std::string
 emitCompdb(const bool isDebug, const bool includeDevDeps) {
@@ -956,6 +986,39 @@ getMakeCommand() {
   }
 
   return makeCommand;
+}
+
+Command
+getBuildCommand(BuildSystem system) {
+  switch (system) {
+    case BuildSystem::Makefile:
+      return getMakeCommand();
+    case BuildSystem::Xmake:
+      return Command("xmake");
+  }
+  throw PoacError("unknown build system");
+}
+
+BuildConfig
+emitBuildFiles(BuildSystem system, bool isDebug, bool includeDevDeps) {
+  switch (system) {
+    case BuildSystem::Makefile:
+      return emitMakefile(isDebug, includeDevDeps);
+    case BuildSystem::Xmake:
+      return emitXmakeLua(isDebug, includeDevDeps);
+  }
+  throw PoacError("unknown build system");
+}
+
+std::string_view
+getBuildSystemName(BuildSystem system) {
+  switch (system) {
+    case BuildSystem::Makefile:
+      return "Makefile";
+    case BuildSystem::Xmake:
+      return "XMake";
+  }
+  throw PoacError("unknown build system");
 }
 
 #ifdef POAC_TEST

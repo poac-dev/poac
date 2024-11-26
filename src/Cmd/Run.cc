@@ -75,7 +75,7 @@ runMain(const std::span<const std::string_view> args) {
   }
 
   std::string outDir;
-  if (buildImpl(outDir, isDebug) != EXIT_SUCCESS) {
+  if (buildImpl(outDir, isDebug, getDefaultBuildSystem()) != EXIT_SUCCESS) {
     return EXIT_FAILURE;
   }
 

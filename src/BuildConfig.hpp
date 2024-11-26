@@ -3,6 +3,7 @@
 #include "Command.hpp"
 #include "Exception.hpp"
 #include "Rustify.hpp"
+#include "Cmd/Build.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -122,6 +123,7 @@ public:
 
   void emitVariable(std::ostream& os, const std::string& varName) const;
   void emitMakefile(std::ostream& os) const;
+  void emitXmakeLua(std::ostream& os) const;
   void emitCompdb(std::ostream& os) const;
   std::string runMM(const std::string& sourceFile, bool isTest = false) const;
   bool containsTestCode(const std::string& sourceFile) const;
@@ -162,7 +164,12 @@ public:
   void configureBuild();
 };
 
+Command getBuildCommand(BuildSystem system);
+BuildConfig emitBuildFiles(BuildSystem system, bool isDebug, bool includeDevDeps);
+std::string_view getBuildSystemName(BuildSystem system);
+
 BuildConfig emitMakefile(bool isDebug, bool includeDevDeps);
+BuildConfig emitXmakeLua(bool isDebug, bool includeDevDeps);
 std::string emitCompdb(bool isDebug, bool includeDevDeps);
 std::string_view modeToString(bool isDebug);
 std::string_view modeToProfile(bool isDebug);

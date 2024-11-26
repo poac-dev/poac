@@ -11,9 +11,11 @@
 #ifdef _WIN32
 #  include <windows.h>
 using process_handle = HANDLE;
+using fd_t = HANDLE;
 #else
 #  include <sys/types.h>
 using process_handle = pid_t;
+using fd_t = int;
 #endif
 
 struct CommandOutput {
@@ -25,10 +27,10 @@ struct CommandOutput {
 class Child {
 private:
   process_handle process;
-  int stdoutfd;
-  int stderrfd;
+  fd_t stdoutfd;
+  fd_t stderrfd;
 
-  Child(process_handle process, int stdoutfd, int stderrfd) noexcept
+  Child(process_handle process, fd_t stdoutfd, fd_t stderrfd) noexcept
       : process(process), stdoutfd(stdoutfd), stderrfd(stderrfd) {}
 
   friend struct Command;

@@ -48,10 +48,8 @@ Child::wait() const {
   GetExitCodeProcess(process, &exitCode);
 
   CloseHandleSafe(const_cast<HANDLE&>(process));
-  if (stdoutfd != -1)
-    CloseHandle((HANDLE)stdoutfd);
-  if (stderrfd != -1)
-    CloseHandle((HANDLE)stderrfd);
+  CloseHandleSafe(const_cast<HANDLE&>(stdoutfd));
+  CloseHandleSafe(const_cast<HANDLE&>(stderrfd));
 
   return static_cast<int>(exitCode);
 #else
@@ -86,7 +84,8 @@ Child::waitWithOutput() const {
   DWORD bytesRead;
   std::array<char, BUFFER_SIZE> buffer{};
 
-  if (stdoutfd != -1) {
+  // Read from stdout
+  if (stdoutfd != INVALID_HANDLE_VALUE) {
     while (ReadFile(
                (HANDLE)stdoutfd, buffer.data(), buffer.size(), &bytesRead, NULL
            )
@@ -95,7 +94,8 @@ Child::waitWithOutput() const {
     }
   }
 
-  if (stderrfd != -1) {
+  // read from stderr
+  if (stderrfd != INVALID_HANDLE_VALUE) {
     while (ReadFile(
                (HANDLE)stderrfd, buffer.data(), buffer.size(), &bytesRead, NULL
            )
@@ -109,10 +109,8 @@ Child::waitWithOutput() const {
   GetExitCodeProcess(process, &exitCode);
 
   CloseHandleSafe(const_cast<HANDLE&>(process));
-  if (stdoutfd != -1)
-    CloseHandle((HANDLE)stdoutfd);
-  if (stderrfd != -1)
-    CloseHandle((HANDLE)stderrfd);
+  CloseHandleSafe(const_cast<HANDLE&>(stdoutfd));
+  CloseHandleSafe(const_cast<HANDLE&>(stderrfd));
 
   return { .exitCode = static_cast<int>(exitCode),
            .stdout_str = stdoutOutput,
@@ -261,7 +259,7 @@ Command::spawn() const {
       NULL,
       NULL,
       TRUE,
-      CREATE_NO_WINDOW,
+      0,
       NULL,
       workingDirectory.empty() ? NULL : workingDirectory.string().c_str(),
       &si,
@@ -283,8 +281,9 @@ Command::spawn() const {
   CloseHandle(pi.hThread);  // Close thread handle
 
   return { pi.hProcess,
-           (int)(stdoutConfig == IOConfig::Piped ? (intptr_t)stdoutRead : -1),
-           (int)(stderrConfig == IOConfig::Piped ? (intptr_t)stderrRead : -1) };
+           stdoutConfig == IOConfig::Piped ? stdoutRead : INVALID_HANDLE_VALUE,
+           stderrConfig == IOConfig::Piped ? stderrRead
+                                           : INVALID_HANDLE_VALUE };
 #else
   std::array<int, 2> stdoutPipe{};
   std::array<int, 2> stderrPipe{};
