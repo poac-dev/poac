@@ -3,20 +3,58 @@
 #include "Exception.hpp"
 #include "Rustify.hpp"
 
-#include <algorithm>
 #include <array>
-#include <cstddef>
-#include <cstdio>
-#include <cstdlib>
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <unistd.h>
+#include <string>
 #include <vector>
+
+#ifdef _WIN32
+#  include <windows.h>
+#else
+#  include <fcntl.h>
+#  include <sys/wait.h>
+#  include <unistd.h>
+#endif
 
 constexpr std::size_t BUFFER_SIZE = 128;
 
+#ifdef _WIN32
+namespace {
+std::string
+GetLastErrorAsString() {
+  DWORD error = GetLastError();
+  char buffer[256];
+  FormatMessageA(
+      FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error,
+      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, sizeof(buffer), NULL
+  );
+  return std::string(buffer);
+}
+
+void
+CloseHandleSafe(HANDLE& handle) {
+  if (handle != INVALID_HANDLE_VALUE && handle != NULL) {
+    CloseHandle(handle);
+    handle = INVALID_HANDLE_VALUE;
+  }
+}
+}  // namespace
+#endif
+
 int
 Child::wait() const {
+#ifdef _WIN32
+  DWORD exitCode = 0;
+  WaitForSingleObject(process, INFINITE);
+  GetExitCodeProcess(process, &exitCode);
+
+  CloseHandleSafe(const_cast<HANDLE&>(process));
+  if (stdoutfd != -1)
+    CloseHandle((HANDLE)stdoutfd);
+  if (stderrfd != -1)
+    CloseHandle((HANDLE)stderrfd);
+
+  return static_cast<int>(exitCode);
+#else
   int status{};
   if (waitpid(pid, &status, 0) == -1) {
     if (stdoutfd != -1) {
@@ -37,10 +75,49 @@ Child::wait() const {
 
   const int exitCode = WEXITSTATUS(status);
   return exitCode;
+#endif
 }
 
 CommandOutput
 Child::waitWithOutput() const {
+#ifdef _WIN32
+  std::string stdoutOutput;
+  std::string stderrOutput;
+  DWORD bytesRead;
+  std::array<char, BUFFER_SIZE> buffer{};
+
+  if (stdoutfd != -1) {
+    while (ReadFile(
+               (HANDLE)stdoutfd, buffer.data(), buffer.size(), &bytesRead, NULL
+           )
+           && bytesRead > 0) {
+      stdoutOutput.append(buffer.data(), bytesRead);
+    }
+  }
+
+  if (stderrfd != -1) {
+    while (ReadFile(
+               (HANDLE)stderrfd, buffer.data(), buffer.size(), &bytesRead, NULL
+           )
+           && bytesRead > 0) {
+      stderrOutput.append(buffer.data(), bytesRead);
+    }
+  }
+
+  DWORD exitCode = EXIT_SUCCESS;
+  WaitForSingleObject(process, INFINITE);
+  GetExitCodeProcess(process, &exitCode);
+
+  CloseHandleSafe(const_cast<HANDLE&>(process));
+  if (stdoutfd != -1)
+    CloseHandle((HANDLE)stdoutfd);
+  if (stderrfd != -1)
+    CloseHandle((HANDLE)stderrfd);
+
+  return { .exitCode = static_cast<int>(exitCode),
+           .stdout_str = stdoutOutput,
+           .stderr_str = stderrOutput };
+#else
   std::string stdoutOutput;
   std::string stderrOutput;
 
@@ -124,10 +201,91 @@ Child::waitWithOutput() const {
   return { .exitCode = exitCode,
            .stdout = stdoutOutput,
            .stderr = stderrOutput };
+#endif
 }
 
 Child
 Command::spawn() const {
+#ifdef _WIN32
+  SECURITY_ATTRIBUTES saAttr = {};
+  saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+  saAttr.bInheritHandle = TRUE;
+
+  HANDLE stdoutRead = INVALID_HANDLE_VALUE;
+  HANDLE stdoutWrite = INVALID_HANDLE_VALUE;
+  HANDLE stderrRead = INVALID_HANDLE_VALUE;
+  HANDLE stderrWrite = INVALID_HANDLE_VALUE;
+
+  if (stdoutConfig == IOConfig::Piped) {
+    if (!CreatePipe(&stdoutRead, &stdoutWrite, &saAttr, 0)) {
+      throw PoacError("CreatePipe failed for stdout: ", GetLastErrorAsString());
+    }
+    SetHandleInformation(stdoutRead, HANDLE_FLAG_INHERIT, 0);
+  }
+
+  if (stderrConfig == IOConfig::Piped) {
+    if (!CreatePipe(&stderrRead, &stderrWrite, &saAttr, 0)) {
+      CloseHandleSafe(stdoutRead);
+      CloseHandleSafe(stdoutWrite);
+      throw PoacError("CreatePipe failed for stderr: ", GetLastErrorAsString());
+    }
+    SetHandleInformation(stderrRead, HANDLE_FLAG_INHERIT, 0);
+  }
+
+  // Prepare startup information
+  STARTUPINFOA si = {};
+  si.cb = sizeof(si);
+  si.dwFlags |= STARTF_USESTDHANDLES;
+  si.hStdOutput = stdoutConfig == IOConfig::Piped ? stdoutWrite
+                  : stdoutConfig == IOConfig::Null
+                      ? NULL
+                      : GetStdHandle(STD_OUTPUT_HANDLE);
+  si.hStdError = stderrConfig == IOConfig::Piped ? stderrWrite
+                 : stderrConfig == IOConfig::Null
+                     ? NULL
+                     : GetStdHandle(STD_ERROR_HANDLE);
+  si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+
+  // Prepare command line
+  std::string cmdLine = command;
+  for (const auto& arg : arguments) {
+    cmdLine += " " + arg;
+  }
+
+  PROCESS_INFORMATION pi = {};
+
+  // Create process
+  BOOL success = CreateProcessA(
+      NULL,
+      cmdLine.data(),
+      NULL,
+      NULL,
+      TRUE,
+      CREATE_NO_WINDOW,
+      NULL,
+      workingDirectory.empty() ? NULL : workingDirectory.string().c_str(),
+      &si,
+      &pi
+  );
+
+  // Clean up unnecessary handles
+  if (stdoutWrite != INVALID_HANDLE_VALUE)
+    CloseHandle(stdoutWrite);
+  if (stderrWrite != INVALID_HANDLE_VALUE)
+    CloseHandle(stderrWrite);
+
+  if (!success) {
+    CloseHandleSafe(stdoutRead);
+    CloseHandleSafe(stderrRead);
+    throw PoacError("CreateProcess failed: ", GetLastErrorAsString());
+  }
+
+  CloseHandle(pi.hThread);  // Close thread handle
+
+  return { pi.hProcess,
+           (int)(stdoutConfig == IOConfig::Piped ? (intptr_t)stdoutRead : -1),
+           (int)(stderrConfig == IOConfig::Piped ? (intptr_t)stderrRead : -1) };
+#else
   std::array<int, 2> stdoutPipe{};
   std::array<int, 2> stderrPipe{};
 
@@ -219,6 +377,7 @@ Command::spawn() const {
     return { pid, stdoutConfig == IOConfig::Piped ? stdoutPipe[0] : -1,
              stderrConfig == IOConfig::Piped ? stderrPipe[0] : -1 };
   }
+#endif
 }
 
 CommandOutput

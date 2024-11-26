@@ -37,7 +37,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
   const BuildConfig config = emitMakefile(isDebug, /*includeDevDeps=*/false);
-  outDir = config.outBasePath;
+  outDir = config.outBasePath.string();
 
   const std::string& packageName = getPackageName();
   const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(

@@ -5,24 +5,31 @@
 #include <ostream>
 #include <string>
 #include <string_view>
-#include <sys/types.h>
 #include <utility>
 #include <vector>
 
+#ifdef _WIN32
+#  include <windows.h>
+using process_handle = HANDLE;
+#else
+#  include <sys/types.h>
+using process_handle = pid_t;
+#endif
+
 struct CommandOutput {
   int exitCode;
-  std::string stdout;
-  std::string stderr;
+  std::string stdout_str;
+  std::string stderr_str;
 };
 
 class Child {
 private:
-  pid_t pid;
+  process_handle process;
   int stdoutfd;
   int stderrfd;
 
-  Child(pid_t pid, int stdoutfd, int stderrfd) noexcept
-      : pid(pid), stdoutfd(stdoutfd), stderrfd(stderrfd) {}
+  Child(process_handle process, int stdoutfd, int stderrfd) noexcept
+      : process(process), stdoutfd(stdoutfd), stderrfd(stderrfd) {}
 
   friend struct Command;
 

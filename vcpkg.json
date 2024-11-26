@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    "fmt",
+    "libgit2",
+    "nlohmann-json",
+    "tbb",
+    "toml11",
+    "curl"
+  ]
+}

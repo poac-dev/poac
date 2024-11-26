@@ -96,7 +96,7 @@ secondMonthChar(const std::string_view month) noexcept {
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
-static constinit const char COMPILE_DATE[] = {
+static constexpr const char COMPILE_DATE[] = {
   // Year
   __DATE__[7], __DATE__[8], __DATE__[9], __DATE__[10],
 
@@ -143,7 +143,15 @@ versionMain(const std::span<const std::string_view> args) noexcept {
     std::cout << "release: " << POAC_POAC_PKG_VERSION << '\n'
               << "commit-hash: " << COMMIT_HASH << '\n'
               << "commit-date: " << COMMIT_DATE << '\n'
+              #if defined(__clang__)
+              << "compiler: " << __clang_version__ << '\n'
+              #elif defined(__GNUC__) || defined(__GNUG__)
               << "compiler: " << __VERSION__ << '\n'
+              #elif defined(_MSC_VER)
+              << "compiler: MSVC " << _MSC_FULL_VER << '\n'
+              #else
+              << "compiler: unknown\n"
+              #endif
               << "compile-date: " << COMPILE_DATE << '\n'
               << "libgit2: " << git2::Version() << '\n'
               << "libcurl: " << curl::Version() << '\n';

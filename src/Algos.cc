@@ -69,10 +69,10 @@ getCmdOutput(const Command& cmd, const size_t retry) {
   int exitCode = EXIT_SUCCESS;
   int waitTime = 1;
   for (size_t i = 0; i < retry; ++i) {
-    const auto [curExitCode, stdout, stderr] = cmd.output();
-    static_cast<void>(stderr);
+    const auto [curExitCode, out, err] = cmd.output();
+    static_cast<void>(err);
     if (curExitCode == EXIT_SUCCESS) {
-      return stdout;
+      return out;
     }
     exitCode = curExitCode;
 

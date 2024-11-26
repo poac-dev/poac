@@ -18,3 +18,12 @@ poac-out/
 
 # Doxygen
 html
+
+# CMake & XMake
+.xmake
+build
+out
+
+# Visual Studio
+*.sdf
+*.vs

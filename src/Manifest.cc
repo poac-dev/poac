@@ -434,7 +434,15 @@ getXdgCacheHome() {
   if (const char* envP = std::getenv("XDG_CACHE_HOME")) {
     return envP;
   }
-  const fs::path userDir = std::getenv("HOME");
+#ifdef _WIN32
+  const char* homeDir = std::getenv("USERPROFILE");
+#else
+  const char* homeDir = std::getenv("HOME");
+#endif
+  if (homeDir == nullptr) {
+    throw PoacError("Environment variable HOME or USERPROFILE is not set");
+  }
+  const fs::path userDir = homeDir;
   return userDir / ".cache";
 }
 

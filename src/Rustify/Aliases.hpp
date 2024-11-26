@@ -36,7 +36,11 @@ unreachable(
         std::source_location::current()
 ) noexcept {
 #ifdef NDEBUG
+#  if defined(__GNUC__) || defined(__clang__)
   __builtin_unreachable();
+#  else
+  __assume(false);
+#  endif
 #else
   panic("unreachable", loc);
 #endif

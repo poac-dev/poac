@@ -1,0 +1,58 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "VS-x64-msvc",
+            "displayName": "Visual Studio Community 2022 Release - amd64",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "CMAKE_TOOLCHAIN_FILE": "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            }
+        },
+        {
+            "name": "Ninja-x64-msvc",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "CMAKE_TOOLCHAIN_FILE": "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "VS-x64-msvc-debug",
+            "displayName": "Visual Studio Community 2022 Release - amd64 - Debug",
+            "configurePreset": "VS-x64-msvc",
+            "configuration": "Debug",
+            "jobs": 16
+        },
+        {
+            "name": "VS-x64-msvc-release",
+            "displayName": "Visual Studio Community 2022 Release - amd64 - Release",
+            "configurePreset": "VS-x64-msvc",
+            "configuration": "Release",
+            "jobs": 16
+        },
+        {
+            "name": "Ninja-x64-msvc-debug",
+            "displayName": "Ninja Release - amd64 - Debug",
+            "configurePreset": "Ninja-x64-msvc",
+            "configuration": "Debug",
+            "jobs": 16
+        },
+        {
+            "name": "Ninja-x64-msvc-release",
+            "displayName": "Ninja Release - amd64 - Release",
+            "configurePreset": "Ninja-x64-msvc",
+            "configuration": "Release",
+            "jobs": 16
+        }
+    ]
+}
