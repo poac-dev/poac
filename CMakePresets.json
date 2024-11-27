@@ -8,51 +8,44 @@
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-                "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe",
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
             }
         },
         {
-            "name": "Ninja-x64-msvc",
+            "name": "Ninja",
+            "description": "Ninja build system",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/out/build/${presetName}",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-                "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe",
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-            }
+            "inherits": "VS-x64-msvc"
         }
     ],
     "buildPresets": [
         {
             "name": "VS-x64-msvc-debug",
-            "displayName": "Visual Studio Community 2022 Release - amd64 - Debug",
             "configurePreset": "VS-x64-msvc",
-            "configuration": "Debug",
-            "jobs": 16
+            "configuration": "Debug"
         },
         {
             "name": "VS-x64-msvc-release",
-            "displayName": "Visual Studio Community 2022 Release - amd64 - Release",
             "configurePreset": "VS-x64-msvc",
-            "configuration": "Release",
-            "jobs": 16
+            "configuration": "Release"
         },
         {
-            "name": "Ninja-x64-msvc-debug",
-            "displayName": "Ninja Release - amd64 - Debug",
-            "configurePreset": "Ninja-x64-msvc",
-            "configuration": "Debug",
-            "jobs": 16
+            "name": "Ninja-debug",
+            "configurePreset": "Ninja",
+            "configuration": "Debug"
         },
         {
-            "name": "Ninja-x64-msvc-release",
-            "displayName": "Ninja Release - amd64 - Release",
-            "configurePreset": "Ninja-x64-msvc",
-            "configuration": "Release",
-            "jobs": 16
+            "name": "Ninja-release",
+            "configurePreset": "Ninja",
+            "configuration": "Release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "poac-Unitests",
+            "description": "",
+            "displayName": "",
+            "configurePreset": "Ninja"
         }
     ]
 }
