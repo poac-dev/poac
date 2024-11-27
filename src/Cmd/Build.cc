@@ -18,6 +18,15 @@
 #include <string_view>
 #include <vector>
 
+BuildSystem
+getDefaultBuildSystem() {
+#ifdef _WIN32
+  return BuildSystem::Xmake;
+#else
+  return BuildSystem::Makefile;
+#endif
+}
+
 static int buildMain(std::span<const std::string_view> args);
 
 const Subcmd BUILD_CMD =

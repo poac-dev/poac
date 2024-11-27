@@ -9,13 +9,7 @@ enum class BuildSystem {
     Xmake
 };
 
-static BuildSystem getDefaultBuildSystem() {
-#ifdef _WIN32
-    return BuildSystem::Xmake;
-#else
-    return BuildSystem::Makefile;
-#endif
-}
+extern BuildSystem getDefaultBuildSystem();
 
 extern const Subcmd BUILD_CMD;
 int buildImpl(std::string& outDir, bool isDebug, BuildSystem system);

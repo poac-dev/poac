@@ -54,7 +54,7 @@ Child::wait() const {
   return static_cast<int>(exitCode);
 #else
   int status{};
-  if (waitpid(pid, &status, 0) == -1) {
+  if (waitpid(process, &status, 0) == -1) {
     if (stdoutfd != -1) {
       close(stdoutfd);
     }
@@ -191,14 +191,14 @@ Child::waitWithOutput() const {
   }
 
   int status{};
-  if (waitpid(pid, &status, 0) == -1) {
+  if (waitpid(process, &status, 0) == -1) {
     throw PoacError("waitpid() failed");
   }
 
   const int exitCode = WEXITSTATUS(status);
   return { .exitCode = exitCode,
-           .stdout = stdoutOutput,
-           .stderr = stderrOutput };
+           .stdout_str = stdoutOutput,
+           .stderr_str = stderrOutput };
 #endif
 }
 
