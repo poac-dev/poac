@@ -487,23 +487,21 @@ BuildConfig::defineCompileTarget(
 }
 
 void
-BuildConfig::defineLinkTarget(
-    const std::string& binTarget, const std::unordered_set<std::string>& deps
+BuildConfig::defineOutputTarget(
+    const std::unordered_set<std::string>& buildObjTargets,
+    const std::string& targetInputPath,
+    const std::vector<std::string>& commands,
+    const std::string& targetOutputPath
 ) {
-  const std::vector<std::string> commands = {
-    "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@"
-  };
-  defineTarget(binTarget, commands, deps);
-}
+  // Project binary target.
+  std::unordered_set<std::string> projTargetDeps = { targetInputPath };
+  collectBinDepObjs(
+      projTargetDeps, "",
+      targets.at(targetInputPath).remDeps,  // we don't need sourceFile
+      buildObjTargets
+  );
 
-void
-BuildConfig::defineLibTarget(
-    const std::string& libTarget, const std::unordered_set<std::string>& deps
-) {
-  const std::vector<std::string> commands = {
-    fmt::format("ar rcs {} $^", libName)
-  };
-  defineTarget(libTarget, commands, deps);
+  defineTarget(targetOutputPath, commands, projTargetDeps);
 }
 
 // Map a path to header file to the corresponding object file.
@@ -772,7 +770,11 @@ BuildConfig::processUnittestSrc(
   );
 
   // Test binary target.
-  defineLinkTarget(testTarget, testTargetDeps);
+  const std::vector<std::string> commands = {
+    "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@"
+  };
+  defineTarget(testTarget, commands, testTargetDeps);
+  //  defineLinkTarget(testTarget, testTargetDeps);
 
   testTargets.insert(testTarget);
   if (mtx) {
@@ -815,12 +817,11 @@ BuildConfig::configureBuild() {
     if (!isMainSource(path)) {
       continue;
     }
-    if (mainSource.empty()) {
-      mainSource = path;
-      executable = true;
-    } else {
+    if (!mainSource.empty()) {
       throw PoacError("multiple main sources were found");
     }
+    mainSource = path;
+    hasBinaryTarget = true;
   }
 
   fs::path libSource;
@@ -832,19 +833,17 @@ BuildConfig::configureBuild() {
     if (!isLibSource(path)) {
       continue;
     }
-    if (libSource.empty()) {
-      libSource = path;
-      library = true;
-    } else {
+    if (!libSource.empty()) {
       throw PoacError("multiple lib sources were found");
     }
+    libSource = path;
+    hasLibraryTarget = true;
   }
 
-  if (!executable && !library) {
-    throw PoacError(fmt::format(
-        "neither src/main{} nor src/lib{} was not found", SOURCE_FILE_EXTS,
-        SOURCE_FILE_EXTS
-    ));
+  if (!hasBinaryTarget && !hasLibraryTarget) {
+    throw PoacError(
+        fmt::format("src/(main|lib){} was not found", SOURCE_FILE_EXTS)
+    );
   }
 
   if (!fs::exists(outBasePath)) {
@@ -853,16 +852,16 @@ BuildConfig::configureBuild() {
 
   setVariables();
 
-  std::unordered_set<std::string> allTargets = {};
-  if (executable) {
-    allTargets.insert(packageName);
+  std::unordered_set<std::string> all = {};
+  if (hasBinaryTarget) {
+    all.insert(packageName);
   }
-  if (library) {
-    allTargets.insert(libName);
+  if (hasLibraryTarget) {
+    all.insert(libName);
   }
 
   // Build rules
-  setAll(allTargets);
+  setAll(all);
   addPhony("all");
 
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths(srcDir);
@@ -880,7 +879,7 @@ BuildConfig::configureBuild() {
       logger::warn(
           "source file `{}` is named `lib` but is not located directly in the "
           "`src/` directory. "
-          "This file will not be treated as a library. "
+          "This file will not be treated as a hasLibraryTarget. "
           "Move it directly to 'src/' if intended as such.",
           sourceFilePath.string()
       );
@@ -895,30 +894,23 @@ BuildConfig::configureBuild() {
   const std::unordered_set<std::string> buildObjTargets =
       processSources(sourceFilePaths);
 
-  if (executable) {
-    // Project binary target.
-    const std::string mainObjTarget = buildOutPath / "main.o";
-    std::unordered_set<std::string> projTargetDeps = { mainObjTarget };
-    collectBinDepObjs(
-        projTargetDeps, "",
-        targets.at(mainObjTarget).remDeps,  // we don't need sourceFile
-        buildObjTargets
+  if (hasBinaryTarget) {
+    const std::vector<std::string> commands = {
+      "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@"
+    };
+    defineOutputTarget(
+        buildObjTargets, buildOutPath / "main.o", commands,
+        outBasePath / packageName
     );
-
-    defineLinkTarget(outBasePath / packageName, projTargetDeps);
   }
 
-  if (library) {
-    // Project library target.
-    const std::string libTarget = buildOutPath / "lib.o";
-    std::unordered_set<std::string> libTargetDeps = { libTarget };
-    collectBinDepObjs(
-        libTargetDeps, "",
-        targets.at(libTarget).remDeps, // we don't need sourceFile
-        buildObjTargets
+  if (hasLibraryTarget) {
+    const std::vector<std::string> commands = {
+      fmt::format("ar rcs {} $^", libName)
+    };
+    defineOutputTarget(
+        buildObjTargets, buildOutPath / "lib.o", commands, outBasePath / libName
     );
-
-    defineLibTarget(outBasePath / libName, libTargetDeps);
   }
 
   // Test Pass

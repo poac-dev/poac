@@ -52,10 +52,10 @@ private:
   fs::path unittestOutPath;
   bool isDebug;
 
-  // if we are building an executable
-  bool executable{ false };
-  // if we are building a library
-  bool library{ false };
+  // if we are building an binary
+  bool hasBinaryTarget{ false };
+  // if we are building a hasLibraryTarget
+  bool hasLibraryTarget{ false };
 
   std::unordered_map<std::string, Variable> variables;
   std::unordered_map<std::string, std::vector<std::string>> varDeps;
@@ -73,11 +73,11 @@ private:
 public:
   explicit BuildConfig(const std::string& packageName, bool isDebug = true);
 
-  bool isExecutable() const {
-    return executable;
+  bool hasBinTarget() const {
+    return hasBinaryTarget;
   }
-  bool isLibrary() const {
-    return library;
+  bool hasLibTarget() const {
+    return hasLibraryTarget;
   }
   std::string getLibName() const {
     return this->libName;
@@ -160,11 +160,12 @@ public:
       const std::string& objTarget, const std::string& sourceFile,
       const std::unordered_set<std::string>& remDeps, bool isTest = false
   );
-  void defineLinkTarget(
-      const std::string& binTarget, const std::unordered_set<std::string>& deps
-  );
-  void defineLibTarget(
-      const std::string& libTarget, const std::unordered_set<std::string>& deps
+
+  void defineOutputTarget(
+      const std::unordered_set<std::string>& buildObjTargets,
+      const std::string& targetInputPath,
+      const std::vector<std::string>& commands,
+      const std::string& targetOutputPath
   );
 
   void collectBinDepObjs(  // NOLINT(misc-no-recursion)

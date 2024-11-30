@@ -45,7 +45,7 @@ runBuildCommand(
 
   int exitCode = execCmd(checkUpToDateCmd);
   if (exitCode != EXIT_SUCCESS) {
-    // If targetName binary is not up-to-date, compile it.
+    // If `targetName` is not up-to-date, compile it.
     logger::info(
         "Compiling", "{} v{} ({})", targetName, getPackageVersion().toString(),
         getProjectBasePath().string()
@@ -64,11 +64,11 @@ buildImpl(std::string& outDir, const bool isDebug) {
 
   const std::string& packageName = getPackageName();
   int exitCode = 0;
-  if (config.isExecutable()) {
+  if (config.hasBinTarget()) {
     exitCode = runBuildCommand(outDir, config, packageName);
   }
 
-  if (config.isLibrary() && exitCode == 0) {
+  if (config.hasLibTarget() && exitCode == 0) {
     const std::string libName = config.getLibName();
     exitCode = runBuildCommand(outDir, config, libName);
   }
