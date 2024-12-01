@@ -61,11 +61,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Poac is licensed under the terms of the Apache License version 2.0.
 
-Please see [LICENSE](LICENSE) for details.
-
-### Third-party software
-
-* toml11 - <https://github.com/ToruNiina/toml11/blob/master/LICENSE>
-
-
-[^1]: Amemiya, T., & Mizutani, S. (2006). On the Basic Affective Dimensions of Japanese Onomatopoeia and the Basic Level of Japanese Phonesthemes. 関西大学社会学部紀要, 37(2), 139–166. https://hdl.handle.net/10112/12311
+See [LICENSE](LICENSE) for details.
