@@ -1,0 +1,4 @@
+title: Poac Docs
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://docs.poac.dev" # the base hostname & protocol for your site, e.g. http://example.com
+theme: minima
