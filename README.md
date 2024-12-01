@@ -41,52 +41,13 @@ you:~/hello_world$ poac run
 Hello, world!
 ```
 
-## Supported Operating Systems
-
-|                                                                      Linux                                                                       |                                                                      macOS                                                                       |
-| :----------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------: |
-| [![Linux](https://github.com/poac-dev/poac/actions/workflows/linux.yml/badge.svg)](https://github.com/poac-dev/poac/actions/workflows/linux.yml) | [![macOS](https://github.com/poac-dev/poac/actions/workflows/macos.yml/badge.svg)](https://github.com/poac-dev/poac/actions/workflows/macos.yml) |
-
 ## Installation
 
-### 3rd Party Installation (recommended)
+Read ["Installation"](https://poac.dev/docs/installation) from [Poac Docs](https://poac.dev/docs).
 
-Since packages through these providers may not be maintained by Poac owners, install them at your own risk.
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
-
-It is important to verify the package name and copy it accurately to prevent typosquatting attacks. You can check the correct name by following the link in [`Packaging status` (Repology)](https://repology.org/project/poac/versions).
-
-#### Homebrew (macOS & Linux)
-
-```sh
-brew install poac
-```
-
-#### AUR (Arch Linux)
-
-Poac is available in the AUR thanks to the [poac](https://aur.archlinux.org/packages/poac) package.
-
-It can be installed with the AUR helper of your choice.
-
-```sh
-paru -S poac
-```
-
-### Installing from Source
+## Installing from Source
 
 Although building from source is not recommended, if you really want to do so, see [INSTALL.md](INSTALL.md).
-
-### Runtime Requirements
-
-* C++ compiler
-* GNU Make
-* pkg-config
-* mkdir
-* printf
-* cpplint (for `poac lint`)
-* clang-format (for `poac fmt`)
-* clang-tidy (for `poac tidy`)
 
 ## Community
 
