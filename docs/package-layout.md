@@ -1,5 +1,5 @@
 ---
-title: Package Layout
+title: 6. Package Layout
 ---
 
 * `src/**`: contains source files and private header files

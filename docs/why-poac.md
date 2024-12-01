@@ -1,5 +1,5 @@
 ---
-title: Why Poac?
+title: 2. Why Poac?
 ---
 
 C++ is often considered a complex language and unconsciously avoided by many.  The absence of a definitive package manager and the unfamiliar syntax of build systems like [CMake](https://cmake.org) make it seem difficult to set up a C++ environment, leaving people hesitant.
