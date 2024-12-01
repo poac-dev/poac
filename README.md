@@ -90,7 +90,11 @@ Although building from source is not recommended, if you really want to do so, s
 
 ## Community
 
-We use [GitHub Discussions](https://github.com/orgs/poac-dev/discussions).
+See [GitHub Discussions](https://github.com/orgs/poac-dev/discussions).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Acknowledgements
 
