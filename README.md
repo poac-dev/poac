@@ -18,28 +18,7 @@
 
 Poac (pronounced as `/pəʊək/`) is a package manager and build system for C++ users, inspired by Cargo for Rust.  Poac is designed as a structure-oriented build system, which means that as long as you follow Poac's designated project structure, you almost do not need configurations, much less a language to build, unlike CMake.  If you do not like writing a bunch of configurations to build your project, Poac might be best suited.  Currently, the supported project structure can be known by looking at this repository since Poac can build itself.
 
-Please visit [poac.dev](https://poac.dev) and [Poac Docs](https://poac.dev/docs) for more details.
-
-## Hello World
-
-You can get started with just a few commands as the demo shows. Let's create a new Poac project:
-
-```console
-you:~$ poac new hello_world
-     Created binary (application) `hello_world` package
-```
-
-Now, you can use the `poac run` command to run your application:
-
-```console
-you:~$ cd hello_world
-you:~/hello_world$ poac run
- Compiling src/main.cc
-   Linking hello_world
-  Finished debug target(s) in 0.45386s
-   Running poac-out/debug/hello_world
-Hello, world!
-```
+Visit [poac.dev](https://poac.dev) and [Poac Docs](https://poac.dev/docs) for more details.
 
 ## Installation
 
