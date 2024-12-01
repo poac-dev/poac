@@ -1,11 +1,11 @@
-### Installing from Source
+# Installing from Source
 
 > [!CAUTION]
 > This document explains how to build Poac from source. Building from source is not recommended unless you are familiar with the process. If your goal is simply to install Poac, refer to the [README.md](README.md) instead.
 
 You will require the following compilers, commands, and libraries:
 
-#### Compilers (that support C++20)
+## Compilers (that support C++20)
 
 * GCC: `12` or later
 * Clang: `16` or later
@@ -13,7 +13,7 @@ You will require the following compilers, commands, and libraries:
 
 (generally, the latest 3 versions are supported to build Poac.)
 
-#### Commands
+## Commands
 
 * GNU Make
 * Git
@@ -23,7 +23,7 @@ You will require the following compilers, commands, and libraries:
 * mkdir
 * rm
 
-#### Libraries
+## Libraries
 
 * fmt: `>=8.1.1 && <12`
     * `libfmt-dev` on APT (Debian/Ubuntu)
