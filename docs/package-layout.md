@@ -1,4 +1,5 @@
 ---
+layout: default
 title: 6. Package Layout
 ---
 

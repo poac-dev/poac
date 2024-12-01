@@ -1,4 +1,5 @@
 ---
+layout: default
 title: 3. Installation
 ---
 
