@@ -1,7 +1,9 @@
 # Contributing
 
-Please note we have a [code of conduct](https://github.com/poac-dev/.github/blob/main/CODE_OF_CONDUCT.md),
-please follow it in all your interactions with the project.
+Given our limited resources, we do not review PRs that fail to adhere to this document.
+
+Note that we have a [code of conduct](https://github.com/poac-dev/.github/blob/main/CODE_OF_CONDUCT.md),
+follow it in all your interactions with the project.
 
 You can ignore sections marked as "Under Construction".
 
