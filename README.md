@@ -19,9 +19,9 @@ Poac (pronounced as `/pəʊək/`) is a package manager and build system for C++ 
 
 Read ["Installation"](https://docs.poac.dev/installation) from [Poac Docs](https://docs.poac.dev).
 
-## Installing from Source
+## Installing from Source (*not recommended*)
 
-Although building from source is not recommended, if you really want to do so, see [INSTALL.md](INSTALL.md).
+See [INSTALL.md](INSTALL.md).
 
 ## Community
 
