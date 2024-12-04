@@ -1,7 +1,4 @@
----
-layout: default
-title: 3. Installation
----
+# Installation
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/poac.svg)](https://repology.org/project/poac/versions)
 

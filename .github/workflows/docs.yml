@@ -1,0 +1,18 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    name: "build & deploy"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy docs
+        uses: mhausenblas/mkdocs-deploy-gh-pages@nomaterial
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CUSTOM_DOMAIN: docs.poac.dev

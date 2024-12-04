@@ -1,7 +1,8 @@
 ---
-layout: default
-title: 4. Hello, World!
+title: Hello, World!
 ---
+
+# Hello, World!
 
 You can get started with just a few commands as the demo shows. Let's create a new Poac project:
 

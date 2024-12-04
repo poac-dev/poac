@@ -1,7 +1,4 @@
----
-layout: default
-title: 5. Usage
----
+# Usage
 
 ## Start a new project with Poac
 
