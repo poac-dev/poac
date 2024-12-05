@@ -22,6 +22,10 @@ inline const std::unordered_set<std::string> HEADER_FILE_EXTS{
 };
 // clang-format on
 
+inline const std::string LINK_BIN_COMMAND =
+    "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@";
+inline const std::string ARCHIVE_LIB_COMMAND = "ar rcs $@ $^";
+
 enum class VarType : uint8_t {
   Recursive,  // =
   Simple,     // :=

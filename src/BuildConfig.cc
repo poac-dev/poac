@@ -770,11 +770,8 @@ BuildConfig::processUnittestSrc(
   );
 
   // Test binary target.
-  const std::vector<std::string> commands = {
-    "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@"
-  };
+  const std::vector<std::string> commands = { LINK_BIN_COMMAND };
   defineTarget(testTarget, commands, testTargetDeps);
-  //  defineLinkTarget(testTarget, testTargetDeps);
 
   testTargets.insert(testTarget);
   if (mtx) {
@@ -895,9 +892,7 @@ BuildConfig::configureBuild() {
       processSources(sourceFilePaths);
 
   if (hasBinaryTarget) {
-    const std::vector<std::string> commands = {
-      "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@"
-    };
+    const std::vector<std::string> commands = { LINK_BIN_COMMAND };
     defineOutputTarget(
         buildObjTargets, buildOutPath / "main.o", commands,
         outBasePath / packageName
@@ -905,9 +900,7 @@ BuildConfig::configureBuild() {
   }
 
   if (hasLibraryTarget) {
-    const std::vector<std::string> commands = {
-      fmt::format("ar rcs {} $^", libName)
-    };
+    const std::vector<std::string> commands = { ARCHIVE_LIB_COMMAND };
     defineOutputTarget(
         buildObjTargets, buildOutPath / "lib.o", commands, outBasePath / libName
     );
