@@ -1,0 +1,13 @@
+site_name: Poac Docs
+theme: readthedocs
+repo_url: https://github.com/poac-dev/poac
+edit_uri: edit/main/docs/
+
+nav:
+  - index.md
+  - why-poac.md
+  - installation.md
+  - hello-world.md
+  - usage.md
+  - package-layout.md
+  - acknowledgements.md
