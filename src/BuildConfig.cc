@@ -64,6 +64,11 @@ operator<<(std::ostream& os, VarType type) {
 
 BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
     : packageName{ packageName }, isDebug{ isDebug } {
+  if (packageName.starts_with("lib")) {
+    libName = fmt::format("{}.a", packageName);
+  } else {
+    libName = fmt::format("lib{}.a", packageName);
+  }
   const fs::path projectBasePath = getProjectBasePath();
   if (isDebug) {
     outBasePath = projectBasePath / "poac-out" / "debug";
@@ -486,12 +491,21 @@ BuildConfig::defineCompileTarget(
 }
 
 void
-BuildConfig::defineLinkTarget(
-    const std::string& binTarget, const std::unordered_set<std::string>& deps
+BuildConfig::defineOutputTarget(
+    const std::unordered_set<std::string>& buildObjTargets,
+    const std::string& targetInputPath,
+    const std::vector<std::string>& commands,
+    const std::string& targetOutputPath
 ) {
-  std::vector<std::string> commands;
-  commands.emplace_back("$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@");
-  defineTarget(binTarget, commands, deps);
+  // Project binary target.
+  std::unordered_set<std::string> projTargetDeps = { targetInputPath };
+  collectBinDepObjs(
+      projTargetDeps, "",
+      targets.at(targetInputPath).remDeps,  // we don't need sourceFile
+      buildObjTargets
+  );
+
+  defineTarget(targetOutputPath, commands, projTargetDeps);
 }
 
 // Map a path to header file to the corresponding object file.
@@ -760,7 +774,8 @@ BuildConfig::processUnittestSrc(
   );
 
   // Test binary target.
-  defineLinkTarget(testTarget, testTargetDeps);
+  const std::vector<std::string> commands = { LINK_BIN_COMMAND };
+  defineTarget(testTarget, commands, testTargetDeps);
 
   testTargets.insert(testTarget);
   if (mtx) {
@@ -791,6 +806,9 @@ BuildConfig::configureBuild() {
   const auto isMainSource = [](const fs::path& file) {
     return file.filename().stem() == "main";
   };
+  const auto isLibSource = [](const fs::path& file) {
+    return file.filename().stem() == "lib";
+  };
   fs::path mainSource;
   for (const auto& entry : fs::directory_iterator(srcDir)) {
     const fs::path& path = entry.path();
@@ -800,15 +818,33 @@ BuildConfig::configureBuild() {
     if (!isMainSource(path)) {
       continue;
     }
-    if (mainSource.empty()) {
-      mainSource = path;
-    } else {
+    if (!mainSource.empty()) {
       throw PoacError("multiple main sources were found");
     }
+    mainSource = path;
+    hasBinaryTarget = true;
   }
 
-  if (mainSource.empty()) {
-    throw PoacError(fmt::format("src/main{} was not found", SOURCE_FILE_EXTS));
+  fs::path libSource;
+  for (const auto& entry : fs::directory_iterator(srcDir)) {
+    const fs::path& path = entry.path();
+    if (!SOURCE_FILE_EXTS.contains(path.extension())) {
+      continue;
+    }
+    if (!isLibSource(path)) {
+      continue;
+    }
+    if (!libSource.empty()) {
+      throw PoacError("multiple lib sources were found");
+    }
+    libSource = path;
+    hasLibraryTarget = true;
+  }
+
+  if (!hasBinaryTarget && !hasLibraryTarget) {
+    throw PoacError(
+        fmt::format("src/(main|lib){} was not found", SOURCE_FILE_EXTS)
+    );
   }
 
   if (!fs::exists(outBasePath)) {
@@ -817,8 +853,16 @@ BuildConfig::configureBuild() {
 
   setVariables();
 
+  std::unordered_set<std::string> all = {};
+  if (hasBinaryTarget) {
+    all.insert(packageName);
+  }
+  if (hasLibraryTarget) {
+    all.insert(libName);
+  }
+
   // Build rules
-  setAll({ packageName });
+  setAll(all);
   addPhony("all");
 
   std::vector<fs::path> sourceFilePaths = listSourceFilePaths(srcDir);
@@ -832,7 +876,16 @@ BuildConfig::configureBuild() {
           "Move it directly to 'src/' if intended as such.",
           sourceFilePath.string()
       );
+    } else if (sourceFilePath != libSource && isLibSource(sourceFilePath)) {
+      logger::warn(
+          "source file `{}` is named `lib` but is not located directly in the "
+          "`src/` directory. "
+          "This file will not be treated as a hasLibraryTarget. "
+          "Move it directly to 'src/' if intended as such.",
+          sourceFilePath.string()
+      );
     }
+
     srcs += ' ' + sourceFilePath.string();
   }
 
@@ -842,16 +895,20 @@ BuildConfig::configureBuild() {
   const std::unordered_set<std::string> buildObjTargets =
       processSources(sourceFilePaths);
 
-  // Project binary target.
-  const std::string mainObjTarget = buildOutPath / "main.o";
-  std::unordered_set<std::string> projTargetDeps = { mainObjTarget };
-  collectBinDepObjs(
-      projTargetDeps, "",
-      targets.at(mainObjTarget).remDeps,  // we don't need sourceFile
-      buildObjTargets
-  );
+  if (hasBinaryTarget) {
+    const std::vector<std::string> commands = { LINK_BIN_COMMAND };
+    defineOutputTarget(
+        buildObjTargets, buildOutPath / "main.o", commands,
+        outBasePath / packageName
+    );
+  }
 
-  defineLinkTarget(outBasePath / packageName, projTargetDeps);
+  if (hasLibraryTarget) {
+    const std::vector<std::string> commands = { ARCHIVE_LIB_COMMAND };
+    defineOutputTarget(
+        buildObjTargets, buildOutPath / "lib.o", commands, outBasePath / libName
+    );
+  }
 
   // Test Pass
   std::unordered_set<std::string> testTargets;
