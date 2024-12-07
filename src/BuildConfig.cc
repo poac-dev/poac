@@ -64,7 +64,11 @@ operator<<(std::ostream& os, VarType type) {
 
 BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
     : packageName{ packageName }, isDebug{ isDebug } {
-  libName = fmt::format("lib{}.a", packageName);
+  if (packageName.starts_with("lib")) {
+    libName = fmt::format("{}.a", packageName);
+  } else {
+    libName = fmt::format("lib{}.a", packageName);
+  }
   const fs::path projectBasePath = getProjectBasePath();
   if (isDebug) {
     outBasePath = projectBasePath / "poac-out" / "debug";
