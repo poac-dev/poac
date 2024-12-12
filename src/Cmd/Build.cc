@@ -69,7 +69,7 @@ buildImpl(std::string& outDir, const bool isDebug) {
   }
 
   if (config.hasLibTarget() && exitCode == 0) {
-    const std::string libName = config.getLibName();
+    const std::string& libName = config.getLibName();
     exitCode = runBuildCommand(outDir, config, libName);
   }
 

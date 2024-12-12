@@ -83,7 +83,7 @@ public:
   bool hasLibTarget() const {
     return hasLibraryTarget;
   }
-  std::string getLibName() const {
+  const std::string& getLibName() const {
     return this->libName;
   }
 
