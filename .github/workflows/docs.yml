@@ -3,16 +3,43 @@ name: Docs
 on:
   push:
     branches: [main]
+  pull_request:
 
 jobs:
-  build-and-deploy:
-    name: "build & deploy"
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CUSTOM_DOMAIN: docs.poac.dev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install mkdocs
+        run: pip install mkdocs
+
+      - name: Build docs
+        run: mkdocs build --strict
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install mkdocs
+        run: pip install mkdocs
+
+      - name: Publish docs
+        run: mkdocs gh-deploy --no-history
