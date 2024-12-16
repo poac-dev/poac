@@ -80,6 +80,30 @@ break existing functionality:
 poac test  # or make test
 ```
 
+## Documentation
+
+If your changes affect the project's documentation, ensure you update the
+relevant files in the `docs/` directory.  You can preview your changes by
+running the following command:
+
+```bash
+pip install mkdocs
+mkdocs serve
+```
+
+This will start a local server at `http://127.0.0.1:8000/`.
+
+Make sure to update the table of contents in the `mkdocs.yml` file to reflect
+your changes.  Also, ensure that the documentation is clear, concise, and
+formatted correctly.
+
+Before committing anything, ensure that the documentation builds without
+errors by running:
+
+```bash
+mkdocs build --strict
+```
+
 ## Commit Message
 
 We generally follow the
