@@ -33,6 +33,29 @@ const Subcmd BUILD_CMD =
         .setMainFn(buildMain);
 
 int
+runBuildCommand(
+    const std::string& outDir, const BuildConfig& config,
+    const std::string& targetName
+) {
+  const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
+      (config.outBasePath / targetName).string()
+  );
+  Command checkUpToDateCmd = makeCmd;
+  checkUpToDateCmd.addArg("--question");
+
+  int exitCode = execCmd(checkUpToDateCmd);
+  if (exitCode != EXIT_SUCCESS) {
+    // If `targetName` is not up-to-date, compile it.
+    logger::info(
+        "Compiling", "{} v{} ({})", targetName, getPackageVersion().toString(),
+        getProjectBasePath().string()
+    );
+    exitCode = execCmd(makeCmd);
+  }
+  return exitCode;
+}
+
+int
 buildImpl(std::string& outDir, const bool isDebug) {
   const auto start = std::chrono::steady_clock::now();
 
@@ -40,21 +63,14 @@ buildImpl(std::string& outDir, const bool isDebug) {
   outDir = config.outBasePath;
 
   const std::string& packageName = getPackageName();
-  const Command makeCmd = getMakeCommand().addArg("-C").addArg(outDir).addArg(
-      (config.outBasePath / packageName).string()
-  );
-  Command checkUpToDateCmd = makeCmd;
-  checkUpToDateCmd.addArg("--question");
+  int exitCode = 0;
+  if (config.hasBinTarget()) {
+    exitCode = runBuildCommand(outDir, config, packageName);
+  }
 
-  int exitCode = execCmd(checkUpToDateCmd);
-  if (exitCode != EXIT_SUCCESS) {
-    // If packageName binary is not up-to-date, compile it.
-    logger::info(
-        "Compiling", "{} v{} ({})", packageName, getPackageVersion().toString(),
-        getProjectBasePath().string()
-
-    );
-    exitCode = execCmd(makeCmd);
+  if (config.hasLibTarget() && exitCode == 0) {
+    const std::string& libName = config.getLibName();
+    exitCode = runBuildCommand(outDir, config, libName);
   }
 
   const auto end = std::chrono::steady_clock::now();

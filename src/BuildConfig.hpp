@@ -22,6 +22,10 @@ inline const std::unordered_set<std::string> HEADER_FILE_EXTS{
 };
 // clang-format on
 
+inline const std::string LINK_BIN_COMMAND =
+    "$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@";
+inline const std::string ARCHIVE_LIB_COMMAND = "ar rcs $@ $^";
+
 enum class VarType : uint8_t {
   Recursive,  // =
   Simple,     // :=
@@ -47,9 +51,15 @@ struct BuildConfig {
 
 private:
   std::string packageName;
+  std::string libName;
   fs::path buildOutPath;
   fs::path unittestOutPath;
   bool isDebug;
+
+  // if we are building an binary
+  bool hasBinaryTarget{ false };
+  // if we are building a hasLibraryTarget
+  bool hasLibraryTarget{ false };
 
   std::unordered_map<std::string, Variable> variables;
   std::unordered_map<std::string, std::vector<std::string>> varDeps;
@@ -67,6 +77,16 @@ private:
 public:
   explicit BuildConfig(const std::string& packageName, bool isDebug = true);
 
+  bool hasBinTarget() const {
+    return hasBinaryTarget;
+  }
+  bool hasLibTarget() const {
+    return hasLibraryTarget;
+  }
+  const std::string& getLibName() const {
+    return this->libName;
+  }
+
   void defineVar(
       const std::string& name, const Variable& value,
       const std::unordered_set<std::string>& dependsOn = {}
@@ -77,12 +97,14 @@ public:
       varDeps[dep].push_back(name);
     }
   }
+
   void defineSimpleVar(
       const std::string& name, const std::string& value,
       const std::unordered_set<std::string>& dependsOn = {}
   ) {
     defineVar(name, { .value = value, .type = VarType::Simple }, dependsOn);
   }
+
   void defineCondVar(
       const std::string& name, const std::string& value,
       const std::unordered_set<std::string>& dependsOn = {}
@@ -142,8 +164,12 @@ public:
       const std::string& objTarget, const std::string& sourceFile,
       const std::unordered_set<std::string>& remDeps, bool isTest = false
   );
-  void defineLinkTarget(
-      const std::string& binTarget, const std::unordered_set<std::string>& deps
+
+  void defineOutputTarget(
+      const std::unordered_set<std::string>& buildObjTargets,
+      const std::string& targetInputPath,
+      const std::vector<std::string>& commands,
+      const std::string& targetOutputPath
   );
 
   void collectBinDepObjs(  // NOLINT(misc-no-recursion)
