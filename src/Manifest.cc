@@ -133,6 +133,8 @@ struct SystemDependency {
   DepMetadata install() const;
 };
 
+using Dependency = std::variant<GitDependency, SystemDependency>;
+
 void
 Profile::merge(const Profile& other) {
   cxxflags.insert(other.cxxflags.begin(), other.cxxflags.end());
@@ -166,10 +168,8 @@ struct Manifest {
   std::optional<toml::value> data = std::nullopt;
 
   std::optional<Package> package = std::nullopt;
-  std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
-      dependencies = std::nullopt;
-  std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
-      devDependencies = std::nullopt;
+  std::optional<std::vector<Dependency>> dependencies = std::nullopt;
+  std::optional<std::vector<Dependency>> devDependencies = std::nullopt;
 
   std::optional<Profile> profile = std::nullopt;
   std::optional<Profile> devProfile = std::nullopt;
@@ -548,7 +548,7 @@ parseSystemDep(const std::string& name, const toml::table& info) {
   return { .name = name, .versionReq = VersionReq::parse(versionReq) };
 }
 
-static std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
+static std::optional<std::vector<Dependency>>
 parseDependencies(const char* key) {
   Manifest& manifest = Manifest::instance();
   const auto& table = toml::get<toml::table>(manifest.data.value());
@@ -558,7 +558,7 @@ parseDependencies(const char* key) {
   }
   const auto tomlDeps = toml::find<toml::table>(manifest.data.value(), key);
 
-  std::vector<std::variant<GitDependency, SystemDependency>> deps;
+  std::vector<Dependency> deps;
   for (const auto& dep : tomlDeps) {
     if (dep.second.is_table()) {
       const auto& info = dep.second.as_table();
