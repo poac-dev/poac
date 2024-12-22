@@ -126,7 +126,7 @@ struct GitDependency {
   DepMetadata install() const;
 };
 
-struct LocalDependency {
+struct PathDependency {
   std::string name;
   std::string path;
 
@@ -141,7 +141,7 @@ struct SystemDependency {
 };
 
 using Dependency =
-    std::variant<GitDependency, LocalDependency, SystemDependency>;
+    std::variant<GitDependency, PathDependency, SystemDependency>;
 
 void
 Profile::merge(const Profile& other) {
@@ -544,12 +544,12 @@ parseGitDep(const std::string& name, const toml::table& info) {
   return { .name = name, .url = gitUrlStr, .target = target };
 }
 
-static LocalDependency
-parseLocalDep(const std::string& name, const toml::table& info) {
+static PathDependency
+parsePathDep(const std::string& name, const toml::table& info) {
   validateDepName(name);
-  const auto& path = info.at("local");
+  const auto& path = info.at("path");
   if (!path.is_string()) {
-    throw PoacError("local dependency must be a path string");
+    throw PoacError("path dependency must be a string");
   }
   return { .name = name, .path = path.as_string() };
 }
@@ -586,14 +586,14 @@ parseDependencies(const char* key) {
       } else if (info.contains("system") && info.at("system").as_boolean()) {
         deps.emplace_back(parseSystemDep(dep.first, info));
         continue;
-      } else if (info.contains("local")) {
-        deps.emplace_back(parseLocalDep(dep.first, info));
+      } else if (info.contains("path")) {
+        deps.emplace_back(parsePathDep(dep.first, info));
         continue;
       }
     }
 
     throw PoacError(
-        "Only Git dependency, local dependency, and system dependency are "
+        "Only Git dependency, path dependency, and system dependency are "
         "supported for now: ",
         dep.first
     );
@@ -642,7 +642,7 @@ GitDependency::install() const {
 }
 
 DepMetadata
-LocalDependency::install() const {
+PathDependency::install() const {
   const fs::path installDir = fs::weakly_canonical(path);
   if (fs::exists(installDir) && !fs::is_empty(installDir)) {
     logger::debug("{} is already installed", name);
