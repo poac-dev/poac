@@ -34,7 +34,7 @@ tidyImpl(const Command& makeCmd) {
   const std::chrono::duration<double> elapsed = end - start;
 
   if (exitCode == EXIT_SUCCESS) {
-    logger::info("Finished", "clang-tidy in ", elapsed.count(), "s");
+    logger::info("Finished", "clang-tidy in {}s", elapsed.count());
   }
   return exitCode;
 }
