@@ -119,13 +119,15 @@ We generally follow the
 
 When creating a PR:
 
-1. **CI**: Verify that all CI checks pass on your fork before submitting the
+1. **Title**: Follow the First Line rule of [Commit Message](#commit-message).
+2. **Description**: Follow the Body rule of [Commit Message](#commit-message).
+3. **CI**: Verify that all CI checks pass on your fork before submitting the
    PR.  Avoid relying on the CI of this repository to catch errors, as this
    can cause delays or stalls for other contributors.
-2. **Commit Structure**: There is no need to squash commits within the PR
+4. **Commit Structure**: There is no need to squash commits within the PR
    unless explicitly requested.  Keeping separate commits can help reviewers
    understand the progression of changes.
-3. **Title and Description**: Ensure the PR title and description are clear,
+5. **Title and Description**: Ensure the PR title and description are clear,
    concise, and accurately summarize the changes.  These will serve as the
    commit message when the PR is merged, so take care to make them informative
    and professional.
