@@ -107,7 +107,7 @@ createTemplateFiles(const bool isBin, const std::string_view projectName) {
     writeToFile(ofs, projectName / ".gitignore"_path, "/poac-out");
     writeToFile(ofs, projectName / "src"_path / "main.cc", MAIN_CC);
 
-    logger::info("Created", "binary (application) `", projectName, "` package");
+    logger::info("Created", "binary (application) `{}` package", projectName);
   } else {
     fs::create_directories(projectName / "include"_path / projectName);
     writeToFile(
@@ -121,7 +121,7 @@ createTemplateFiles(const bool isBin, const std::string_view projectName) {
         getHeader(projectName)
     );
 
-    logger::info("Created", "library `", projectName, "` package");
+    logger::info("Created", "library `{}` package", projectName);
   }
 }
 
