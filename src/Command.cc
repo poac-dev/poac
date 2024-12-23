@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fcntl.h>
+#include <string>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>

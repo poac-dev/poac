@@ -27,6 +27,7 @@ lto = true
 [lint.cpplint]
 filters = [
   "-build/c++11",
+  "-build/c++17",
   "-build/include_order", # prioritize clang-format
   "-build/include_subdir",
   "-legal/copyright",
