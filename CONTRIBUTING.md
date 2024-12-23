@@ -117,8 +117,6 @@ We generally follow the
 
 ## Pull Request Style
 
-When creating a PR:
-
 1. **Title**: Follow the First Line rule of [Commit Message](#commit-message).
 2. **Description**: Follow the Body rule of [Commit Message](#commit-message).
 3. **CI**: Verify that all CI checks pass on your fork before submitting the
