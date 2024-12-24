@@ -19,6 +19,7 @@
 #include <toml.hpp>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -126,12 +127,22 @@ struct GitDependency {
   DepMetadata install() const;
 };
 
+struct PathDependency {
+  std::string name;
+  std::string path;
+
+  DepMetadata install() const;
+};
+
 struct SystemDependency {
   std::string name;
   VersionReq versionReq;
 
   DepMetadata install() const;
 };
+
+using Dependency =
+    std::variant<GitDependency, PathDependency, SystemDependency>;
 
 void
 Profile::merge(const Profile& other) {
@@ -166,10 +177,8 @@ struct Manifest {
   std::optional<toml::value> data = std::nullopt;
 
   std::optional<Package> package = std::nullopt;
-  std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
-      dependencies = std::nullopt;
-  std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
-      devDependencies = std::nullopt;
+  std::optional<std::vector<Dependency>> dependencies = std::nullopt;
+  std::optional<std::vector<Dependency>> devDependencies = std::nullopt;
 
   std::optional<Profile> profile = std::nullopt;
   std::optional<Profile> devProfile = std::nullopt;
@@ -536,6 +545,16 @@ parseGitDep(const std::string& name, const toml::table& info) {
   return { .name = name, .url = gitUrlStr, .target = target };
 }
 
+static PathDependency
+parsePathDep(const std::string& name, const toml::table& info) {
+  validateDepName(name);
+  const auto& path = info.at("path");
+  if (!path.is_string()) {
+    throw PoacError("path dependency must be a string");
+  }
+  return { .name = name, .path = path.as_string() };
+}
+
 static SystemDependency
 parseSystemDep(const std::string& name, const toml::table& info) {
   validateDepName(name);
@@ -548,7 +567,7 @@ parseSystemDep(const std::string& name, const toml::table& info) {
   return { .name = name, .versionReq = VersionReq::parse(versionReq) };
 }
 
-static std::optional<std::vector<std::variant<GitDependency, SystemDependency>>>
+static std::optional<std::vector<Dependency>>
 parseDependencies(const char* key) {
   Manifest& manifest = Manifest::instance();
   const auto& table = toml::get<toml::table>(manifest.data.value());
@@ -558,7 +577,7 @@ parseDependencies(const char* key) {
   }
   const auto tomlDeps = toml::find<toml::table>(manifest.data.value(), key);
 
-  std::vector<std::variant<GitDependency, SystemDependency>> deps;
+  std::vector<Dependency> deps;
   for (const auto& dep : tomlDeps) {
     if (dep.second.is_table()) {
       const auto& info = dep.second.as_table();
@@ -568,11 +587,15 @@ parseDependencies(const char* key) {
       } else if (info.contains("system") && info.at("system").as_boolean()) {
         deps.emplace_back(parseSystemDep(dep.first, info));
         continue;
+      } else if (info.contains("path")) {
+        deps.emplace_back(parsePathDep(dep.first, info));
+        continue;
       }
     }
 
     throw PoacError(
-        "Only Git dependency and system dependency are supported for now: ",
+        "Only Git dependency, path dependency, and system dependency are "
+        "supported for now: ",
         dep.first
     );
   }
@@ -603,6 +626,29 @@ GitDependency::install() const {
     logger::info(
         "Downloaded", "{} {}", name, target.has_value() ? target.value() : url
     );
+  }
+
+  const fs::path includeDir = installDir / "include";
+  std::string includes = "-isystem";
+
+  if (fs::exists(includeDir) && fs::is_directory(includeDir)
+      && !fs::is_empty(includeDir)) {
+    includes += includeDir.string();
+  } else {
+    includes += installDir.string();
+  }
+
+  // Currently, no libs are supported.
+  return { .includes = includes, .libs = "" };
+}
+
+DepMetadata
+PathDependency::install() const {
+  const fs::path installDir = fs::weakly_canonical(path);
+  if (fs::exists(installDir) && !fs::is_empty(installDir)) {
+    logger::debug("{} is already installed", name);
+  } else {
+    throw PoacError(installDir.string() + " can't be accessible as directory");
   }
 
   const fs::path includeDir = installDir / "include";

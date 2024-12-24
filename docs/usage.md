@@ -50,7 +50,9 @@ Poac uses a cache since we executed the command with no changes.
 
 ## Install dependencies
 
-Like Cargo does, Poac installs dependencies at build time.  Poac currently supports Git and system dependencies.  You can use the `poac add` command to add dependencies to your project.
+Like Cargo does, Poac installs dependencies at build time.  Poac currently supports Git, path, and system dependencies.  You can use two ways to add dependencies to your project: using the `poac add` command and editing `poac.toml` directly.
+
+### `poac add`
 
 The `poac add` command accepts the following arguments:
 
@@ -67,6 +69,23 @@ Example
 ```bash
 poac add libgit2 --sys --version "1.1.0"
 poac add "ToruNiina/toml11" --rev "846abd9a49082fe51440aa07005c360f13a67bbf"
+```
+
+### Editing `poac.toml` directly
+
+The syntax for `poac.toml` is as follows:
+
+```toml
+[dependencies]
+
+# git dependency
+"ToruNiina/toml11" = { git = "https://github.com/ToruNiina/toml11.git", rev = "846abd9a49082fe51440aa07005c360f13a67bbf" }
+
+# path dependency
+local_lib = { path = "../local_lib" }
+
+# system dependency
+fmt = { version = ">= 9", system = true }
 ```
 
 If `tag`, `branch`, or `rev` is unspecified for git dependencies, Poac will use the latest revision of the default branch. System dependency names must be acceptable by `pkg-config`. The version requirement syntax is specified in [src/VersionReq.hpp](https://github.com/poac-dev/poac/blob/main/src/VersionReq.hpp).
