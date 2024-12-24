@@ -1,6 +1,6 @@
 # Contributing
 
-Given our limited resources, we do not review PRs that fail to adhere to this document.
+Given our limited resources, we may not review PRs that fail to adhere to this document.
 
 Note that we have a [code of conduct](https://github.com/poac-dev/.github/blob/main/CODE_OF_CONDUCT.md),
 follow it in all your interactions with the project.
@@ -109,11 +109,14 @@ mkdocs build --strict
 We generally follow the
 [Git Contribution Guidelines](https://git-scm.com/docs/SubmittingPatches#describe-changes).
 
-- **First Line**: Ensure the first line of your commit message adheres to the
-  guidelines for a concise and clear summary.
-- **Body**: While not mandatory, it is recommended to follow the rest of the
-  guidelines to maintain consistency and provide helpful context for future
-  readers.
+- **First Line**: `component: description of the patch` in all lowercase.
+- **Body**: Explain your change in 2-3 paragraphs:
+  1. the current problem you want to solve
+  2. justification of your change
+  3. if any, alternative solutions considered but discarded
+
+Read [Git Contribution Guidelines](https://git-scm.com/docs/SubmittingPatches#describe-changes)
+for more examples.
 
 ## Pull Request Style
 
