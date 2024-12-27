@@ -1,6 +1,6 @@
-site_name: Poac Docs
+site_name: Cabin Docs
 theme: readthedocs
-repo_url: https://github.com/poac-dev/poac
+repo_url: https://github.com/cabinpkg/cabin
 edit_uri: edit/main/docs/
 
 nav:
