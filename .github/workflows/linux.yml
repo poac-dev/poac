@@ -66,7 +66,7 @@ jobs:
         run: make test -j4
 
       - name: Second Generation Build
-        run: ./build-out/poac build --verbose
+        run: ./build/poac build --verbose
 
       - name: Test the second generation
         run: ./poac-out/debug/poac test --verbose

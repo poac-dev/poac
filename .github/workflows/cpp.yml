@@ -32,7 +32,7 @@ jobs:
           sudo apt-get install -y clang-tidy-18
 
       - name: poac tidy
-        run: ./build-out/poac tidy --verbose
+        run: ./build/poac tidy --verbose
         env:
           POAC_TIDY: clang-tidy-18
 
@@ -55,7 +55,7 @@ jobs:
           sudo apt-get install -y clang-format-18
 
       - name: poac fmt
-        run: ./build-out/poac fmt --check --verbose --exclude srcOld --exclude testsOld
+        run: ./build/poac fmt --check --verbose --exclude srcOld --exclude testsOld
         env:
           POAC_FMT: clang-format-18
 
@@ -74,4 +74,4 @@ jobs:
         run: sudo apt-get install -y cpplint
 
       - name: poac lint
-        run: ./build-out/poac lint --verbose --exclude srcOld --exclude testsOld
+        run: ./build/poac lint --verbose --exclude srcOld --exclude testsOld

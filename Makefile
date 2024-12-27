@@ -15,7 +15,7 @@ else
 	CXXFLAGS += $(DEBUG_FLAGS)
 endif
 
-O := build-out
+O := build
 PROJECT := $(O)/poac
 VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
 MKDIR_P := @mkdir -p

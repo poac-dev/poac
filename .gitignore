@@ -6,7 +6,7 @@
 .vscode/
 
 # Make
-build-out/
+build/
 
 # Poac
 poac-out/
