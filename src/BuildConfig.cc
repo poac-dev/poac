@@ -467,7 +467,7 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
       // file.
       const bool containsTest = src != testSrc;
       if (containsTest) {
-        logger::debug("Found test code: ", sourceFile);
+        logger::debug("Found test code: {}", sourceFile);
       }
       return containsTest;
     }

@@ -57,7 +57,7 @@ handleDependency(
     std::unordered_set<std::string_view>& newDeps, const std::string_view dep
 ) {
   if (newDeps.contains(dep)) {
-    logger::warn("The dependency `", dep, "` is already in the cabin.toml");
+    logger::warn("The dependency `{}` is already in the cabin.toml", dep);
     return;
   }
   newDeps.insert(dep);

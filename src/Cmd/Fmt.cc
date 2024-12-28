@@ -62,7 +62,7 @@ collectFormatTargetFiles(
       const std::string path =
           fs::relative(entry->path(), manifestDir).string();
       if ((hasGitRepo && repo.isIgnored(path)) || isExcluded(path)) {
-        logger::debug("Ignore: ", path);
+        logger::debug("Ignore: {}", path);
         entry.disable_recursion_pending();
         continue;
       }
@@ -70,7 +70,7 @@ collectFormatTargetFiles(
       const fs::path path = fs::relative(entry->path(), manifestDir);
       if ((hasGitRepo && repo.isIgnored(path.string()))
           || isExcluded(path.string())) {
-        logger::debug("Ignore: ", path.string());
+        logger::debug("Ignore: {}", path.string());
         continue;
       }
 
