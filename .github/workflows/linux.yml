@@ -69,7 +69,7 @@ jobs:
         run: |
           wget https://raw.githubusercontent.com/felipec/sharness/refs/tags/v1.2.1/sharness.sh
           mv sharness.sh tests/
-          prove -j$(nproc) --shuffle tests/[0-9]*.sh
+          prove -j"$(nproc)" --shuffle tests/[0-9]*.sh
 
       - name: Second Generation Build
         run: ./build/cabin build --verbose
