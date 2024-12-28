@@ -7,37 +7,15 @@ on:
 
 env:
   CABIN_TERM_COLOR: always
-  CXX: g++-13
 
 permissions:
   contents: read
 
 jobs:
-  clang-tidy:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup dependencies
-        uses: ./.github/actions/setup-ubuntu-deps
-
-      - name: Build Cabin
-        run: make RELEASE=1
-
-      - name: Install clang-tidy
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x ./llvm.sh
-          sudo ./llvm.sh 18
-          sudo apt-get install -y clang-tidy-18
-
-      - name: cabin tidy
-        run: ./build/cabin tidy --verbose
-        env:
-          CABIN_TIDY: clang-tidy-18
-
   format:
     runs-on: ubuntu-24.04
+    env:
+      CXX: g++-13
     steps:
       - uses: actions/checkout@v4
 
@@ -61,6 +39,8 @@ jobs:
 
   lint:
     runs-on: ubuntu-24.04
+    env:
+      CXX: g++-13
     steps:
       - uses: actions/checkout@v4
 
@@ -75,3 +55,132 @@ jobs:
 
       - name: cabin lint
         run: ./build/cabin lint --verbose
+
+  build-and-test:
+    name: "build & test (${{ matrix.compiler.name }})"
+    runs-on: ${{ matrix.compiler.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - name: "Clang 16"
+            cxx: clang++-16
+            os: ubuntu-22.04
+          - name: "Clang 17"
+            cxx: clang++-17
+            os: ubuntu-24.04
+          - name: "Clang 18"
+            cxx: clang++-18
+            os: ubuntu-24.04
+          - name: "GCC 12"
+            cxx: g++-12
+            os: ubuntu-24.04
+          - name: "GCC 13"
+            cxx: g++-13
+            os: ubuntu-24.04
+          - name: "GCC 14"
+            cxx: g++-14
+            os: ubuntu-24.04
+          - name: "Apple Clang - macOS 13"
+            cxx: c++
+            os: macos-13
+          - name: "Apple Clang - macOS 14"
+            cxx: c++
+            os: macos-14
+          - name: "Apple Clang - macOS 15"
+            cxx: c++
+            os: macos-15
+    env:
+      CXX: ${{ matrix.compiler.cxx }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Clang
+        if: startsWith(matrix.compiler.cxx, 'clang')
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x ./llvm.sh
+          sudo ./llvm.sh "${CXX##*-}"
+
+      - name: Setup GCC
+        if: matrix.compiler.cxx == 'g++-14'
+        run: sudo apt update && sudo apt install -y gcc-14
+
+      - name: Setup Ubuntu dependencies
+        if: runner.os == 'Linux'
+        uses: ./.github/actions/setup-ubuntu-deps
+
+      - name: Setup macOS dependencies
+        if: runner.os == 'macOS'
+        uses: ./.github/actions/setup-macos-deps
+
+      - name: Print versions
+        run: make versions
+
+      - name: First Generation Build
+        run: make -j4
+
+      - name: Test the first generation
+        run: make test -j4
+
+      - name: Integration Test the first generation
+        run: |
+          wget https://raw.githubusercontent.com/felipec/sharness/refs/tags/v1.2.1/sharness.sh
+          wget https://raw.githubusercontent.com/felipec/sharness/refs/tags/v1.2.1/lib-sharness/functions.sh
+          mv sharness.sh tests/
+          mkdir tests/lib-sharness
+          mv functions.sh tests/lib-sharness/
+          prove -j4 --shuffle tests/[0-9]*.sh
+
+      - name: Second Generation Build
+        run: ./build/cabin build --verbose
+
+      - name: Test the second generation
+        run: ./cabin-out/debug/cabin test --verbose
+
+      - name: Third Generation Build & Test
+        run: ./cabin-out/debug/cabin --verbose run --release test --verbose
+
+      - name: Print Cabin version
+        run: ./cabin-out/debug/cabin version --verbose
+
+      - name: Create a new project with the third generation
+        run: ./cabin-out/debug/cabin new hello_world
+
+      - name: Run the new project
+        run: ../cabin-out/debug/cabin --verbose run
+        working-directory: hello_world
+
+      # - name: Print coverage
+      #   if: success() && matrix.coverage == 'on'
+      #   run: |
+      #     lcov --directory . --capture --output-file coverage.info --gcov-tool "${CC_PATH/gcc/gcov}"
+      #     lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
+      #     lcov --list coverage.info
+      #   env:
+      #     CC_PATH: /usr/bin/${{ env.CC }}
+
+  clang-tidy:
+    runs-on: ubuntu-24.04
+    env:
+      CXX: g++-13
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup dependencies
+        uses: ./.github/actions/setup-ubuntu-deps
+
+      - name: Build Cabin
+        run: make RELEASE=1
+
+      - name: Install clang-tidy
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x ./llvm.sh
+          sudo ./llvm.sh 18
+          sudo apt-get install -y clang-tidy-18
+
+      - name: cabin tidy
+        run: ./build/cabin tidy --verbose
+        env:
+          CABIN_TIDY: clang-tidy-18
