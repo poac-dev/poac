@@ -55,7 +55,7 @@ jobs:
           sudo apt-get install -y clang-format-18
 
       - name: cabin fmt
-        run: ./build/cabin fmt --check --verbose --exclude srcOld --exclude testsOld
+        run: ./build/cabin fmt --check --verbose
         env:
           CABIN_FMT: clang-format-18
 
@@ -74,4 +74,4 @@ jobs:
         run: sudo apt-get install -y cpplint
 
       - name: cabin lint
-        run: ./build/cabin lint --verbose --exclude srcOld --exclude testsOld
+        run: ./build/cabin lint --verbose

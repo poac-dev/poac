@@ -60,11 +60,11 @@ standards by running the following tools:
 
 1. Run the linter (`cpplint`)
    ```bash
-   cabin lint --exclude srcOld --exclude testsOld
+   cabin lint
    ```
 2. Run the formatter (`clang-format`)
    ```bash
-   cabin fmt --exclude srcOld --exclude testsOld
+   cabin fmt
    ```
 3. Run the static analyzer (`clang-tidy`)
    ```bash
