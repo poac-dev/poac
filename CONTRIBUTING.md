@@ -77,8 +77,16 @@ Always validate your changes to ensure they do not introduce regressions or
 break existing functionality:
 
 ```bash
+# Unit tests
 cabin test  # or make test
+
+# Integration tests
+wget https://raw.githubusercontent.com/felipec/sharness/refs/tags/v1.2.1/sharness.sh
+mv sharness.sh tests/
+prove -j$(nproc) --shuffle tests/[0-9]*.sh
 ```
+
+Make sure to add new tests for any new functionality you introduce.
 
 ## Documentation
 

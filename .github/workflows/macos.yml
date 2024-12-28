@@ -34,6 +34,12 @@ jobs:
       - name: Test the first generation
         run: make test -j4
 
+      - name: Integration Test the first generation
+        run: |
+          wget https://raw.githubusercontent.com/felipec/sharness/refs/tags/v1.2.1/sharness.sh
+          mv sharness.sh tests/
+          prove -j4 --shuffle tests/[0-9]*.sh
+
       - name: Second Generation Build
         run: ./build/cabin build --verbose
 
