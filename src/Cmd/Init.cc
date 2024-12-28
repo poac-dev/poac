@@ -48,7 +48,7 @@ initMain(const std::span<const std::string_view> args) {
 
   const std::string packageName = fs::current_path().stem().string();
   if (const auto err = validatePackageName(packageName)) {
-    logger::error("package names ", err.value(), ": `", packageName, '`');
+    logger::error("package names {}: `{}`", err.value(), packageName);
     return EXIT_FAILURE;
   }
 

@@ -61,7 +61,7 @@ testMain(const std::span<const std::string_view> args) {
       if (ec == std::errc()) {
         setParallelism(numThreads);
       } else {
-        logger::error("invalid number of threads: ", *itr);
+        logger::error("invalid number of threads: {}", *itr);
         return EXIT_FAILURE;
       }
     } else {

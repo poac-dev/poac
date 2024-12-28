@@ -213,16 +213,18 @@ Subcmd::noSuchArg(std::string_view arg) const {
                  + bold(yellow(similar.value())) + "'?\n\n";
   }
   logger::error(
-      "unexpected argument '", bold(yellow(arg)), "' found\n\n", suggestion,
-      getUsage(), "\n\n", "For more information, try '", bold(cyan("--help")),
-      '\''
+      "unexpected argument '{}' found\n\n"
+      "{}"
+      "{}\n\n"
+      "For more information, try '{}'",
+      bold(yellow(arg)), suggestion, getUsage(), bold(cyan("--help"))
   );
   return EXIT_FAILURE;
 }
 
 [[nodiscard]] int
 Subcmd::missingArgumentForOpt(const std::string_view arg) {
-  logger::error("Missing argument for `", arg, "`");
+  logger::error("Missing argument for `{}`", arg);
   return EXIT_FAILURE;
 }
 
@@ -339,8 +341,10 @@ Cli::noSuchArg(std::string_view arg) const {
                  + bold(yellow(similar.value())) + "'?\n\n";
   }
   logger::error(
-      "unexpected argument '", bold(yellow(arg)), "' found\n\n", suggestion,
-      "For a list of commands, try '", bold(cyan("cabin help")), '\''
+      "unexpected argument '{}' found\n\n"
+      "{}"
+      "For a list of commands, try '{}'",
+      bold(yellow(arg)), suggestion, bold(cyan("cabin help"))
   );
   return EXIT_FAILURE;
 }

@@ -40,7 +40,7 @@ cleanMain(const std::span<const std::string_view> args) noexcept {
 
       ++itr;
       if (!(*itr == "debug" || *itr == "release")) {
-        logger::error("Invalid argument for ", *(itr - 1), ": ", *itr);
+        logger::error("Invalid argument for {}: {}", *(itr - 1), *itr);
         return EXIT_FAILURE;
       }
 
