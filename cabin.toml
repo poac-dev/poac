@@ -1,13 +1,13 @@
 [package]
 authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
 description = "A package manager and build system for C++"
-documentation = "https://poac.dev/docs"
+documentation = "https://docs.cabinpkg.com"
 edition = "20"
-homepage = "https://poac.dev"
+homepage = "https://cabinpkg.com"
 license = "Apache-2.0"
-name = "poac"
+name = "cabin"
 readme = "README.md"
-repository = "https://github.com/poac-dev/poac"
+repository = "https://github.com/cabinpkg/cabin"
 version = "0.10.1"
 
 [dependencies]

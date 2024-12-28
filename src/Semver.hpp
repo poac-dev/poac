@@ -20,9 +20,10 @@
 #include <variant>
 #include <vector>
 
-struct SemverError : public PoacError {
+struct SemverError : public CabinError {
   explicit SemverError(auto&&... args)
-      : PoacError("invalid semver:\n", std::forward<decltype(args)>(args)...) {}
+      : CabinError("invalid semver:\n", std::forward<decltype(args)>(args)...) {
+  }
 };
 
 struct VersionToken {

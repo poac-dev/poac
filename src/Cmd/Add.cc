@@ -19,7 +19,7 @@ static int addMain(std::span<const std::string_view> args);
 
 const Subcmd ADD_CMD =
     Subcmd{ "add" }
-        .setDesc("Add dependencies to poac.toml")
+        .setDesc("Add dependencies to cabin.toml")
         .setArg(Arg{ "args" }
                     .setDesc("Dependencies to add")
                     .setRequired(true)
@@ -57,7 +57,7 @@ handleDependency(
     std::unordered_set<std::string_view>& newDeps, const std::string_view dep
 ) {
   if (newDeps.contains(dep)) {
-    logger::warn("The dependency `", dep, "` is already in the poac.toml");
+    logger::warn("The dependency `", dep, "` is already in the cabin.toml");
     return;
   }
   newDeps.insert(dep);
@@ -156,7 +156,7 @@ addDependencyToManifest(
   std::ofstream ofs(getManifestPath());
   ofs << data;
 
-  logger::info("Added", "to the poac.toml");
+  logger::info("Added", "to the cabin.toml");
   return EXIT_SUCCESS;
 }
 

@@ -22,7 +22,7 @@ static int newMain(std::span<const std::string_view> args);
 
 const Subcmd NEW_CMD =  //
     Subcmd{ "new" }
-        .setDesc("Create a new poac project")
+        .setDesc("Create a new cabin project")
         .addOpt(OPT_BIN)
         .addOpt(OPT_LIB)
         .setArg(Arg{ "name" })
@@ -49,20 +49,20 @@ getAuthor() noexcept {
 }
 
 std::string
-createPoacToml(const std::string_view projectName) noexcept {
-  std::string poacToml =
+createCabinToml(const std::string_view projectName) noexcept {
+  std::string cabinToml =
       "[package]\n"
       "name = \"";
-  poacToml += projectName;
-  poacToml +=
+  cabinToml += projectName;
+  cabinToml +=
       "\"\n"
       "version = \"0.1.0\"\n"
       "authors = [\"";
-  poacToml += getAuthor();
-  poacToml +=
+  cabinToml += getAuthor();
+  cabinToml +=
       "\"]\n"
       "edition = \"20\"\n";
-  return poacToml;
+  return cabinToml;
 }
 
 static std::string
@@ -90,7 +90,7 @@ writeToFile(
   ofs.close();
 
   if (!ofs) {
-    throw PoacError("writing `", fpath.string(), "` failed");
+    throw CabinError("writing `", fpath.string(), "` failed");
   }
   ofs.clear();
 }
@@ -102,18 +102,18 @@ createTemplateFiles(const bool isBin, const std::string_view projectName) {
   if (isBin) {
     fs::create_directories(projectName / "src"_path);
     writeToFile(
-        ofs, projectName / "poac.toml"_path, createPoacToml(projectName)
+        ofs, projectName / "cabin.toml"_path, createCabinToml(projectName)
     );
-    writeToFile(ofs, projectName / ".gitignore"_path, "/poac-out");
+    writeToFile(ofs, projectName / ".gitignore"_path, "/cabin-out");
     writeToFile(ofs, projectName / "src"_path / "main.cc", MAIN_CC);
 
     logger::info("Created", "binary (application) `{}` package", projectName);
   } else {
     fs::create_directories(projectName / "include"_path / projectName);
     writeToFile(
-        ofs, projectName / "poac.toml"_path, createPoacToml(projectName)
+        ofs, projectName / "cabin.toml"_path, createCabinToml(projectName)
     );
-    writeToFile(ofs, projectName / ".gitignore"_path, "/poac-out\npoac.lock");
+    writeToFile(ofs, projectName / ".gitignore"_path, "/cabin-out\ncabin.lock");
     writeToFile(
         ofs,
         (projectName / "include"_path / projectName / projectName).string()

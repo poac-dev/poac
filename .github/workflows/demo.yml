@@ -22,10 +22,10 @@ jobs:
       - name: Print versions
         run: make versions
 
-      - name: Build Poac
+      - name: Build Cabin
         run: make RELEASE=1 -j4
 
-      - name: Install Poac
+      - name: Install Cabin
         run: |
           make PREFIX="$HOME/.local" install
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"

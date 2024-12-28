@@ -12,16 +12,16 @@
 #include <utility>
 #include <variant>
 
-struct ComparatorError : public PoacError {
+struct ComparatorError : public CabinError {
   explicit ComparatorError(auto&&... args)
-      : PoacError(
+      : CabinError(
             "invalid comparator:\n", std::forward<decltype(args)>(args)...
         ) {}
 };
 
-struct VersionReqError : public PoacError {
+struct VersionReqError : public CabinError {
   explicit VersionReqError(auto&&... args)
-      : PoacError(
+      : CabinError(
             "invalid version requirement:\n",
             std::forward<decltype(args)>(args)...
         ) {}
@@ -895,7 +895,7 @@ operator<<(std::ostream& os, const VersionReq& req) {
   return os << req.toString();
 }
 
-#ifdef POAC_TEST
+#ifdef CABIN_TEST
 
 #  include "Rustify/Tests.hpp"
 

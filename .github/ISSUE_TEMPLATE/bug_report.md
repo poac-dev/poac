@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**Certify that you tried to find the same problem on [Issues](https://github.com/poac-dev/poac/issues), [PRs](https://github.com/poac-dev/poac/pulls), and [Discussions](https://github.com/orgs/poac-dev/discussions)** (this is important for us to reduce workload)
+**Certify that you tried to find the same problem on [Issues](https://github.com/cabinpkg/cabin/issues), [PRs](https://github.com/cabinpkg/cabin/pulls), and [Discussions](https://github.com/orgs/cabinpkg/discussions)** (this is important for us to reduce workload)
 - [ ] I certify that I looked for the same issue and couldn't find it to the best of my knowledge.
 
 **Describe the bug**
@@ -24,7 +24,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Environment (please complete the following information):**
  - OS: [e.g. macOS Sonoma]
- - Poac Version [e.g. 0.9.3]
+ - Cabin Version [e.g. 0.9.3]
 
 **Additional context**
 Add any other context about the problem here.

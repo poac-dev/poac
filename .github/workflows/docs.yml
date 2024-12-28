@@ -39,10 +39,5 @@ jobs:
       - name: Install mkdocs
         run: pip install mkdocs
 
-      - name: Setup Git
-        run: |
-          git config --global user.name 'poac-bot'
-          git config --global user.email '134275478+poac-bot@users.noreply.github.com'
-
       - name: Publish docs
         run: mkdocs gh-deploy --no-history

@@ -26,7 +26,7 @@ inline constinit const std::string_view RESET = "\033[0m";
 // 1. src/Rustify/Tests.cc -> Rustify/Tests
 //    (when we run `make test` from the root directory)
 // 2. ../../src/Rustify/Tests.cc -> Rustify/Tests
-//    (when we run `poac test`)
+//    (when we run `cabin test`)
 //
 // We first should remove `../../` if it exists, then remove the first
 // directory name since it can be either `src` or `tests`.  Finally, we remove

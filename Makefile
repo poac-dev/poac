@@ -1,5 +1,5 @@
 CXX ?= clang++
-POAC_TIDY ?= clang-tidy
+CABIN_TIDY ?= clang-tidy
 PREFIX ?= /usr/local
 INSTALL ?= install
 COMMIT_HASH ?= $(shell git rev-parse HEAD)
@@ -16,8 +16,8 @@ else
 endif
 
 O := build
-PROJECT := $(O)/poac
-VERSION := $(shell grep -m1 version poac.toml | cut -f 2 -d'"')
+PROJECT := $(O)/cabin
+VERSION := $(shell grep -m1 version cabin.toml | cut -f 2 -d'"')
 MKDIR_P := @mkdir -p
 
 LIBGIT2_VERREQ := libgit2 >= 1.1.0, libgit2 < 1.9.0
@@ -26,10 +26,10 @@ NLOHMANN_JSON_VERREQ := nlohmann_json >= 3.10.5, nlohmann_json < 4.0.0
 TBB_VERREQ := tbb >= 2021.5.0, tbb < 2023.0.0
 FMT_VERREQ := fmt >= 8.1.1, fmt < 12.0.0
 
-DEFINES := -DPOAC_POAC_PKG_VERSION='"$(VERSION)"' \
-  -DPOAC_POAC_COMMIT_HASH='"$(COMMIT_HASH)"' \
-  -DPOAC_POAC_COMMIT_SHORT_HASH='"$(COMMIT_SHORT_HASH)"' \
-  -DPOAC_POAC_COMMIT_DATE='"$(COMMIT_DATE)"'
+DEFINES := -DCABIN_CABIN_PKG_VERSION='"$(VERSION)"' \
+  -DCABIN_CABIN_COMMIT_HASH='"$(COMMIT_HASH)"' \
+  -DCABIN_CABIN_COMMIT_SHORT_HASH='"$(COMMIT_SHORT_HASH)"' \
+  -DCABIN_CABIN_COMMIT_DATE='"$(COMMIT_DATE)"'
 INCLUDES := -isystem $(O)/DEPS/toml11/include \
   $(shell pkg-config --cflags '$(LIBGIT2_VERREQ)') \
   $(shell pkg-config --cflags '$(LIBCURL_VERREQ)') \
@@ -86,7 +86,7 @@ test: $(UNITTEST_BINS)
 
 $(O)/tests/test_%.o: src/%.cc $(GIT_DEPS)
 	$(MKDIR_P) $(@D)
-	$(CXX) $(CXXFLAGS) -MMD -DPOAC_TEST $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -MMD -DCABIN_TEST $(DEFINES) $(INCLUDES) -c $< -o $@
 
 -include $(UNITTEST_DEPS)
 
@@ -117,7 +117,7 @@ $(O)/tests/test_Manifest: $(O)/tests/test_Manifest.o $(O)/TermColor.o \
 tidy: $(TIDY_TARGETS)
 
 $(TIDY_TARGETS): tidy_%: src/% $(GIT_DEPS)
-	$(POAC_TIDY) $(POAC_TIDY_FLAGS) $< -- $(CXXFLAGS) $(DEFINES) -DPOAC_TEST $(INCLUDES)
+	$(CABIN_TIDY) $(CABIN_TIDY_FLAGS) $< -- $(CXXFLAGS) $(DEFINES) -DCABIN_TEST $(INCLUDES)
 
 install: all
 	$(INSTALL) -m 0755 -d $(DESTDIR)$(PREFIX)/bin

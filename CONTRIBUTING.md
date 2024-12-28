@@ -2,7 +2,7 @@
 
 Given our limited resources, we may not review PRs that fail to adhere to this document.
 
-Note that we have a [code of conduct](https://github.com/poac-dev/.github/blob/main/CODE_OF_CONDUCT.md),
+Note that we have a [code of conduct](https://github.com/cabinpkg/.github/blob/main/CODE_OF_CONDUCT.md),
 follow it in all your interactions with the project.
 
 You can ignore sections marked as "Under Construction".
@@ -60,15 +60,15 @@ standards by running the following tools:
 
 1. Run the linter (`cpplint`)
    ```bash
-   poac lint --exclude srcOld --exclude testsOld
+   cabin lint --exclude srcOld --exclude testsOld
    ```
 2. Run the formatter (`clang-format`)
    ```bash
-   poac fmt --exclude srcOld --exclude testsOld
+   cabin fmt --exclude srcOld --exclude testsOld
    ```
 3. Run the static analyzer (`clang-tidy`)
    ```bash
-   poac tidy  # or make tidy
+   cabin tidy  # or make tidy
    ```
 
 ### Testing
@@ -77,7 +77,7 @@ Always validate your changes to ensure they do not introduce regressions or
 break existing functionality:
 
 ```bash
-poac test  # or make test
+cabin test  # or make test
 ```
 
 ## Documentation

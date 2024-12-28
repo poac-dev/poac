@@ -16,7 +16,7 @@ static int initMain(std::span<const std::string_view> args);
 
 const Subcmd INIT_CMD =
     Subcmd{ "init" }
-        .setDesc("Create a new poac package in an existing directory")
+        .setDesc("Create a new cabin package in an existing directory")
         .addOpt(OPT_BIN)
         .addOpt(OPT_LIB)
         .setMainFn(initMain);
@@ -41,8 +41,8 @@ initMain(const std::span<const std::string_view> args) {
     }
   }
 
-  if (fs::exists("poac.toml")) {
-    logger::error("cannot initialize an existing poac package");
+  if (fs::exists("cabin.toml")) {
+    logger::error("cannot initialize an existing cabin package");
     return EXIT_FAILURE;
   }
 
@@ -52,8 +52,8 @@ initMain(const std::span<const std::string_view> args) {
     return EXIT_FAILURE;
   }
 
-  std::ofstream ofs("poac.toml");
-  ofs << createPoacToml(packageName);
+  std::ofstream ofs("cabin.toml");
+  ofs << createCabinToml(packageName);
 
   logger::info(
       "Created", "{} `{}` package", isBin ? "binary (application)" : "library",
