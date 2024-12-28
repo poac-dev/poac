@@ -86,9 +86,9 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
                                    .addArg("--question")
                                    .addArg("-f")
                                    .addArg("/dev/null")
-                                   .setStderrConfig(Command::IOConfig::Null)
+                                   .setStdErrConfig(Command::IOConfig::Null)
                                    .output()
-                                   .stdout;
+                                   .stdOut;
     std::istringstream iss(output);
     std::string line;
 
