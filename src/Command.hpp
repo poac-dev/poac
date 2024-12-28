@@ -11,18 +11,18 @@
 
 struct CommandOutput {
   int exitCode;
-  std::string stdout;
-  std::string stderr;
+  std::string stdOut;
+  std::string stdErr;
 };
 
 class Child {
 private:
   pid_t pid;
-  int stdoutfd;
-  int stderrfd;
+  int stdOutFd;
+  int stdErrFd;
 
-  Child(pid_t pid, int stdoutfd, int stderrfd) noexcept
-      : pid(pid), stdoutfd(stdoutfd), stderrfd(stderrfd) {}
+  Child(pid_t pid, int stdOutFd, int stdErrFd) noexcept
+      : pid(pid), stdOutFd(stdOutFd), stdErrFd(stdErrFd) {}
 
   friend struct Command;
 
@@ -41,8 +41,8 @@ struct Command {
   std::string command;
   std::vector<std::string> arguments;
   std::filesystem::path workingDirectory;
-  IOConfig stdoutConfig = IOConfig::Inherit;
-  IOConfig stderrConfig = IOConfig::Inherit;
+  IOConfig stdOutConfig = IOConfig::Inherit;
+  IOConfig stdErrConfig = IOConfig::Inherit;
 
   explicit Command(std::string_view cmd) : command(cmd) {}
   Command(std::string_view cmd, std::vector<std::string> args)
@@ -57,12 +57,12 @@ struct Command {
     return *this;
   }
 
-  Command& setStdoutConfig(IOConfig config) noexcept {
-    stdoutConfig = config;
+  Command& setStdOutConfig(IOConfig config) noexcept {
+    stdOutConfig = config;
     return *this;
   }
-  Command& setStderrConfig(IOConfig config) noexcept {
-    stderrConfig = config;
+  Command& setStdErrConfig(IOConfig config) noexcept {
+    stdErrConfig = config;
     return *this;
   }
   Command& setWorkingDirectory(const std::filesystem::path& dir) {
