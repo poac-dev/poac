@@ -23,7 +23,7 @@ const Subcmd CLEAN_CMD =  //
 static int
 cleanMain(const std::span<const std::string_view> args) noexcept {
   // TODO: share across sources
-  fs::path outDir = getProjectBasePath() / "poac-out";
+  fs::path outDir = getProjectBasePath() / "cabin-out";
 
   // Parse args
   for (auto itr = args.begin(); itr != args.end(); ++itr) {

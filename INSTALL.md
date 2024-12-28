@@ -1,7 +1,7 @@
 # Installing from Source
 
 > [!CAUTION]
-> This document explains how to build Poac from source. Building from source is not recommended unless you are familiar with the process. If your goal is simply to install Poac, refer to the [README.md](README.md) instead.
+> This document explains how to build Cabin from source. Building from source is not recommended unless you are familiar with the process. If your goal is simply to install Cabin, refer to the [README.md](README.md) instead.
 
 You will require the following compilers, commands, and libraries:
 
@@ -11,7 +11,7 @@ You will require the following compilers, commands, and libraries:
 * Clang: `16` or later
 * Apple Clang: provided by `macOS Ventura (13)` or later
 
-(generally, the latest 3 versions are supported to build Poac.)
+(generally, the latest 3 versions are supported to build Cabin.)
 
 ## Commands
 
@@ -66,10 +66,10 @@ When running Make, the following libraries will be installed automatically.
 
 * [toml11](https://github.com/ToruNiina/toml11): [`v4.2.0`](https://github.com/ToruNiina/toml11/releases/tag/v4.2.0)
 
-Once you have all the necessary requirements in place, you can build Poac by the following commands:
+Once you have all the necessary requirements in place, you can build Cabin by the following commands:
 
 ```bash
-git clone https://github.com/poac-dev/poac.git
-cd poac
+git clone https://github.com/cabinpkg/cabin.git
+cd cabin
 make RELEASE=1 -j$(nproc) install
 ```

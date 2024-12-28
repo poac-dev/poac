@@ -97,7 +97,7 @@ lintMain(const std::span<const std::string_view> args) {
 
   const std::vector<std::string>& cpplintFilters = getLintCpplintFilters();
   if (!cpplintFilters.empty()) {
-    logger::debug("Using Poac manifest file for lint ...");
+    logger::debug("Using Cabin manifest file for lint ...");
     std::string filterArg = "--filter=";
     for (const std::string_view filter : cpplintFilters) {
       filterArg += filter;

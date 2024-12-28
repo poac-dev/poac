@@ -139,7 +139,7 @@ private:
         level,
         [lvlStr](const std::string_view func) noexcept {
           return fmt::format(
-              "{}Poac {} {}{} ", gray("["), lvlStr, prettifyFuncName(func),
+              "{}Cabin {} {}{} ", gray("["), lvlStr, prettifyFuncName(func),
               gray("]")
           );
         },

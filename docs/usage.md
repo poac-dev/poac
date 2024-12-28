@@ -1,45 +1,45 @@
 # Usage
 
-## Start a new project with Poac
+## Start a new project with Cabin
 
-The `poac new` command lets you start a new Poac project:
+The `cabin new` command lets you start a new Cabin project:
 
 ```console
-you:~$ poac new hello_world
+you:~$ cabin new hello_world
      Created binary (application) `hello_world` package
 ```
 
 > [!TIP]
-> If you want to integrate your existing project with Poac, use the `init` command:
+> If you want to integrate your existing project with Cabin, use the `init` command:
 >
 > ```console
-> you:~/your-pj$ poac init
+> you:~/your-pj$ cabin init
 >      Created binary (application) `your-pj` package
 > ```
 >
-> This command just creates a `poac.toml` file not to break your project.
+> This command just creates a `cabin.toml` file not to break your project.
 
 ## Build the project
 
 In most cases, you want to execute the generated binary as well as build the project.
 
 ```console
-you:~/hello_world$ poac run
+you:~/hello_world$ cabin run
  Compiling src/main.cc
    Linking hello_world
   Finished debug target(s) in 0.45386s
-   Running poac-out/debug/hello_world
+   Running cabin-out/debug/hello_world
 Hello, world!
 ```
 
 If you just want to build it, run the `build` command:
 
 ```console
-you:~/hello_world$ poac build
+you:~/hello_world$ cabin build
   Finished debug target(s) in 0.00866317s
 ```
 
-Poac uses a cache since we executed the command with no changes.
+Cabin uses a cache since we executed the command with no changes.
 
 > [!TIP]
 > To use a different compiler, you can export a `CXX` environmental variable:
@@ -50,13 +50,13 @@ Poac uses a cache since we executed the command with no changes.
 
 ## Install dependencies
 
-Like Cargo does, Poac installs dependencies at build time.  Poac currently supports Git, path, and system dependencies.  You can use two ways to add dependencies to your project: using the `poac add` command and editing `poac.toml` directly.
+Like Cargo does, Cabin installs dependencies at build time.  Cabin currently supports Git, path, and system dependencies.  You can use two ways to add dependencies to your project: using the `cabin add` command and editing `cabin.toml` directly.
 
-### `poac add`
+### `cabin add`
 
-The `poac add` command accepts the following arguments:
+The `cabin add` command accepts the following arguments:
 
-`poac add <package names ....> --<options>`
+`cabin add <package names ....> --<options>`
 
 Options:
 - `--sys`: Marks the packages as system dependency (requires the `--version` argument)
@@ -67,13 +67,13 @@ Options:
 
 Example
 ```bash
-poac add libgit2 --sys --version "1.1.0"
-poac add "ToruNiina/toml11" --rev "846abd9a49082fe51440aa07005c360f13a67bbf"
+cabin add libgit2 --sys --version "1.1.0"
+cabin add "ToruNiina/toml11" --rev "846abd9a49082fe51440aa07005c360f13a67bbf"
 ```
 
-### Editing `poac.toml` directly
+### Editing `cabin.toml` directly
 
-The syntax for `poac.toml` is as follows:
+The syntax for `cabin.toml` is as follows:
 
 ```toml
 [dependencies]
@@ -88,12 +88,12 @@ local_lib = { path = "../local_lib" }
 fmt = { version = ">= 9", system = true }
 ```
 
-If `tag`, `branch`, or `rev` is unspecified for git dependencies, Poac will use the latest revision of the default branch. System dependency names must be acceptable by `pkg-config`. The version requirement syntax is specified in [src/VersionReq.hpp](https://github.com/poac-dev/poac/blob/main/src/VersionReq.hpp).
+If `tag`, `branch`, or `rev` is unspecified for git dependencies, Cabin will use the latest revision of the default branch. System dependency names must be acceptable by `pkg-config`. The version requirement syntax is specified in [src/VersionReq.hpp](https://github.com/cabinpkg/cabin/blob/main/src/VersionReq.hpp).
 
 After adding dependencies, executing the `build` command will install the package and its dependencies.
 
 ```console
-you:~/hello_world$ poac build
+you:~/hello_world$ cabin build
 Downloaded ToruNiina/toml11 846abd9a49082fe51440aa07005c360f13a67bbf
  Compiling src/main.cc
    Linking hello_world
@@ -101,7 +101,7 @@ Downloaded ToruNiina/toml11 846abd9a49082fe51440aa07005c360f13a67bbf
 ```
 
 > [!WARNING]
-> Poac currently supports building a project with header-only dependencies.
+> Cabin currently supports building a project with header-only dependencies.
 > Building with build-required dependencies will be soon supported.
 
 ## Unit tests
@@ -115,7 +115,7 @@ int add(int a, int b) {
   return a + b;
 }
 
-#ifdef POAC_TEST
+#ifdef CABIN_TEST
 
 #  include <cassert>
 
@@ -127,10 +127,10 @@ int main() {
 #endif
 ```
 
-Now, with the `test` command, you can run tests defined within `POAC_TEST`:
+Now, with the `test` command, you can run tests defined within `CABIN_TEST`:
 
 ```console
-you:~/hello_world$ poac test
+you:~/hello_world$ cabin test
  Compiling src/Lib.cc
    Linking tests/test_Lib
    Testing Lib
@@ -138,14 +138,14 @@ Assertion failed: (add(1, 2) == 4), function main, file Lib.cc, line 13.
 make: *** [test] Abort trap: 6
 ```
 
-Unit tests with the `POAC_TEST` macro are useful when testing private functions.  Integration testing with the `tests` directory has not yet been implemented.
+Unit tests with the `CABIN_TEST` macro are useful when testing private functions.  Integration testing with the `tests` directory has not yet been implemented.
 
 ## Run linter
 
-Linting source code is essential to protect its quality.  Poac supports linting your project by the `lint` command:
+Linting source code is essential to protect its quality.  Cabin supports linting your project by the `lint` command:
 
 ```console
-you:~/hello_world$ poac lint
+you:~/hello_world$ cabin lint
    Linting hello_world
 src/main.cc:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
 Done processing src/main.cc
@@ -160,16 +160,16 @@ Error: `cpplint` exited with status 1
 > pip install cpplint
 > ```
 
-The `lint` command works without configurations, and Poac would automatically opt out of unwanted lints by adjusting to each project.
-To customize the lint settings, try adding the `[lint.cpplint]` key in your `poac.toml` like [this](https://github.com/poac-dev/poac/blob/cc30b706fb49860903384df56d650a0955aca16c/poac.toml#L67-L83)
-or creating a [`CPPLINT.cfg`](https://github.com/poac-dev/poac/blob/5e7e3792e8818d165149214e94f30958fb0fef66/CPPLINT.cfg) file in the repository root.
+The `lint` command works without configurations, and Cabin would automatically opt out of unwanted lints by adjusting to each project.
+To customize the lint settings, try adding the `[lint.cpplint]` key in your `cabin.toml` like [this](https://github.com/cabinpkg/cabin/blob/cc30b706fb49860903384df56d650a0955aca16c/cabin.toml#L67-L83)
+or creating a [`CPPLINT.cfg`](https://github.com/cabinpkg/cabin/blob/5e7e3792e8818d165149214e94f30958fb0fef66/CPPLINT.cfg) file in the repository root.
 
 ## Run formatter
 
-Poac also supports formatting your source code with `clang-format`.  Ensure having installed `clang-format` before running this command.
+Cabin also supports formatting your source code with `clang-format`.  Ensure having installed `clang-format` before running this command.
 
 ```console
-you:~/hello_world$ poac fmt
+you:~/hello_world$ cabin fmt
   Formatting hello_world
 ```
 
@@ -184,15 +184,15 @@ you:~/hello_world$ poac fmt
 > $ ...
 > ```
 
-To customize the format settings, try creating a [`.clang-format`](https://github.com/poac-dev/poac/blob/main/.clang-format) file to the repository root.
+To customize the format settings, try creating a [`.clang-format`](https://github.com/cabinpkg/cabin/blob/main/.clang-format) file to the repository root.
 
 ## Run `clang-tidy`
 
-Poac also supports running `clang-tidy` on your source code.  Ensure having installed `clang-tidy` before running this command.
+Cabin also supports running `clang-tidy` on your source code.  Ensure having installed `clang-tidy` before running this command.
 
 ```console
-you:~/hello_world$ poac tidy
+you:~/hello_world$ cabin tidy
   Running clang-tidy
 ```
 
-You can customize the tidy settings by creating a [`.clang-tidy`](https://github.com/poac-dev/poac/blob/main/.clang-tidy) file to the repository root.
+You can customize the tidy settings by creating a [`.clang-tidy`](https://github.com/cabinpkg/cabin/blob/main/.clang-tidy) file to the repository root.

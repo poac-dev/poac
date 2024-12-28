@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  POAC_TERM_COLOR: always
+  CABIN_TERM_COLOR: always
   CXX: g++-13
 
 permissions:
@@ -21,7 +21,7 @@ jobs:
       - name: Setup dependencies
         uses: ./.github/actions/setup-ubuntu-deps
 
-      - name: Build Poac
+      - name: Build Cabin
         run: make RELEASE=1
 
       - name: Install clang-tidy
@@ -31,10 +31,10 @@ jobs:
           sudo ./llvm.sh 18
           sudo apt-get install -y clang-tidy-18
 
-      - name: poac tidy
-        run: ./build/poac tidy --verbose
+      - name: cabin tidy
+        run: ./build/cabin tidy --verbose
         env:
-          POAC_TIDY: clang-tidy-18
+          CABIN_TIDY: clang-tidy-18
 
   format:
     runs-on: ubuntu-24.04
@@ -44,7 +44,7 @@ jobs:
       - name: Setup dependencies
         uses: ./.github/actions/setup-ubuntu-deps
 
-      - name: Build Poac
+      - name: Build Cabin
         run: make RELEASE=1
 
       - name: Install clang-format
@@ -54,10 +54,10 @@ jobs:
           sudo ./llvm.sh 18
           sudo apt-get install -y clang-format-18
 
-      - name: poac fmt
-        run: ./build/poac fmt --check --verbose --exclude srcOld --exclude testsOld
+      - name: cabin fmt
+        run: ./build/cabin fmt --check --verbose --exclude srcOld --exclude testsOld
         env:
-          POAC_FMT: clang-format-18
+          CABIN_FMT: clang-format-18
 
   lint:
     runs-on: ubuntu-24.04
@@ -67,11 +67,11 @@ jobs:
       - name: Setup dependencies
         uses: ./.github/actions/setup-ubuntu-deps
 
-      - name: Build Poac
+      - name: Build Cabin
         run: make RELEASE=1
 
       - name: Install cpplint
         run: sudo apt-get install -y cpplint
 
-      - name: poac lint
-        run: ./build/poac lint --verbose --exclude srcOld --exclude testsOld
+      - name: cabin lint
+        run: ./build/cabin lint --verbose --exclude srcOld --exclude testsOld

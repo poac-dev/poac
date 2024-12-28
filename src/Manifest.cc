@@ -49,7 +49,7 @@ Edition::Edition(const std::string& str) : str(str) {
     edition = Cpp26;
     return;
   }
-  throw PoacError("invalid edition: ", str);
+  throw CabinError("invalid edition: ", str);
 }
 
 std::string
@@ -101,7 +101,7 @@ static fs::path
 findManifest() {
   fs::path candidate = fs::current_path();
   while (true) {
-    const fs::path configPath = candidate / "poac.toml";
+    const fs::path configPath = candidate / "cabin.toml";
     logger::debug("Finding manifest: {}", configPath.string());
     if (fs::exists(configPath)) {
       return configPath;
@@ -116,7 +116,7 @@ findManifest() {
     }
   }
 
-  throw PoacError("could not find `poac.toml` here and in its parents");
+  throw CabinError("could not find `cabin.toml` here and in its parents");
 }
 
 struct GitDependency {
@@ -268,7 +268,7 @@ parsePackage() {
   const auto package = toml::find<Package>(data, "package");
 
   if (const auto err = validatePackageName(package.name)) {
-    throw PoacError(
+    throw CabinError(
         toml::format_error("invalid name", data.at("package.name"), err.value())
     );
   }
@@ -294,7 +294,7 @@ static void
 validateCxxflag(const std::string_view cxxflag) {
   // cxxflag must start with `-`
   if (cxxflag.empty() || cxxflag[0] != '-') {
-    throw PoacError("cxxflag must start with `-`");
+    throw CabinError("cxxflag must start with `-`");
   }
 
   // cxxflag only contains alphanumeric characters, `-`, `_`, `=`, `+`, `:`,
@@ -302,7 +302,7 @@ validateCxxflag(const std::string_view cxxflag) {
   for (const char c : cxxflag) {
     if (!std::isalnum(c) && c != '-' && c != '_' && c != '=' && c != '+'
         && c != ':' && c != '.') {
-      throw PoacError(
+      throw CabinError(
           "cxxflag must only contain alphanumeric characters, `-`, `_`, `=`, "
           "`+`, `:`, or `.`"
       );
@@ -317,7 +317,7 @@ parseProfile(const toml::table& table) {
     const auto& cxxflags = table.at("cxxflags").as_array();
     for (const auto& flag : cxxflags) {
       if (!flag.is_string()) {
-        throw PoacError("[profile.cxxflags] must be an array of strings");
+        throw CabinError("[profile.cxxflags] must be an array of strings");
       }
       const std::string& flagStr = flag.as_string();
       validateCxxflag(flagStr);
@@ -334,7 +334,7 @@ parseProfile(const toml::table& table) {
     const int32_t optLevel =
         static_cast<int32_t>(table.at("opt_level").as_integer());
     if (optLevel < 0 || optLevel > 3) {
-      throw PoacError("opt_level must be between 0 and 3");
+      throw CabinError("opt_level must be between 0 and 3");
     }
     profile.optLevel = optLevel;
   }
@@ -348,7 +348,7 @@ getProfile(std::optional<std::string> profileName) {
     return {};
   }
   if (!manifest.data.value().at("profile").is_table()) {
-    throw PoacError("[profile] must be a table");
+    throw CabinError("[profile] must be a table");
   }
   const auto& table = toml::find<toml::table>(manifest.data.value(), "profile");
 
@@ -357,7 +357,7 @@ getProfile(std::optional<std::string> profileName) {
       return {};
     }
     if (!table.at(profileName.value()).is_table()) {
-      throw PoacError("[profile.", profileName.value(), "] must be a table");
+      throw CabinError("[profile.", profileName.value(), "] must be a table");
     }
     const auto& profileTable = toml::find<toml::table>(
         manifest.data.value(), "profile", profileName.value()
@@ -447,7 +447,7 @@ getXdgCacheHome() {
   return userDir / ".cache";
 }
 
-static const fs::path CACHE_DIR(getXdgCacheHome() / "poac");
+static const fs::path CACHE_DIR(getXdgCacheHome() / "cabin");
 static const fs::path GIT_DIR(CACHE_DIR / "git");
 static const fs::path GIT_SRC_DIR(GIT_DIR / "src");
 
@@ -458,22 +458,22 @@ static const std::unordered_set<char> ALLOWED_CHARS = {
 static void
 validateDepName(const std::string_view name) {
   if (name.empty()) {
-    throw PoacError("dependency name is empty");
+    throw CabinError("dependency name is empty");
   }
 
   if (!std::isalnum(name.front())) {
-    throw PoacError("dependency name must start with an alphanumeric character"
+    throw CabinError("dependency name must start with an alphanumeric character"
     );
   }
   if (!std::isalnum(name.back()) && name.back() != '+') {
-    throw PoacError(
+    throw CabinError(
         "dependency name must end with an alphanumeric character or `+`"
     );
   }
 
   for (const char c : name) {
     if (!std::isalnum(c) && !ALLOWED_CHARS.contains(c)) {
-      throw PoacError(
+      throw CabinError(
           "dependency name must be alphanumeric, `-`, `_`, `/`, "
           "`.`, or `+`"
       );
@@ -487,7 +487,7 @@ validateDepName(const std::string_view name) {
     }
 
     if (!std::isalnum(name[i]) && name[i] == name[i - 1]) {
-      throw PoacError(
+      throw CabinError(
           "dependency name must not contain consecutive non-alphanumeric "
           "characters"
       );
@@ -499,7 +499,7 @@ validateDepName(const std::string_view name) {
     }
 
     if (!std::isdigit(name[i - 1]) || !std::isdigit(name[i + 1])) {
-      throw PoacError("dependency name must contain `.` wrapped by digits");
+      throw CabinError("dependency name must contain `.` wrapped by digits");
     }
   }
 
@@ -509,14 +509,14 @@ validateDepName(const std::string_view name) {
   }
 
   if (charsFreq['/'] > 1) {
-    throw PoacError("dependency name must not contain more than one `/`");
+    throw CabinError("dependency name must not contain more than one `/`");
   }
   if (charsFreq['+'] != 0 && charsFreq['+'] != 2) {
-    throw PoacError("dependency name must contain zero or two `+`");
+    throw CabinError("dependency name must contain zero or two `+`");
   }
   if (charsFreq['+'] == 2) {
     if (name.find('+') + 1 != name.rfind('+')) {
-      throw PoacError("`+` in the dependency name must be consecutive");
+      throw CabinError("`+` in the dependency name must be consecutive");
     }
   }
 }
@@ -550,7 +550,7 @@ parsePathDep(const std::string& name, const toml::table& info) {
   validateDepName(name);
   const auto& path = info.at("path");
   if (!path.is_string()) {
-    throw PoacError("path dependency must be a string");
+    throw CabinError("path dependency must be a string");
   }
   return { .name = name, .path = path.as_string() };
 }
@@ -560,7 +560,7 @@ parseSystemDep(const std::string& name, const toml::table& info) {
   validateDepName(name);
   const auto& version = info.at("version");
   if (!version.is_string()) {
-    throw PoacError("system dependency version must be a string");
+    throw CabinError("system dependency version must be a string");
   }
 
   const std::string versionReq = version.as_string();
@@ -593,7 +593,7 @@ parseDependencies(const char* key) {
       }
     }
 
-    throw PoacError(
+    throw CabinError(
         "Only Git dependency, path dependency, and system dependency are "
         "supported for now: ",
         dep.first
@@ -648,7 +648,7 @@ PathDependency::install() const {
   if (fs::exists(installDir) && !fs::is_empty(installDir)) {
     logger::debug("{} is already installed", name);
   } else {
-    throw PoacError(installDir.string() + " can't be accessible as directory");
+    throw CabinError(installDir.string() + " can't be accessible as directory");
   }
 
   const fs::path includeDir = installDir / "include";
@@ -711,20 +711,20 @@ installDependencies(const bool includeDevDeps) {
   return installed;
 }
 
-#ifdef POAC_TEST
+#ifdef CABIN_TEST
 
 namespace tests {
 
 static void
 testValidateDepName() {
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName(""); }, "dependency name is empty"
   );
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName("-"); },
       "dependency name must start with an alphanumeric character"
   );
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName("1-"); },
       "dependency name must end with an alphanumeric character or `+`"
   );
@@ -733,13 +733,13 @@ testValidateDepName() {
     if (std::isalnum(c) || ALLOWED_CHARS.contains(c)) {
       continue;
     }
-    assertException<PoacError>(
+    assertException<CabinError>(
         [c]() { validateDepName("1" + std::string(1, c) + "1"); },
         "dependency name must be alphanumeric, `-`, `_`, `/`, `.`, or `+`"
     );
   }
 
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName("1--1"); },
       "dependency name must not contain consecutive non-alphanumeric characters"
   );
@@ -747,27 +747,27 @@ testValidateDepName() {
 
   assertNoException([]() { validateDepName("1.1"); });
   assertNoException([]() { validateDepName("1.1.1"); });
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName("a.a"); },
       "dependency name must contain `.` wrapped by digits"
   );
 
   assertNoException([]() { validateDepName("a/b"); });
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName("a/b/c"); },
       "dependency name must not contain more than one `/`"
   );
 
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName("a+"); },
       "dependency name must contain zero or two `+`"
   );
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName("a+++"); },
       "dependency name must contain zero or two `+`"
   );
 
-  assertException<PoacError>(
+  assertException<CabinError>(
       []() { validateDepName("a+b+c"); },
       "`+` in the dependency name must be consecutive"
   );

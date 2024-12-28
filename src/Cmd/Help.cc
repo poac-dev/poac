@@ -9,7 +9,7 @@ static int helpMain(std::span<const std::string_view> args) noexcept;
 
 const Subcmd HELP_CMD =  //
     Subcmd{ "help" }
-        .setDesc("Displays help for a poac subcommand")
+        .setDesc("Displays help for a cabin subcommand")
         .setArg(Arg{ "COMMAND" }.setRequired(false))
         .setMainFn(helpMain);
 

@@ -26,7 +26,7 @@ Child::wait() const {
     if (stderrfd != -1) {
       close(stderrfd);
     }
-    throw PoacError("waitpid() failed");
+    throw CabinError("waitpid() failed");
   }
 
   if (stdoutfd != -1) {
@@ -72,7 +72,7 @@ Child::waitWithOutput() const {
       if (stderrfd != -1) {
         close(stderrfd);
       }
-      throw PoacError("select() failed");
+      throw CabinError("select() failed");
     }
 
     // Read from stdout if available
@@ -86,7 +86,7 @@ Child::waitWithOutput() const {
         if (stderrfd != -1) {
           close(stderrfd);
         }
-        throw PoacError("read() failed on stdout");
+        throw CabinError("read() failed on stdout");
       } else if (count == 0) {
         stdoutEOF = true;
         close(stdoutfd);
@@ -106,7 +106,7 @@ Child::waitWithOutput() const {
         if (stderrfd != -1) {
           close(stderrfd);
         }
-        throw PoacError("read() failed on stderr");
+        throw CabinError("read() failed on stderr");
       } else if (count == 0) {
         stderrEOF = true;
         close(stderrfd);
@@ -118,7 +118,7 @@ Child::waitWithOutput() const {
 
   int status{};
   if (waitpid(pid, &status, 0) == -1) {
-    throw PoacError("waitpid() failed");
+    throw CabinError("waitpid() failed");
   }
 
   const int exitCode = WEXITSTATUS(status);
@@ -135,19 +135,19 @@ Command::spawn() const {
   // Set up stdout pipe if needed
   if (stdoutConfig == IOConfig::Piped) {
     if (pipe(stdoutPipe.data()) == -1) {
-      throw PoacError("pipe() failed for stdout");
+      throw CabinError("pipe() failed for stdout");
     }
   }
   // Set up stderr pipe if needed
   if (stderrConfig == IOConfig::Piped) {
     if (pipe(stderrPipe.data()) == -1) {
-      throw PoacError("pipe() failed for stderr");
+      throw CabinError("pipe() failed for stderr");
     }
   }
 
   const pid_t pid = fork();
   if (pid == -1) {
-    throw PoacError("fork() failed");
+    throw CabinError("fork() failed");
   } else if (pid == 0) {
     // Child process
 

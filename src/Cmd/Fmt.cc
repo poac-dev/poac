@@ -134,12 +134,12 @@ fmtMain(const std::span<const std::string_view> args) {
   const fs::path projectPath = getProjectBasePath();
   collectFormatTargetFiles(projectPath, excludes, clangFormatArgs);
 
-  const char* poacFmt = std::getenv("POAC_FMT");
-  if (poacFmt == nullptr) {
-    poacFmt = "clang-format";
+  const char* cabinFmt = std::getenv("CABIN_FMT");
+  if (cabinFmt == nullptr) {
+    cabinFmt = "clang-format";
   }
 
-  const Command clangFormat = Command(poacFmt, std::move(clangFormatArgs))
+  const Command clangFormat = Command(cabinFmt, std::move(clangFormatArgs))
                                   .setWorkingDirectory(projectPath.string());
 
   return execCmd(clangFormat);

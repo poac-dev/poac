@@ -60,7 +60,7 @@ searchPackages(const SearchArgs& args) {
     return EXIT_FAILURE;
   }
 
-  curl_easy_setopt(curl, CURLOPT_URL, "https://poac.hasura.app/v1/graphql");
+  curl_easy_setopt(curl, CURLOPT_URL, "https://cabin.hasura.app/v1/graphql");
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resStr);
   curl_easy_setopt(curl, CURLOPT_POST, 1L);

@@ -13,7 +13,7 @@
 const Cli&
 getCli() noexcept {
   static const Cli cli =  //
-      Cli{ "poac" }
+      Cli{ "cabin" }
           .setDesc("A package manager and build system for C++")
           .addOpt(Opt{ "--verbose" }
                       .setShort("-v")
@@ -25,7 +25,7 @@ getCli() noexcept {
                       .setHidden(true))
           .addOpt(Opt{ "--quiet" }
                       .setShort("-q")
-                      .setDesc("Do not print poac log messages")
+                      .setDesc("Do not print cabin log messages")
                       .setGlobal(true))
           .addOpt(Opt{ "--color" }
                       .setDesc("Coloring: auto, always, never")
@@ -63,7 +63,7 @@ int
 main(int argc, char* argv[]) {
   // Parse arguments (options should appear before the subcommand, as the help
   // message shows intuitively)
-  // poac --verbose run --release help --color always --verbose
+  // cabin --verbose run --release help --color always --verbose
   // ^^^^^^^^^^^^^^ ^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // [global]       [run]         [help (under run)]
   const std::span<char* const> args(argv + 1, argv + argc);
@@ -91,7 +91,9 @@ main(int argc, char* argv[]) {
         const std::vector<std::string_view> remArgs(itr + 1, args.end());
         const int exitCode = getCli().exec(*itr, remArgs);
         if (exitCode != EXIT_SUCCESS) {
-          logger::error("'poac {}' failed with exit code `{}`", *itr, exitCode);
+          logger::error(
+              "'cabin {}' failed with exit code `{}`", *itr, exitCode
+          );
         }
         return exitCode;
       } catch (const std::exception& e) {

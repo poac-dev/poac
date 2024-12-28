@@ -482,7 +482,7 @@ Version::parse(const std::string_view str) {
   return parser.parse();
 }
 
-#ifdef POAC_TEST
+#ifdef CABIN_TEST
 
 #  include "Rustify/Tests.hpp"
 

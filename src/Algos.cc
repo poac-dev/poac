@@ -80,7 +80,7 @@ getCmdOutput(const Command& cmd, const size_t retry) {
     std::this_thread::sleep_for(std::chrono::seconds(waitTime));
     waitTime *= 2;
   }
-  throw PoacError("Command `", cmd, "` failed with exit code ", exitCode);
+  throw CabinError("Command `", cmd, "` failed with exit code ", exitCode);
 }
 
 bool
@@ -177,7 +177,7 @@ findSimilarStr(
   }
 }
 
-#ifdef POAC_TEST
+#ifdef CABIN_TEST
 
 #  include "Rustify/Aliases.hpp"
 #  include "Rustify/Tests.hpp"

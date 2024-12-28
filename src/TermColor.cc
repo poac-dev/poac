@@ -61,7 +61,7 @@ private:
   bool state;
 
   ColorState() noexcept {
-    if (const char* color = std::getenv("POAC_TERM_COLOR")) {
+    if (const char* color = std::getenv("CABIN_TERM_COLOR")) {
       set(getColorMode(color));
     } else {
       state = isTerm();

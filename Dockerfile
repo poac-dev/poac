@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY .clang-format .
 COPY .clang-tidy .
-COPY poac.toml .
+COPY cabin.toml .
 COPY .git .
 COPY Makefile .
 COPY src ./src/
@@ -25,6 +25,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential clang libfmt-dev libgit2-dev libcurl4-openssl-dev nlohmann-json3-dev libtbb-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/local/bin/poac /usr/local/bin/poac
+COPY --from=builder /usr/local/bin/cabin /usr/local/bin/cabin
 
-CMD ["poac"]
+CMD ["cabin"]

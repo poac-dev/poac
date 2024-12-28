@@ -250,6 +250,6 @@ private:
 
   size_t calcMaxShortSize() const noexcept;
 
-  /// Print help message for poac itself.
+  /// Print help message for cabin itself.
   void printCmdHelp() const noexcept;
 };

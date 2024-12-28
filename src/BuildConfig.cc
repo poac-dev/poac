@@ -71,9 +71,9 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
   }
   const fs::path projectBasePath = getProjectBasePath();
   if (isDebug) {
-    outBasePath = projectBasePath / "poac-out" / "debug";
+    outBasePath = projectBasePath / "cabin-out" / "debug";
   } else {
-    outBasePath = projectBasePath / "poac-out" / "release";
+    outBasePath = projectBasePath / "cabin-out" / "release";
   }
   buildOutPath = outBasePath / (packageName + ".d");
   unittestOutPath = outBasePath / "unittests";
@@ -98,7 +98,7 @@ BuildConfig::BuildConfig(const std::string& packageName, const bool isDebug)
         return;
       }
     }
-    throw PoacError("failed to get CXX from make");
+    throw CabinError("failed to get CXX from make");
   }
 }
 
@@ -289,7 +289,7 @@ topoSort(
 
   if (res.size() != list.size()) {
     // Cycle detected
-    throw PoacError("too complex build graph");
+    throw CabinError("too complex build graph");
   }
   return res;
 }
@@ -357,7 +357,7 @@ BuildConfig::emitCompdb(std::ostream& os) const {
     const Command cmd = Command(cxx)
                             .addArgs(cxxflags)
                             .addArgs(defines)
-                            .addArg("-DPOAC_TEST")
+                            .addArg("-DCABIN_TEST")
                             .addArgs(includes)
                             .addArg("-c")
                             .addArg(file)
@@ -389,7 +389,7 @@ BuildConfig::runMM(const std::string& sourceFile, const bool isTest) const {
   Command command =
       Command(cxx).addArgs(cxxflags).addArgs(defines).addArgs(includes);
   if (isTest) {
-    command.addArg("-DPOAC_TEST");
+    command.addArg("-DCABIN_TEST");
   }
   command.addArg("-MM");
   command.addArg(sourceFile);
@@ -430,14 +430,14 @@ isUpToDate(const std::string_view makefilePath) {
   }
 
   const fs::file_time_type makefileTime = fs::last_write_time(makefilePath);
-  // Makefile depends on all files in ./src and poac.toml.
+  // Makefile depends on all files in ./src and cabin.toml.
   const fs::path srcDir = getProjectBasePath() / "src";
   for (const auto& entry : fs::recursive_directory_iterator(srcDir)) {
     if (fs::last_write_time(entry.path()) > makefileTime) {
       return false;
     }
   }
-  return fs::last_write_time(getProjectBasePath() / "poac.toml")
+  return fs::last_write_time(getProjectBasePath() / "cabin.toml")
          <= makefileTime;
 }
 
@@ -446,7 +446,7 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
   std::ifstream ifs(sourceFile);
   std::string line;
   while (std::getline(ifs, line)) {
-    if (line.find("POAC_TEST") != std::string::npos) {
+    if (line.find("CABIN_TEST") != std::string::npos) {
       // TODO: Can't we somehow elegantly make the compiler command sharable?
       Command command(cxx);
       command.addArg("-E");
@@ -457,12 +457,12 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
 
       const std::string src = getCmdOutput(command);
 
-      command.addArg("-DPOAC_TEST");
+      command.addArg("-DCABIN_TEST");
       const std::string testSrc = getCmdOutput(command);
 
-      // If the source file contains POAC_TEST, by processing the source
-      // file with -E, we can check if the source file contains POAC_TEST
-      // or not semantically.  If the source file contains POAC_TEST, the
+      // If the source file contains CABIN_TEST, by processing the source
+      // file with -E, we can check if the source file contains CABIN_TEST
+      // or not semantically.  If the source file contains CABIN_TEST, the
       // test source file should be different from the original source
       // file.
       const bool containsTest = src != testSrc;
@@ -484,7 +484,7 @@ BuildConfig::defineCompileTarget(
   commands.emplace_back("@mkdir -p $(@D)");
   commands.emplace_back("$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES)");
   if (isTest) {
-    commands.back() += " -DPOAC_TEST";
+    commands.back() += " -DCABIN_TEST";
   }
   commands.back() += " -c $< -o $@";
   defineTarget(objTarget, commands, remDeps, sourceFile);
@@ -510,7 +510,7 @@ BuildConfig::defineOutputTarget(
 
 // Map a path to header file to the corresponding object file.
 //
-// e.g., src/path/to/header.h -> poac.d/path/to/header.o
+// e.g., src/path/to/header.h -> cabin.d/path/to/header.o
 static std::string
 mapHeaderToObj(const fs::path& headerPath, const fs::path& buildOutPath) {
   fs::path objBaseDir =
@@ -542,7 +542,7 @@ BuildConfig::collectBinDepObjs(  // NOLINT(misc-no-recursion)
   for (const fs::path headerPath : objTargetDeps) {
     if (sourceFileName == headerPath.stem()) {
       // We shouldn't depend on the original object file (e.g.,
-      // poac.d/path/to/file.o). We should depend on the test object
+      // cabin.d/path/to/file.o). We should depend on the test object
       // file (e.g., unittests/path/to/file.o).
       continue;
     }
@@ -644,22 +644,22 @@ BuildConfig::setVariables() {
     logger::debug("No git repository found");
   }
 
-  // Variables Poac sets for the user.
+  // Variables Cabin sets for the user.
   const std::vector<std::pair<std::string, std::string>> defines{
-    { fmt::format("POAC_{}_PKG_NAME", pkgName), this->packageName },
-    { fmt::format("POAC_{}_PKG_VERSION", pkgName), pkgVersion.toString() },
-    { fmt::format("POAC_{}_PKG_VERSION_MAJOR", pkgName),
+    { fmt::format("CABIN_{}_PKG_NAME", pkgName), this->packageName },
+    { fmt::format("CABIN_{}_PKG_VERSION", pkgName), pkgVersion.toString() },
+    { fmt::format("CABIN_{}_PKG_VERSION_MAJOR", pkgName),
       std::to_string(pkgVersion.major) },
-    { fmt::format("POAC_{}_PKG_VERSION_MINOR", pkgName),
+    { fmt::format("CABIN_{}_PKG_VERSION_MINOR", pkgName),
       std::to_string(pkgVersion.minor) },
-    { fmt::format("POAC_{}_PKG_VERSION_PATCH", pkgName),
+    { fmt::format("CABIN_{}_PKG_VERSION_PATCH", pkgName),
       std::to_string(pkgVersion.patch) },
-    { fmt::format("POAC_{}_PKG_VERSION_PRE", pkgName),
+    { fmt::format("CABIN_{}_PKG_VERSION_PRE", pkgName),
       pkgVersion.pre.toString() },
-    { fmt::format("POAC_{}_COMMIT_HASH", pkgName), commitHash },
-    { fmt::format("POAC_{}_COMMIT_SHORT_HASH", pkgName), commitShortHash },
-    { fmt::format("POAC_{}_COMMIT_DATE", pkgName), commitDate },
-    { fmt::format("POAC_{}_PROFILE", pkgName),
+    { fmt::format("CABIN_{}_COMMIT_HASH", pkgName), commitHash },
+    { fmt::format("CABIN_{}_COMMIT_SHORT_HASH", pkgName), commitShortHash },
+    { fmt::format("CABIN_{}_COMMIT_DATE", pkgName), commitDate },
+    { fmt::format("CABIN_{}_PROFILE", pkgName),
       std::string(modeToString(isDebug)) },
   };
   for (const auto& [key, val] : defines) {
@@ -799,7 +799,7 @@ void
 BuildConfig::configureBuild() {
   const fs::path srcDir = getProjectBasePath() / "src";
   if (!fs::exists(srcDir)) {
-    throw PoacError(srcDir, " is required but not found");
+    throw CabinError(srcDir, " is required but not found");
   }
 
   // find main source file
@@ -819,7 +819,7 @@ BuildConfig::configureBuild() {
       continue;
     }
     if (!mainSource.empty()) {
-      throw PoacError("multiple main sources were found");
+      throw CabinError("multiple main sources were found");
     }
     mainSource = path;
     hasBinaryTarget = true;
@@ -835,14 +835,14 @@ BuildConfig::configureBuild() {
       continue;
     }
     if (!libSource.empty()) {
-      throw PoacError("multiple lib sources were found");
+      throw CabinError("multiple lib sources were found");
     }
     libSource = path;
     hasLibraryTarget = true;
   }
 
   if (!hasBinaryTarget && !hasLibraryTarget) {
-    throw PoacError(
+    throw CabinError(
         fmt::format("src/(main|lib){} was not found", SOURCE_FILE_EXTS)
     );
   }
@@ -931,13 +931,13 @@ BuildConfig::configureBuild() {
   }
 
   // Tidy Pass
-  defineCondVar("POAC_TIDY", "clang-tidy");
+  defineCondVar("CABIN_TIDY", "clang-tidy");
   defineSimpleVar("TIDY_TARGETS", "$(patsubst %,tidy_%,$(SRCS))", { "SRCS" });
   defineTarget("tidy", {}, { "$(TIDY_TARGETS)" });
   defineTarget(
       "$(TIDY_TARGETS)",
-      { "$(POAC_TIDY) $(POAC_TIDY_FLAGS) $< -- $(CXXFLAGS) "
-        "$(DEFINES) -DPOAC_TEST $(INCLUDES)" },
+      { "$(CABIN_TIDY) $(CABIN_TIDY_FLAGS) $< -- $(CXXFLAGS) "
+        "$(DEFINES) -DCABIN_TEST $(INCLUDES)" },
       { "tidy_%: %" }
   );
   addPhony("tidy");
@@ -1014,7 +1014,7 @@ getMakeCommand() {
   return makeCommand;
 }
 
-#ifdef POAC_TEST
+#ifdef CABIN_TEST
 
 namespace tests {
 
@@ -1025,7 +1025,7 @@ testCycleVars() {
   config.defineSimpleVar("b", "c", { "c" });
   config.defineSimpleVar("c", "a", { "a" });
 
-  assertException<PoacError>(
+  assertException<CabinError>(
       [&config]() {
         std::ostringstream oss;
         config.emitMakefile(oss);
@@ -1075,7 +1075,7 @@ testCycleTargets() {
   config.defineTarget("b", { "echo b" }, { "c" });
   config.defineTarget("c", { "echo c" }, { "a" });
 
-  assertException<PoacError>(
+  assertException<CabinError>(
       [&config]() {
         std::ostringstream oss;
         config.emitMakefile(oss);
