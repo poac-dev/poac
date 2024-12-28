@@ -107,11 +107,11 @@ jobs:
         run: sudo apt update && sudo apt install -y gcc-14
 
       - name: Setup Ubuntu dependencies
-        if: startsWith(runner.os, 'ubuntu')
+        if: runner.os == 'Linux'
         uses: ./.github/actions/setup-ubuntu-deps
 
       - name: Setup macOS dependencies
-        if: startsWith(runner.os, 'macos')
+        if: runner.os == 'macOS'
         uses: ./.github/actions/setup-macos-deps
 
       - name: Print versions
