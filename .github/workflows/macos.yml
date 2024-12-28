@@ -52,7 +52,3 @@ jobs:
       - name: Run the new project
         run: ../cabin-out/debug/cabin --verbose run
         working-directory: hello_world
-
-      # - name: Test Cabin
-      #   run: ctest --output-on-failure --verbose
-      #   working-directory: build
