@@ -149,7 +149,7 @@ newMain(const std::span<const std::string_view> args) {
   }
 
   if (const auto err = validatePackageName(packageName)) {
-    logger::error("package names {}: `{}`", err.value(), packageName);
+    logger::error("package name {}: `{}`", err.value(), packageName);
     return EXIT_FAILURE;
   }
 
