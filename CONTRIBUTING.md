@@ -82,7 +82,10 @@ cabin test  # or make test
 
 # Integration tests
 wget https://raw.githubusercontent.com/felipec/sharness/refs/tags/v1.2.1/sharness.sh
+wget https://raw.githubusercontent.com/felipec/sharness/refs/tags/v1.2.1/lib-sharness/functions.sh
 mv sharness.sh tests/
+mkdir tests/lib-sharness
+mv functions.sh tests/lib-sharness/
 prove -j$(nproc) --shuffle tests/[0-9]*.sh
 ```
 
