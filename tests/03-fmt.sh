@@ -15,17 +15,15 @@ if ! test_have_prereq CLANG_FORMAT; then
         "$WHEREAMI"/../build/cabin new pkg &&
         cd pkg &&
         (
-            "$WHEREAMI"/../build/cabin fmt 2>actual &&
-            cat actual &&
+            test_must_fail "$WHEREAMI"/../build/cabin fmt 2>actual &&
             cat >expected <<-EOF &&
-    Error: fmt command requires clang-format; try installing it by:
-      apt/brew install clang-format
-    EOF
+Error: fmt command requires clang-format; try installing it by:
+  apt/brew install clang-format
+Error: '\''cabin fmt'\'' failed with exit code \`1\`
+EOF
             test_cmp expected actual
         )
     '
-
-    skip_all='skipping fmt tests, clang-format not available'
     test_done
 fi
 
