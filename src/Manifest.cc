@@ -102,7 +102,7 @@ findManifest() {
   fs::path candidate = fs::current_path();
   while (true) {
     const fs::path configPath = candidate / "cabin.toml";
-    logger::debug("Finding manifest: {}", configPath.string());
+    logger::trace("Finding manifest: {}", configPath.string());
     if (fs::exists(configPath)) {
       return configPath;
     }

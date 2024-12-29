@@ -467,7 +467,7 @@ BuildConfig::containsTestCode(const std::string& sourceFile) const {
       // file.
       const bool containsTest = src != testSrc;
       if (containsTest) {
-        logger::debug("Found test code: {}", sourceFile);
+        logger::trace("Found test code: {}", sourceFile);
       }
       return containsTest;
     }
@@ -583,8 +583,8 @@ BuildConfig::installDeps(const bool includeDevDeps) {
       libs.push_back(dep.libs);
     }
   }
-  logger::debug("INCLUDES: {}", includes);
-  logger::debug("LIBS: {}", libs);
+  logger::trace("INCLUDES: {}", includes);
+  logger::trace("LIBS: {}", libs);
 }
 
 void
@@ -641,7 +641,7 @@ BuildConfig::setVariables() {
     commitShortHash = commitHash.substr(0, git2::SHORT_HASH_LEN);
     commitDate = git2::Commit().lookup(repo, oid).time().toString();
   } catch (const git2::Exception& e) {
-    logger::debug("No git repository found");
+    logger::trace("No git repository found");
   }
 
   // Variables Cabin sets for the user.

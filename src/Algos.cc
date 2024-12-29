@@ -64,7 +64,7 @@ execCmd(const Command& cmd) noexcept {
 
 std::string
 getCmdOutput(const Command& cmd, const size_t retry) {
-  logger::debug("Running `{}`", cmd.toString());
+  logger::trace("Running `{}`", cmd.toString());
 
   int exitCode = EXIT_SUCCESS;
   int waitTime = 1;
