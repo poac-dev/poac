@@ -89,7 +89,9 @@ mv functions.sh tests/lib-sharness/
 prove -j$(nproc) --shuffle tests/[0-9]*.sh
 ```
 
-Make sure to add new tests for any new functionality you introduce.
+Make sure to add new tests for any new functionality you introduce.  See
+<https://github.com/felipec/sharness/blob/v1.2.1/API.md> for more information on
+how to use the `sharness` test framework.
 
 ## Documentation
 
