@@ -3,7 +3,7 @@
 WHEREAMI=$(dirname "$(realpath "$0")")
 export CABIN_TERM_COLOR='never'
 
-test_description='Test cabin new'
+test_description='Test the new command'
 
 . $WHEREAMI/sharness.sh
 

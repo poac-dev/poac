@@ -3,7 +3,7 @@
 WHEREAMI=$(dirname "$(realpath "$0")")
 export CABIN_TERM_COLOR='never'
 
-test_description='Check if the cabin binary exists'
+test_description='Test the fmt command'
 
 . $WHEREAMI/sharness.sh
 
