@@ -28,10 +28,13 @@ EOF
 fi
 
 test_expect_success 'cabin fmt' '
-    test_when_finished "rm -rf pkg" &&
+    OUT=$(mktemp -d) &&
+    test_when_finished "rm -rf $OUT" &&
+    cd $OUT &&
     "$WHEREAMI"/../build/cabin new pkg &&
     cd pkg &&
     (
+        echo "int main(){}" >src/main.cc &&
         md5sum src/main.cc >before &&
         "$WHEREAMI"/../build/cabin fmt 2>actual &&
         md5sum src/main.cc >after &&
@@ -44,7 +47,9 @@ EOF
 '
 
 test_expect_success 'cabin fmt no targets' '
-    test_when_finished "rm -rf pkg" &&
+    OUT=$(mktemp -d) &&
+    test_when_finished "rm -rf $OUT" &&
+    cd $OUT &&
     "$WHEREAMI"/../build/cabin new pkg &&
     cd pkg &&
     (
@@ -52,6 +57,22 @@ test_expect_success 'cabin fmt no targets' '
         "$WHEREAMI"/../build/cabin fmt 2>actual &&
         cat >expected <<-EOF &&
 Warning: no files to format
+EOF
+        test_cmp expected actual
+    )
+'
+
+test_expect_success 'cabin fmt without manifest' '
+    OUT=$(mktemp -d) &&
+    test_when_finished "rm -rf $OUT" &&
+    cd $OUT &&
+    "$WHEREAMI"/../build/cabin new pkg &&
+    cd pkg &&
+    (
+        rm cabin.toml &&
+        test_must_fail "$WHEREAMI"/../build/cabin fmt 2>actual &&
+        cat >expected <<-EOF &&
+Error: could not find \`cabin.toml\` here and in its parents
 EOF
         test_cmp expected actual
     )
