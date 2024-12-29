@@ -80,4 +80,26 @@ EOF
     )
 '
 
+test_expect_success 'cabin fmt without name in manifest' '
+    echo $SHARNESS_TEST_OUTDIR &&
+    OUT=$(mktemp -d) &&
+    test_when_finished "rm -rf $OUT" &&
+    cd $OUT &&
+    "$WHEREAMI"/../build/cabin new pkg &&
+    cd pkg &&
+    (
+        echo "[package]" >cabin.toml &&
+        test_must_fail "$WHEREAMI"/../build/cabin fmt 2>actual &&
+        cat >expected <<-EOF &&
+Error: [error] toml::value::at: key "name" not found
+ --> $(realpath $OUT)/pkg/cabin.toml
+   |
+ 1 | [package]
+   | ^^^^^^^^^-- in this table
+
+EOF
+        test_cmp expected actual
+    )
+'
+
 test_done
