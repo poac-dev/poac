@@ -140,7 +140,6 @@ fmtMain(const std::span<const std::string_view> args) {
     clangFormatArgs.emplace_back("-i");
     logger::info("Formatting", "{}", packageName);
   }
-
   clangFormatArgs.insert(clangFormatArgs.end(), sources.begin(), sources.end());
 
   const char* cabinFmt = std::getenv("CABIN_FMT");
