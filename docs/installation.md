@@ -4,9 +4,8 @@
 
 ## Supported Operating Systems
 
-|                                                                      Linux                                                                       |                                                                      macOS                                                                       |
-| :----------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------: |
-| [![Linux](https://github.com/cabinpkg/cabin/actions/workflows/linux.yml/badge.svg)](https://github.com/cabinpkg/cabin/actions/workflows/linux.yml) | [![macOS](https://github.com/cabinpkg/cabin/actions/workflows/macos.yml/badge.svg)](https://github.com/cabinpkg/cabin/actions/workflows/macos.yml) |
+* Linux
+* macOS
 
 ## Runtime Requirements
 
