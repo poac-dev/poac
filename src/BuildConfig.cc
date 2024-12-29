@@ -602,15 +602,18 @@ BuildConfig::setVariables() {
   if (shouldColor()) {
     cxxflags.emplace_back("-fdiagnostics-color");
   }
-  if (isDebug) {
+
+  const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
+  // TODO: profile.debug and optLevel never become std::nullopt via
+  // getDevProfile and getReleaseProfile.  This is not intuitive.  We should
+  // fix the implementation and struct design.
+  if (profile.debug.value()) {
     cxxflags.emplace_back("-g");
-    cxxflags.emplace_back("-O0");
     cxxflags.emplace_back("-DDEBUG");
   } else {
-    cxxflags.emplace_back("-O3");
     cxxflags.emplace_back("-DNDEBUG");
   }
-  const Profile& profile = isDebug ? getDevProfile() : getReleaseProfile();
+  cxxflags.emplace_back(fmt::format("-O{}", profile.optLevel.value()));
   if (profile.lto) {
     cxxflags.emplace_back("-flto");
   }
