@@ -30,10 +30,9 @@ const Subcmd FMT_CMD =
                     .setPlaceholder("<FILE>"))
         .setMainFn(fmtMain);
 
-static void
-collectFormatTargetFiles(
-    const fs::path& manifestDir, const std::vector<fs::path>& excludes,
-    std::vector<std::string>& clangFormatArgs
+static std::vector<std::string>
+collectFormatTargets(
+    const fs::path& manifestDir, const std::vector<fs::path>& excludes
 ) {
   // Read git repository if exists
   git2::Repository repo = git2::Repository();
@@ -56,6 +55,7 @@ collectFormatTargetFiles(
   };
 
   // Automatically collects format-target files
+  std::vector<std::string> sources;
   for (auto entry = fs::recursive_directory_iterator(manifestDir);
        entry != fs::recursive_directory_iterator(); ++entry) {
     if (entry->is_directory()) {
@@ -76,10 +76,11 @@ collectFormatTargetFiles(
 
       const std::string ext = path.extension().string();
       if (SOURCE_FILE_EXTS.contains(ext) || HEADER_FILE_EXTS.contains(ext)) {
-        clangFormatArgs.push_back(path.string());
+        sources.push_back(path.string());
       }
     }
   }
+  return sources;
 }
 
 static int
@@ -121,6 +122,15 @@ fmtMain(const std::span<const std::string_view> args) {
     "--fallback-style=LLVM",
     "-Werror",
   };
+
+  const fs::path projectPath = getProjectBasePath();
+  const std::vector<std::string> sources =
+      collectFormatTargets(projectPath, excludes);
+  if (sources.empty()) {
+    logger::warn("no files to format");
+    return EXIT_SUCCESS;
+  }
+
   if (isVerbose()) {
     clangFormatArgs.emplace_back("--verbose");
   }
@@ -131,8 +141,7 @@ fmtMain(const std::span<const std::string_view> args) {
     logger::info("Formatting", "{}", packageName);
   }
 
-  const fs::path projectPath = getProjectBasePath();
-  collectFormatTargetFiles(projectPath, excludes, clangFormatArgs);
+  clangFormatArgs.insert(clangFormatArgs.end(), sources.begin(), sources.end());
 
   const char* cabinFmt = std::getenv("CABIN_FMT");
   if (cabinFmt == nullptr) {

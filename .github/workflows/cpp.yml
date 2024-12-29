@@ -130,7 +130,7 @@ jobs:
           mv sharness.sh tests/
           mkdir tests/lib-sharness
           mv functions.sh tests/lib-sharness/
-          prove -j4 --shuffle tests/[0-9]*.sh
+          prove -v -j4 --shuffle tests/[0-9]*.sh
 
       - name: Second Generation Build
         run: ./build/cabin build --verbose
