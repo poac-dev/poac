@@ -24,6 +24,8 @@ EOF
             test_cmp expected actual
         )
     '
+
+    # Skip the rest of the tests
     test_done
 fi
 
