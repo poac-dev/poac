@@ -10,6 +10,18 @@ test_description='Check if the cabin binary exists'
 command -v clang-format >/dev/null && test_set_prereq CLANG_FORMAT
 
 if ! test_have_prereq CLANG_FORMAT; then
+    test_expect_success 'cabin fmt without clang-format' '
+        test_when_finished "rm -rf pkg" &&
+        "$WHEREAMI"/../build/cabin new pkg &&
+        cd pkg &&
+        "$WHEREAMI"/../build/cabin fmt 2>actual &&
+        cat >expected <<-EOF &&
+Error: fmt command requires clang-format; try installing it by:
+  apt/brew install clang-format
+EOF
+        test_cmp expected actual
+    '
+
     skip_all='skipping fmt tests, clang-format not available'
     test_done
 fi
