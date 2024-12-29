@@ -62,11 +62,10 @@ Require starship
 Require cabin
 
 Set Shell "zsh"
-Set FontSize 16
+Set FontSize 32
 Set FontFamily "FiraCode Nerd Font"
-Set Width 800
-Set Height 450
-Set WindowBar Colorful
+Set Width 1920
+Set Height 1080
 Set Padding 20
 Set Margin 20
 Set MarginFill "#000000"
