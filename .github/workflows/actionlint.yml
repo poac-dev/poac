@@ -22,3 +22,5 @@ jobs:
       - name: Check workflow files
         run: ${{ steps.get_actionlint.outputs.executable }} -color
         shell: bash
+        env:
+          SHELLCHECK_OPTS: --exclude=SC2016

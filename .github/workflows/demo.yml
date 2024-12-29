@@ -46,5 +46,29 @@ jobs:
       - name: Install VHS
         run: go install github.com/charmbracelet/vhs@latest
 
+      - name: Install Nerd Font
+        run: |
+          mkdir -p ~/.local/share/fonts
+          wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/FiraCode.zip
+          unzip FiraCode.zip -d ~/.local/share/fonts/
+          fc-cache -fv
+
+      - name: Install Zsh
+        run: sudo apt update && sudo apt install -y zsh
+
+      - name: Install zsh-syntax-highlighting
+        run: |
+          git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/z
+          echo 'source ~/z/zsh-syntax-highlighting.zsh' >> ~/.zshrc
+
+      - name: Install Starship
+        run: |
+          curl -sS https://starship.rs/install.sh | sh -s -- -y
+          echo 'eval "$(starship init zsh)"' >> ~/.zshrc
+
+      - name: Move demo.tape
+        run: mv demo.tape ${{ runner.temp }}
+
       - name: Generate and publish a new demo
         run: vhs --publish demo.tape
+        working-directory: ${{ runner.temp }}

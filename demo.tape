@@ -57,12 +57,24 @@
 
 Output demo.gif
 
+Require zsh
+Require starship
 Require cabin
 
-Set Shell "bash"
-Set FontSize 32
-Set Width 1600
-Set Height 800
+Set Shell "zsh"
+Set FontSize 16
+Set FontFamily "FiraCode Nerd Font"
+Set Width 800
+Set Height 450
+Set WindowBar Colorful
+Set Padding 20
+Set Margin 20
+Set MarginFill "#000000"
+Set BorderRadius 10
+
+Hide
+Type "source ~/.zshrc && clear" Enter
+Show
 
 Type "cabin version" Sleep 500ms  Enter Sleep 1s
 Type "cabin new hello_world" Sleep 500ms  Enter Sleep 1s
