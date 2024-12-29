@@ -69,7 +69,7 @@ Set Height 1080
 Set Padding 20
 Set Margin 20
 Set MarginFill "#000000"
-Set BorderRadius 10
+Set BorderRadius 20
 
 Hide
 Type "source ~/.zshrc && clear" Enter
