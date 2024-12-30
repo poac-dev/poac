@@ -33,6 +33,12 @@
 #  define COMMIT_DATE CABIN_CABIN_COMMIT_DATE
 #endif
 
+#if defined(__GNUC__) && !defined(__clang__)
+    #define COMPILER_VERSION "GCC " __VERSION__
+#else
+    #define COMPILER_VERSION __VERSION__
+#endif
+
 const Subcmd VERSION_CMD =  //
     Subcmd{ "version" }
         .setDesc("Show version information")
@@ -146,7 +152,7 @@ versionMain(const std::span<const std::string_view> args) noexcept {
                  "\n"
                  "commit-date: " COMMIT_DATE
                  "\n"
-                 "compiler: " __VERSION__ "\n"
+                 "compiler: " COMPILER_VERSION "\n"
               << "compile-date: " << COMPILE_DATE << '\n'
               << "libgit2: " << git2::Version() << '\n'
               << "libcurl: " << curl::Version() << '\n';
