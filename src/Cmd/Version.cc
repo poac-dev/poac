@@ -14,24 +14,29 @@
 #ifndef CABIN_CABIN_PKG_VERSION
 #  error "CABIN_CABIN_PKG_VERSION is not defined"
 #endif
+
 #ifndef CABIN_CABIN_COMMIT_SHORT_HASH
 #  error "CABIN_CABIN_COMMIT_SHORT_HASH is not defined"
+#else
+#  define COMMIT_SHORT_HASH CABIN_CABIN_COMMIT_SHORT_HASH
 #endif
+
 #ifndef CABIN_CABIN_COMMIT_HASH
 #  error "CABIN_CABIN_COMMIT_HASH is not defined"
+#else
+#  define COMMIT_HASH CABIN_CABIN_COMMIT_HASH
 #endif
+
 #ifndef CABIN_CABIN_COMMIT_DATE
 #  error "CABIN_CABIN_COMMIT_DATE is not defined"
+#else
+#  define COMMIT_DATE CABIN_CABIN_COMMIT_DATE
 #endif
 
 const Subcmd VERSION_CMD =  //
     Subcmd{ "version" }
         .setDesc("Show version information")
         .setMainFn(versionMain);
-
-#define COMMIT_SHORT_HASH CABIN_CABIN_COMMIT_SHORT_HASH
-#define COMMIT_HASH CABIN_CABIN_COMMIT_HASH
-#define COMMIT_DATE CABIN_CABIN_COMMIT_DATE
 
 static consteval std::string_view
 commitInfo() noexcept {
