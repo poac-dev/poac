@@ -34,9 +34,9 @@
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__)
-    #define COMPILER_VERSION "GCC " __VERSION__
+#  define COMPILER_VERSION "GCC " __VERSION__
 #else
-    #define COMPILER_VERSION __VERSION__
+#  define COMPILER_VERSION __VERSION__
 #endif
 
 const Subcmd VERSION_CMD =  //
