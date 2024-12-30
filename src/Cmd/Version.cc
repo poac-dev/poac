@@ -14,14 +14,29 @@
 #ifndef CABIN_CABIN_PKG_VERSION
 #  error "CABIN_CABIN_PKG_VERSION is not defined"
 #endif
+
 #ifndef CABIN_CABIN_COMMIT_SHORT_HASH
 #  error "CABIN_CABIN_COMMIT_SHORT_HASH is not defined"
+#else
+#  define COMMIT_SHORT_HASH CABIN_CABIN_COMMIT_SHORT_HASH
 #endif
+
 #ifndef CABIN_CABIN_COMMIT_HASH
 #  error "CABIN_CABIN_COMMIT_HASH is not defined"
+#else
+#  define COMMIT_HASH CABIN_CABIN_COMMIT_HASH
 #endif
+
 #ifndef CABIN_CABIN_COMMIT_DATE
 #  error "CABIN_CABIN_COMMIT_DATE is not defined"
+#else
+#  define COMMIT_DATE CABIN_CABIN_COMMIT_DATE
+#endif
+
+#if defined(__GNUC__) && !defined(__clang__)
+#  define COMPILER_VERSION "GCC " __VERSION__
+#else
+#  define COMPILER_VERSION __VERSION__
 #endif
 
 const Subcmd VERSION_CMD =  //
@@ -30,16 +45,17 @@ const Subcmd VERSION_CMD =  //
         .setMainFn(versionMain);
 
 static consteval std::string_view
-checkAvailability(const std::string_view str) noexcept {
-  return str.empty() ? "unavailable" : str;
+commitInfo() noexcept {
+  if (sizeof(COMMIT_SHORT_HASH) <= 1 && sizeof(COMMIT_DATE) <= 1) {
+    return "\n";
+  } else if (sizeof(COMMIT_SHORT_HASH) <= 1) {
+    return " (" COMMIT_DATE ")\n";
+  } else if (sizeof(COMMIT_DATE) <= 1) {
+    return " (" COMMIT_SHORT_HASH ")\n";
+  } else {
+    return " (" COMMIT_SHORT_HASH " " COMMIT_DATE ")\n";
+  }
 }
-
-static constinit const std::string_view COMMIT_SHORT_HASH =
-    checkAvailability(CABIN_CABIN_COMMIT_SHORT_HASH);
-static constinit const std::string_view COMMIT_HASH =
-    checkAvailability(CABIN_CABIN_COMMIT_HASH);
-static constinit const std::string_view COMMIT_DATE =
-    checkAvailability(CABIN_CABIN_COMMIT_DATE);
 
 static consteval char
 firstMonthChar(const std::string_view month) noexcept {
@@ -128,22 +144,15 @@ versionMain(const std::span<const std::string_view> args) noexcept {
     }
   }
 
-  std::cout << "cabin " << CABIN_CABIN_PKG_VERSION;
-  if (COMMIT_SHORT_HASH == "unavailable" && COMMIT_DATE == "unavailable") {
-    std::cout << '\n';
-  } else if (COMMIT_SHORT_HASH == "unavailable") {
-    std::cout << " (" << COMMIT_DATE << ")\n";
-  } else if (COMMIT_DATE == "unavailable") {
-    std::cout << " (" << COMMIT_SHORT_HASH << ")\n";
-  } else {
-    std::cout << " (" << COMMIT_SHORT_HASH << ' ' << COMMIT_DATE << ")\n";
-  }
-
+  std::cout << "cabin " CABIN_CABIN_PKG_VERSION << commitInfo();
   if (isVerbose()) {
-    std::cout << "release: " << CABIN_CABIN_PKG_VERSION << '\n'
-              << "commit-hash: " << COMMIT_HASH << '\n'
-              << "commit-date: " << COMMIT_DATE << '\n'
-              << "compiler: " << __VERSION__ << '\n'
+    std::cout << "release: " CABIN_CABIN_PKG_VERSION
+                 "\n"
+                 "commit-hash: " COMMIT_HASH
+                 "\n"
+                 "commit-date: " COMMIT_DATE
+                 "\n"
+                 "compiler: " COMPILER_VERSION "\n"
               << "compile-date: " << COMPILE_DATE << '\n'
               << "libgit2: " << git2::Version() << '\n'
               << "libcurl: " << curl::Version() << '\n';
