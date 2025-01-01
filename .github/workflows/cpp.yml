@@ -29,13 +29,13 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh
-          sudo ./llvm.sh 18
-          sudo apt-get install -y clang-format-18
+          sudo ./llvm.sh 19
+          sudo apt-get install -y clang-format-19
 
       - name: cabin fmt
         run: ./build/cabin fmt --check --verbose
         env:
-          CABIN_FMT: clang-format-18
+          CABIN_FMT: clang-format-19
 
   lint:
     runs-on: ubuntu-24.04
@@ -71,6 +71,9 @@ jobs:
             os: ubuntu-24.04
           - name: "Clang 18"
             cxx: clang++-18
+            os: ubuntu-24.04
+          - name: "Clang 19"
+            cxx: clang++-19
             os: ubuntu-24.04
           - name: "GCC 12"
             cxx: g++-12
@@ -177,10 +180,10 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x ./llvm.sh
-          sudo ./llvm.sh 18
-          sudo apt-get install -y clang-tidy-18
+          sudo ./llvm.sh 19
+          sudo apt-get install -y clang-tidy-19
 
       - name: cabin tidy
         run: ./build/cabin tidy --verbose
         env:
-          CABIN_TIDY: clang-tidy-18
+          CABIN_TIDY: clang-tidy-19
