@@ -52,6 +52,20 @@ Cabin uses a cache since we executed the command with no changes.
 
 Like Cargo does, Cabin installs dependencies at build time.  Cabin currently supports Git, path, and system dependencies.  You can use two ways to add dependencies to your project: using the `cabin add` command and editing `cabin.toml` directly.
 
+> [!WARNING]
+> - Cabin currently supports building a project with header-only dependencies.
+> - Building with build-required dependencies will be soon supported.
+
+> [!NOTE]  
+> A header-only library is a type of library where the entire functionality is contained within header files, and no additional compilation steps are required. This means you can directly include the library's headers in your project without needing to link against any compiled binaries.  
+>  
+> These libraries require the headers to be in the root or include/ directory. This ensures that the library's header files are accessible in a predictable location for easy inclusion in your project.  
+>  
+> Here are some links that can help you find header-only libraries:  
+> - https://github.com/topics/single-header  
+> - https://github.com/topics/header-only  
+> - https://p-ranav/awesome-hpp
+
 ### `cabin add`
 
 The `cabin add` command accepts the following arguments:
