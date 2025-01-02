@@ -64,7 +64,7 @@ Like Cargo does, Cabin installs dependencies at build time.  Cabin currently sup
 > Here are some links that can help you find header-only libraries:  
 > - https://github.com/topics/single-header  
 > - https://github.com/topics/header-only  
-> - https://p-ranav/awesome-hpp
+> - https://github.com/p-ranav/awesome-hpp
 
 ### `cabin add`
 
