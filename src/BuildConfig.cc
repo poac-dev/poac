@@ -954,6 +954,7 @@ emitMakefile(const bool isDebug, const bool includeDevDeps) {
   // When emitting Makefile, we also build the project.  So, we need to
   // make sure the dependencies are installed.
   config.installDeps(includeDevDeps);
+  config.configureBuild();
 
   const std::string makefilePath = config.outBasePath / "Makefile";
   if (isUpToDate(makefilePath)) {
@@ -962,7 +963,6 @@ emitMakefile(const bool isDebug, const bool includeDevDeps) {
   }
   logger::debug("Makefile is NOT up to date");
 
-  config.configureBuild();
   std::ofstream ofs(makefilePath);
   config.emitMakefile(ofs);
   return config;
